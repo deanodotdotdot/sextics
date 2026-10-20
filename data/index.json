@@ -1103,15 +1103,20 @@
     {
       "id": "split-ternary-q2",
       "title": "Split ternaries · third-order pole",
-      "status": "open",
-      "formalStatus": "unproved",
-      "evidenceKind": "none",
-      "certificateAvailable": false,
+      "status": "solved",
+      "formalStatus": "proved",
+      "evidenceKind": "existence-proof",
+      "certificateAvailable": true,
       "visibility": "navigation",
-      "draftDisplayStatus": "open",
+      "draftDisplayStatus": "solved",
       "category": "Challenge instances",
       "q": 2,
-      "path": "data/split-ternary-q2/record.json"
+      "path": "data/split-ternary-q2/record.json",
+      "credit": {
+        "githubLogin": "fqlx",
+        "origin": "contribution",
+        "awardedAt": "2026-10-20T19:37:28Z"
+      }
     },
     {
       "id": "crossed-ternary-asymmetric",

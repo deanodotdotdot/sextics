@@ -412,13 +412,37 @@
   "slice": "slices/split-ternary-q2.json",
   "rationale": "why.md",
   "provenanceFile": "provenance.json",
-  "formalStatus": "unproved",
-  "status": "open",
-  "evidenceKind": "none",
-  "certificateAvailable": false,
+  "formalStatus": "proved",
+  "status": "solved",
+  "evidenceKind": "existence-proof",
+  "certificateAvailable": true,
   "content": {
-    "why": "data/split-ternary-q2/why.html"
+    "why": "data/split-ternary-q2/why.html",
+    "solution": "data/split-ternary-q2/solution.html"
   },
-  "witnessAvailability": "missing",
-  "draftDisplayStatus": "open"
+  "pullRequest": {
+    "number": 159,
+    "url": "https://github.com/hodge-computer/sextics/pull/159",
+    "headCommit": "7c447e295958c7cef0d07641af7def1c5f4a5f5d",
+    "baseCommit": "30e4f211c26ad2dc7aa3a14fb0cb951ea7cfaf88",
+    "mergeCommit": "3a2079d2bd32982fbc2c290e6e2a46ce0df10506"
+  },
+  "certificate": {
+    "proofSource": "data/split-ternary-q2/Solution.lean"
+  },
+  "witnessAvailability": "lean-source",
+  "leanVerification": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/split-ternary-q2/Solution.lean",
+    "receipt": "data/split-ternary-q2/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  },
+  "credit": {
+    "githubLogin": "fqlx",
+    "origin": "contribution",
+    "awardedAt": "2026-10-20T19:37:28Z"
+  },
+  "draftDisplayStatus": "solved"
 }

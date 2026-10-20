@@ -1,0 +1,26 @@
+schemaVersion: 2
+instanceId: split-ternary-q2
+solver:
+  githubLogin: fqlx
+evidenceStatus: lean-accepted
+creditOrigin: contribution
+submittedAt: '2026-10-20T19:37:28Z'
+acceptedAt: '2026-10-20T20:26:11Z'
+witnessAvailability: lean-source
+witness:
+  proofSource: data/split-ternary-q2/Solution.lean
+explanation: solution.md
+pullRequest:
+  number: 159
+  url: https://github.com/hodge-computer/sextics/pull/159
+  headCommit: 7c447e295958c7cef0d07641af7def1c5f4a5f5d
+  baseCommit: 30e4f211c26ad2dc7aa3a14fb0cb951ea7cfaf88
+  mergeCommit: 3a2079d2bd32982fbc2c290e6e2a46ce0df10506
+proof:
+  formalStatus: proved
+  status: accepted
+  proofFile: data/split-ternary-q2/Solution.lean
+  receipt: data/split-ternary-q2/acceptance.json
+  theorem: Submission.certificate
+  checker: Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17,
+    Release)
