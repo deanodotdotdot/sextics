@@ -1,6 +1,6 @@
 # Complementary diagonal quotient and moving-conic certificate
 
-This construction serves the `holdout-bundle` instance, in
+This construction addresses the unchanged `holdout-bundle` instance, in
 the variable order `(X0,X1,X2,Y0,Y1,Y2)`, with pole parameter `q=1`:
 
 \[
@@ -10,7 +10,7 @@ F=\sum_{j=0}^2X_j^6+\sum_{j=0}^2Y_j^6
 A_{\rm bundle}=X_0^3Y_0^3+X_0^3Y_0Y_1^2.
 \]
 
-The complementary construction concerns \(A_*=X_0^3Y_0Y_1^2\). The accepted Fermat-cover
+The new work concerns \(A_*=X_0^3Y_0Y_1^2\). The accepted Fermat-cover
 construction supplies the first summand. The certificate is an existence
 proof over \(\mathbb C\), with unrestricted finite denominator degree and
 an unrestricted quotient remainder \(Q\). No rational-coefficient or
@@ -324,7 +324,7 @@ F\left(D\sum_j\partial_jN_j-\sum_jN_j\partial_jD\right)=F^2Q.
 The final theorem has no field-map, conic, primitive, normal, or
 determinant hypothesis. This route does not require \(Q=0\).
 
-## 6. Assembly of the bundle
+## 6. Assembly of the unchanged bundle
 
 For certificate data \((D_0,N^{(0)},Q_0)\) of the accepted first
 summand and \((D_*,N^{(*)},Q_*)\) above, use
@@ -365,7 +365,26 @@ physical transport for the missing summand.
 
 Geometric existence for both summands was already known, as recorded in
 the repository authors' Chapter 4, Section 4.6 and the instance's
-[mathematical context](#case/holdout-bundle). The contribution here is the closed Lean
+[mathematical context](why.md). The contribution here is the closed Lean
 certificate for this fixed bundle.
 
-The protected workflow checks the exact existential statement by compiling the submitted modules, replaying their declarations with `leanchecker`, and auditing their axiom dependencies. The accepted theorem uses only `propext`, `Classical.choice`, and `Quot.sound`. No expanded polynomial witness is supplied; the result establishes existence over complex coefficients with unrestricted finite denominator degree and a general quotient remainder.
+The reference repository commit is
+`a27594117baa30dbd39b2b62066d5b55a8a00dc3`; the pinned toolchain is
+Lean 4.33.0 with mathlib `db584cd6d46c92f209a44c0f1c829460d327499d`.
+The supplied development package records local verification on
+2026-10-20 against that reference commit, with the fixed instance and
+trusted source files unchanged. All 29 proposal modules and
+both generated protected wrappers compiled and passed independent
+`leanchecker` replay. The unchanged trusted `Audit.lean`, compiled and
+run natively with Lean 4.33.0, passed its protected-declaration, exact-statement,
+and axiom-dependency checks. It reported `HodgeSubmission.checked`,
+`witnessChecked: false`, and only `propext`, `Classical.choice`, and
+`Quot.sound`. Here `witnessChecked: false` identifies the allowed
+existential theorem mode; no expanded polynomial witness was submitted.
+
+An earlier interpreted development audit reached the shared memory limit.
+The successful native run used the identical trusted source and checks.
+These development checks are separate from the PR's protected workflow,
+which independently compiles and replays the submitted sources in a
+sandbox and audits the exact theorem and its axioms. Repository acceptance
+and publication require that workflow and the owner's checked merge.

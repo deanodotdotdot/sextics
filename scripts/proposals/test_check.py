@@ -14,7 +14,51 @@ from check import ROOT, read_proposal
 from check import module_order, polynomial, strip_comments, target_source
 from review import approved, dispatched_approval, requires_owner_review
 import publish
+import classify
 from acceptance import sha256
+
+
+class ChangeClassification(unittest.TestCase):
+    def test_only_edits_to_accepted_prose_are_editorial(self):
+        for kind in ('A', 'M', 'D', 'T'):
+            for accepted in (False, True):
+                for name in ('solution.md', 'proof.json', 'witness.json', 'Solution.lean', 'Helper.lean'):
+                    with self.subTest(kind=kind, accepted=accepted, name=name):
+                        expected = not (kind == 'M' and name == 'solution.md' and accepted)
+                        self.assertEqual(classify.is_solve_change(kind, 'data/example/'+name, accepted), expected)
+
+    def test_shared_library_and_book_are_maintenance(self):
+        for path in ('formal/lean/HodgeComputer/CertificateOperations.lean',
+                     'docs/01-certificates.md', 'data/example/why.md'):
+            self.assertFalse(classify.is_solve_change('M', path))
+
+    def test_receipt_is_read_from_trusted_base(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def git(*args):
+                return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.DEVNULL).decode().strip()
+            def commit():
+                git('add', '-A')
+                git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'Fixture')
+                return git('rev-parse', 'HEAD')
+            git('init', '-q')
+            folder = root/'data/example'; folder.mkdir(parents=True)
+            (folder/'solution.md').write_text('Original explanation')
+            base = commit()
+            (folder/'solution.md').write_text('Edited explanation')
+            receipt = folder/'acceptance.json'
+            receipt.write_text(json.dumps({'formalAcceptance': True, 'instanceId': 'example'}))
+            head = commit()
+            with patch.object(classify, 'ROOT', root):
+                self.assertEqual(classify.classify(base, head), 'solve')
+                accepted_base = head
+                (folder/'solution.md').write_text('Another editorial correction')
+                head = commit()
+                self.assertEqual(classify.classify(accepted_base, head), 'maintenance')
+                (folder/'Solution.lean').write_text('Proof source')
+                head = commit()
+                self.assertEqual(classify.classify(accepted_base, head), 'solve')
+
 
 class WorkflowCommitBinding(unittest.TestCase):
     def run_step(self, name, *, main='b'*40, head='c'*40, workflow='b'*40):
