@@ -263,36 +263,40 @@ assert len(basis) - sum(map(cover, basis)) == 59
 </thead>
 <tbody>
 <tr>
+  <td><a href="#case/cycle-three">Cyclic three-link target</a> and <a href="#case/cycle-q2">its pole-two companion</a></td>
+  <td>The closing edge destroys the exchange on the fixed Fermat cover. A replacement seed alone does not restore the missing quotient; the higher-pole target also needs its full certificate identity.</td>
+</tr>
+<tr>
+  <td><a href="#case/mixed-biweight">Mixed biweight</a>, <a href="#case/off-paired">broken paired signs</a>, and <a href="#case/mixed-polar">mixed polar</a></td>
+  <td>The cover has unmatched fourth-power, square, or asymmetric mixed terms. These are equation-level failures of that exchange, distinct from a singular curve incidence.</td>
+</tr>
+<tr>
+  <td><a href="#case/dense-rational">Dense rational sextic</a></td>
+  <td>A smooth explicit benchmark with no supplied serving quotient. Proximity to Fermat and a finite formal deformation do not give a rational certificate at the specified coefficients.</td>
+</tr>
+<tr>
   <td><a href="#case/holdout-bundle">Holdout · character-separating bundle</a></td>
-  <td>Existence follows from §4.6 by combining the cover and a diagonal quotient. Construct the missing companion field or formalize the support argument.</td>
+  <td>Existence follows from §4.6 by combining the cover and a diagonal quotient. Formalizing or computing the second support, rather than changing the conic, is the missing step.</td>
 </tr>
 <tr>
   <td><a href="#case/holdout-moving-branch">Moving branch</a></td>
-  <td>A mixed sextic term makes the Fermat base depend on an active coordinate. The fixed-base cover, exchange, and trace construction no longer applies unchanged.</td>
+  <td>A mixed sextic term makes the coefficient curve depend on an active coordinate. A derivative-compatible replacement for the fixed-base cover and trace is required.</td>
 </tr>
 <tr>
-  <td><a href="#case/holdout-ternary-deformation">Ternary deformation</a></td>
-  <td>The cover and geometric support persist, but the explicit conic seed is no longer a curve on the quotient. Construct a replacement family or formalize the geometric argument.</td>
+  <td><a href="#case/reflection-coupled-residual">Reflection · complementary character</a></td>
+  <td>The coupled Fano quotient has explicit quartic-family integration, but this target is even in the reflected coordinate and has the opposite residue character.</td>
 </tr>
 <tr>
-  <td><a href="#case/reflection-coupled-fano">Reflection · coupled Fano quotient</a></td>
-  <td>Existence follows from §3.3. Compute a support or rational field on a coupled sextic with one serving reflection.</td>
-</tr>
-<tr>
-  <td><a href="#case/cyclic-triple-fano">Cyclic triple cover · Fano density</a></td>
-  <td>Existence follows from §3.4. Make the weighted-Fano density construction explicit for an order-three cover.</td>
+  <td><a href="#case/cyclic-triple-residual">Cyclic triple cover · complementary character</a></td>
+  <td>The weighted quotient has explicit free-line integration, but the target lacks the cubic Jacobian density. A different character transfer is required.</td>
 </tr>
 <tr>
   <td><a href="#case/split-ternary-q2">Split ternaries · third-order pole</a></td>
-  <td>Existence follows from the split theorem at every positive pole order. Construct the full third-order-pole certificate or formalize that support argument.</td>
-</tr>
-<tr>
-  <td><a href="#case/crossed-ternary-asymmetric">Crossed ternaries · elliptic transfer</a></td>
-  <td>Existence follows from the involution-stable split theorem in §3A.3. The individual coordinate reflections miss this target.</td>
+  <td>Existence follows from the split theorem at every positive pole order. Extend the companion and contraction construction to the full third-order-pole identity on these fixed ternaries.</td>
 </tr>
 <tr>
   <td><a href="#case/polarized-k3-remainder">Polarized split · K3 remainder</a></td>
-  <td>The target has a nonzero component in the K3 exterior-square remainder of §§3A.4–3A.6.</td>
+  <td>The target has a nonzero component in the K3 exterior-square remainder of §§3A.4–3A.6; block-sign elliptic contraction does not remove this block-swap remainder.</td>
 </tr>
 <tr>
   <td><a href="#case/klein-coupled-character">Coupled Klein · nontrivial character</a></td>
@@ -304,22 +308,22 @@ assert len(basis) - sum(map(cover, basis)) == 59
 </tr>
 <tr>
   <td><a href="#case/rank-one-biquartic">Rank-one coupling · biquartic pencil</a></td>
-  <td>A single factored mixed component destroys the split while retaining a structured binary-cubic discriminant.</td>
+  <td>A factored mixed component destroys the split. Its branch relation depends on both blocks, so the independent companion primitives used in elliptic contraction cannot be reused unchanged.</td>
 </tr>
 <tr>
   <td><a href="#case/quadric-contact-residual">Quadric contact · residual sector</a></td>
-  <td>Keep the sextic of the explicit broken-reflection construction, but replace its exchange-odd density by an exchange-invariant target.</td>
+  <td>Keep the explicit broken-reflection sextic, but replace its exchange-odd density by an exchange-invariant target.</td>
 </tr>
 <tr>
   <td><a href="#case/one-reflection-skew">One reflection · skew coupling</a></td>
-  <td>A skew term breaks both the physical exchanges of the binary-cubic construction and the auxiliary exchange of the equal-coefficient cover. A replacement must respect the changed equation.</td>
+  <td>The skew term breaks the physical exchanges and the auxiliary exchange of the equal-coefficient cover. The surviving coordinate reflection does not serve the target.</td>
 </tr>
 <tr>
   <td><a href="#case/four-plus-two-residual">Four plus two · suspension remainder</a></td>
-  <td>The decomposition is <span class="inline-math" data-math>4+2</span>, rather than <span class="inline-math" data-math>3+3</span>, and the target lies outside the two visible reflection sectors.</td>
+  <td>The decomposition is <span class="inline-math" data-math>4+2</span>, rather than <span class="inline-math" data-math>3+3</span>; the target is missed by the two visible reflections, and the natural core triple cover is Calabi–Yau rather than Fano.</td>
 </tr>
 </tbody>
 </table>
-<p>The bundle, ternary-deformation, reflection, cyclic-cover, split-ternary, and crossed-ternary targets have geometric existence proofs; the book also explains finite algebraic procedures in principle. Their atlas entries ask for a concrete certificate or a formal proof. For the other targets in the table, the specified constructions do not supply the selected class. This is not an assertion that every possible method has been ruled out.</p>
+<p>The bundle and split-ternary higher-pole targets have geometric existence proofs. Their remaining task is a concrete certificate or a formal implementation of that argument. The modular quartic, replacement conic, cubic-cover line, and algebraic elliptic contraction provide worked realizations of several other existence mechanisms; they do not erase the character, equation, branch or pole-order boundaries listed here. For the residual targets, failure of the specified constructions is not an assertion that every possible method has been ruled out.</p>
 <p>The <a href="#case/quadric-contact-broken">broken-reflection certificate</a> and the Fermat-cover certificate illustrate complementary improvements: changing the supporting geometry can solve a target excluded by an earlier denominator or density map. The general theorem sought in §4.4 is stronger still: one nonzero support class in a family dominating the full even-sextic parameter space. Complete target coverage on one special variety does not by itself supply that family.</p>
 <p>The records include reproducible smoothness and target checks, together with the stated symmetry or denominator obstructions. Smoothness follows either from a Fermat reduction modulo five or from a maximal-coordinate derivative estimate. The motivations explain the scope of each method screen. Neither those checks nor a visually interesting slice constitutes an accepted certificate.</p>

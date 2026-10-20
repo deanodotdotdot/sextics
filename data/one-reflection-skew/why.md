@@ -11,4 +11,6 @@ The [equal-coefficient cover](#technical-information/explicit-constructions) giv
 \]
 It is not invariant under \(y\leftrightarrow T\) over the Fermat coefficient field. Thus neither the original exchange nor this particular cover supplies the desired quotient. The successful cover argument suggests a direction, but its hypotheses still need to be re-established for this fixed sextic.
 
+A nonsingular replacement conic solves the analogous curve problem for [the ternary deformation](#case/holdout-ternary-deformation), where the quotient survives. That example supplies reusable lifting and integration machinery, but does not cure the missing exchange here: the equation must first be placed on a serving auxiliary geometry.
+
 The instance isolates a small deformation of an explicit construction without changing the target or introducing a generic dense equation. A solution could extend the cubic-surface method through the skew coupling, find a different cover with a serving quotient, or construct support for the residual sector by another route. Failure of the two specified reductions is not a claim that all reductions or all supporting divisors have been excluded.

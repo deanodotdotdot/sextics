@@ -103,6 +103,35 @@ H^{4}(T_f\times T_g)^{\operatorname{diag} \mu _{3}} = \mathbb Q(-2)^{3} \oplus  
 
 The Tate terms are algebraic and the preceding contraction supports the tensor term. Transfer first to a smooth model of the quotient, then back to \(X/\tau \) and \(X\). This supports all \(H^{4}(X)^\tau \) and proves the split theorem. Finally, Chapter 3 descends and symmetrizes the computed equation and solves for a numerator over its prescribed power. No Hodge conjecture for abelian varieties enters this proof. ∎
 
+### Algebraic contraction with moving poles
+
+The translated-diagonal argument has a rational-function realization. On a Fermat elliptic curve with invariant derivation \(\delta\), suppose the two companion constructions give scalar identities
+
+\[
+\delta f+\operatorname{div}_x C=\alpha,\qquad
+\delta g+\operatorname{div}_y G=\beta\theta.
+\]
+
+The coefficients of the first block are constant for the second block's derivatives, and conversely. A generic elliptic translation separates the finite poles of the first primitive from the second block's pole set. Translation must be an actual field map commuting with these derivations; a numerical avoidance of finitely many points does not establish that assertion.
+
+For the kernels in the [crossed-ternary construction of `1337isnot1337`](https://github.com/hodge-computer/sextics/pull/149), a finite residue functional \(R\) satisfies \(R(\delta h)=0\), commutes with coefficient derivatives, and kills \(g\). Its pairing is
+
+\[
+R(f\theta)=3\alpha-\operatorname{div}_x\xi.
+\]
+
+Here \(\xi\) includes both the finite theta-pole evaluations and an infinity correction. The latter is constructed by a finite rational approximation beyond the relevant pole order. Omitting it would replace the global residue identity by an incorrect finite-pole formula. The product rule then gives
+
+\[
+U_i=\frac{R(C_i g)+\beta\xi_i}{3},\qquad
+V_j=\frac{R(fG_j)}{3},\qquad
+\operatorname{div}_x U+\operatorname{div}_y V=\alpha\beta.
+\]
+
+Finite algebraic extensions descend by normalized trace. The independent translation parameter is removed by trace to its rational coordinate line followed by the constant Laurent coefficient; both operations commute with the coefficient derivatives. This avoids specializing a rational expression at an unproved regular point. Coordinate transport and legal denominator clearing then return the physical certificate.
+
+This realization explains what has to be preserved in a formal extension: the companion primitives, pole separation, all residue boundaries, derivative-compatible descent, and the exact target. It does not turn a fixed pole-one primitive into an arbitrary higher-pole certificate by multiplication. The geometric all-pole theorem and a formal proof of a particular higher-pole target remain distinct tasks.
+
 ### Involution-stable ternary decompositions
 
 The same theorem holds whenever \(F=p(U)+q(V)\) for complementary three-dimensional subspaces \(U,V\) preserved by \(\tau \). If all three negative eigendirections lie in one summand, this is the theorem just proved. Otherwise their multiplicities are one and two, after exchange of the summands. Write the resulting normal form as \(p(X_{0},X_{1},Y_{0})+q(X_{2},Y_{1},Y_{2})\). Global invariance forces \(p\) to be even in \(Y_{0}\) and, by its even total degree, \(q\) to be even in \(X_{2}\).

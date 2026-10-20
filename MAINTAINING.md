@@ -60,6 +60,14 @@ After a solve's `solve/lean` check succeeds, use **Files changed → Review chan
 
 GitHub does not permit authors to approve their own PRs. The owner can instead run the “Solve proposal” workflow with the PR number and full reviewed SHA in `approved_head`. Supply this sign-off on the initial verification run when possible; dispatching this workflow still runs the proof checker. Both the original workflow actor and rerun actor must be the configured owner, and the SHA must still be the current head. This records explicit sign-off on that commit, not on later updates. The publisher authenticates the saved sign-off against the workflow's GitHub identity and rejects it if an owner review was subsequently withdrawn. The existing GitHub UI or GitHub CLI can invoke this workflow; there is no separate submission CLI.
 
+If an already-checked PR was merged without sign-off, run **Publish accepted solve**
+on `main`, supplying its PR number and full reviewed head SHA in `approved_head`.
+This records the owner's approval without repeating Lean. The publisher authenticates
+the dispatch and rerun actors, the exact inputs, and the trusted workflow, then applies
+the existing proof, source, merge-parent, and attribution checks. It cannot repair a
+failed proof check, changed source, or a merge against an unchecked base. A withdrawn
+review still requires a new approving review.
+
 Use a **merge commit**, preserving the checked head as its second parent. Merge only against the checked base. Squash/rebase merges and base drift fail publication. When merging through GitHub CLI or an owner script, bind the merge request to the reviewed head SHA. Do not merge another solve until the previous publication commit has landed and the next proof has been checked against current main.
 
 Branch protection or repository rulesets can require `solve/lean`, up-to-date branches, and maintainer-controlled merging. A failing workflow status does not itself prevent a merge unless the repository settings enforce it. `preview` mode is available for infrastructure experiments, but its receipts cannot be published as accepted solves.

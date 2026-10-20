@@ -229,6 +229,39 @@ class PublicationAuthorization(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'withdrawn'):
             self.authorize([{**self.review,'state':'DISMISSED'}])
 
+    def test_postmerge_dispatch_authenticates_owner_inputs_and_workflow(self):
+        current={'id':999,'path':'.github/workflows/publish-solve.yml',
+                 'event':'workflow_dispatch','head_branch':'main','head_sha':'d'*40,
+                 'actor':{'login':'benediamond'},'triggering_actor':{'login':'benediamond'}}
+        with tempfile.TemporaryDirectory() as tmp:
+            event=Path(tmp)/'event.json'
+            event.write_text(json.dumps({'inputs':{'pr_number':'122','approved_head':self.head}}))
+            env={'GITHUB_EVENT_NAME':'workflow_dispatch','GITHUB_REPOSITORY':'hodge-computer/sextics',
+                 'GITHUB_REF':'refs/heads/main','GITHUB_SHA':'d'*40,
+                 'GITHUB_RUN_ID':'999','GITHUB_EVENT_PATH':str(event)}
+            def authorize(reviews=()):
+                return publish.validate_owner_authorization(self.report,self.pr,self.run,
+                                                            self.policy,list(reviews),self.head)
+            with patch.dict(os.environ,env),patch.object(publish,'api',return_value=current):
+                self.validate()  # All original proof/base bindings still apply.
+                self.assertEqual(authorize()['method'],'publication_dispatch')
+                self.assertEqual(authorize()['headCommit'],self.head)
+                self.assertEqual(self.report['githubLogin'],'contributor')
+                for field,value in (('path','untrusted.yml'),('event','pull_request_target'),
+                                    ('head_branch','other'),('head_sha','e'*40),
+                                    ('actor',{'login':'stranger'}),('triggering_actor',{'login':'stranger'})):
+                    original=current[field];current[field]=value
+                    with self.subTest(field=field),self.assertRaises(ValueError):authorize()
+                    current[field]=original
+                with self.assertRaisesRegex(ValueError,'withdrawn'):
+                    authorize([{**self.review,'state':'DISMISSED'}])
+                event.write_text(json.dumps({'inputs':{'pr_number':'123','approved_head':self.head}}))
+                with self.assertRaisesRegex(ValueError,'dispatched inputs'):authorize()
+                event.write_text(json.dumps({'inputs':{'pr_number':'122','approved_head':'e'*40}}))
+                with self.assertRaisesRegex(ValueError,'dispatched inputs'):authorize()
+                with self.assertRaisesRegex(ValueError,'exact PR head'):
+                    publish.publication_signoff(self.pr,self.policy,'e'*40)
+
 class ProposalBoundary(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory(prefix='hodge-proposal-fixture-')

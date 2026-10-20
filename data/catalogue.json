@@ -76,6 +76,8 @@
     "one-reflection-y2-sector",
     "one-reflection-skew",
     "holdout-moving-branch",
-    "holdout-ternary-deformation"
+    "holdout-ternary-deformation",
+    "reflection-coupled-residual",
+    "cyclic-triple-residual"
   ]
 }
