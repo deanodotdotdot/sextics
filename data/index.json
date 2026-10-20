@@ -1106,15 +1106,20 @@
     {
       "id": "crossed-ternary-asymmetric",
       "title": "Crossed ternaries · elliptic transfer",
-      "status": "open",
-      "formalStatus": "unproved",
-      "evidenceKind": "none",
-      "certificateAvailable": false,
+      "status": "solved",
+      "formalStatus": "proved",
+      "evidenceKind": "existence-proof",
+      "certificateAvailable": true,
       "visibility": "navigation",
-      "draftDisplayStatus": "open",
+      "draftDisplayStatus": "solved",
       "category": "Challenge instances",
       "q": 1,
-      "path": "data/crossed-ternary-asymmetric/record.json"
+      "path": "data/crossed-ternary-asymmetric/record.json",
+      "credit": {
+        "githubLogin": "1337isnot1337",
+        "origin": "contribution",
+        "awardedAt": "2026-10-19T23:03:24Z"
+      }
     },
     {
       "id": "polarized-k3-remainder",
