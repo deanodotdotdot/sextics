@@ -75,9 +75,10 @@ if __name__=='__main__':
  import argparse
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--precision',type=int,default=2048)
+ parser.add_argument('--slice',type=Path,default=ROOT/'data/holdout-q2/fixed-slice-divisor.json',help='JSON containing the fixed-ratio planeMatrix and phaseSigns')
+ parser.add_argument('--output',type=Path,default=ROOT/'data/holdout-q2/fixed-slice-divisor.json')
  args=parser.parse_args()
- record=json.loads((ROOT/'data/holdout-q2/record.json').read_text())
- result=factors_for(record['render'],args.precision)
- destination=ROOT/'data/holdout-q2/display-divisor.json'
- destination.write_text(json.dumps(result,indent=2)+'\n')
+ saved_slice=json.loads(args.slice.read_text())
+ result=factors_for(saved_slice,args.precision)
+ args.output.write_text(json.dumps(result,indent=2)+'\n')
  print('Exported',len(result['factors']),'factors; both sets of 27 line equations, coefficient units, and source minors checked.')
