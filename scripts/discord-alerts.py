@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Announce newly published atlas entries and accepted solves through Discord."""
+"""Announce atlas entries, accepted solves, and new discussion comments in Discord."""
 import argparse
 import json
 import os
@@ -85,11 +85,11 @@ def s3_read(bucket, key, *, optional=False):
         return json.loads(path.read_text())
 
 
-def s3_write(bucket, state):
+def s3_write(bucket, state, *, key=STATE_KEY):
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / 'state.json'
         path.write_text(json.dumps(state, indent=2) + '\n')
-        subprocess.run(['aws', 's3api', 'put-object', '--bucket', bucket, '--key', STATE_KEY,
+        subprocess.run(['aws', 's3api', 'put-object', '--bucket', bucket, '--key', key,
                         '--body', str(path), '--server-side-encryption', 'AES256',
                         '--content-type', 'application/json', '--cache-control', 'no-store'],
                        check=True, stdout=subprocess.DEVNULL)
@@ -109,9 +109,10 @@ def send(webhook, message):
         try:
             with urllib.request.urlopen(request, timeout=30) as response:
                 result = json.load(response)
-            if not result.get('id'):
+            message_id = result.get('id')
+            if not isinstance(message_id, str) or not re.fullmatch(r'[0-9]+', message_id):
                 raise RuntimeError('Discord did not confirm a saved message')
-            return
+            return message_id
         except urllib.error.HTTPError as error:
             if error.code == 429 and attempt < 3:
                 delay = min(60, max(1, float(json.loads(error.read()).get('retry_after', 5))))
@@ -148,15 +149,88 @@ def announce(index, state, site, deliver, save):
         print(f'Announced {kind}: {rid}', flush=True)
 
 
+def discussion_payload(event, site):
+    """Use the event only as data; never evaluate or relay the comment body."""
+    if event.get('action') != 'created':
+        return None
+    if event.get('repository', {}).get('full_name') != 'hodge-computer/sextics':
+        raise ValueError('Unexpected discussion repository')
+    comment, discussion = event['comment'], event['discussion']
+    comment_id, number = comment['id'], discussion['number']
+    if any(type(value) is not int or value <= 0 for value in (comment_id, number)):
+        raise ValueError('Invalid discussion or comment ID')
+    url = f'{REPO}/discussions/{number}#discussioncomment-{comment_id}'
+    if comment.get('html_url') != url:
+        raise ValueError('Unexpected discussion comment URL')
+    login = comment['user']['login']
+    if not isinstance(login, str) or not re.fullmatch(r'[A-Za-z0-9-]+(?:\[bot\])?', login):
+        raise ValueError('Invalid discussion author')
+    mapping = json.loads((site / 'discussions/index.json').read_text())
+    if mapping['repository'] != 'hodge-computer/sextics':
+        raise ValueError('Unexpected discussion mapping repository')
+    matches = [rid for rid, thread in mapping['instances'].items() if thread['number'] == number]
+    if len(matches) > 1:
+        raise ValueError('Ambiguous discussion mapping')
+    heading = 'New discussion comment'
+    title = discussion['title']
+    if matches:
+        rid = matches[0]
+        index = json.loads((site / 'data/index.json').read_text())
+        entry = next(((n, r) for n, r in enumerate(index['records'], 1) if r['id'] == rid), None)
+        if entry is None:
+            raise ValueError('Discussion instance is absent from the atlas')
+        atlas_number, record = entry
+        heading += f' · {atlas_number:02d}'
+        title = record['title']
+        url = f'{SITE}/#case/{rid}/discussion/{comment_id}'
+    # Titles of non-atlas discussions are user content. Render them as text.
+    title = re.sub(r'([\\`*_~|\[\]()<>])', r'\\\1', ' '.join(title.split())[:512])
+    return comment_id, {
+        'embeds': [{'title': heading, 'description': title, 'url': url,
+                    'color': 0xB6A0D6,
+                    'fields': [{'name': 'Commenter', 'value': f'`{login}`', 'inline': True},
+                               {'name': 'Discussion', 'value': f'[Read comment]({url})', 'inline': True}]}],
+        'allowed_mentions': {'parse': []},
+    }
+
+
+def announce_discussion(event, site, deliver, read, save):
+    item = discussion_payload(event, site)
+    if item is None:
+        print('No new discussion comment to announce.')
+        return
+    comment_id, message = item
+    # Separate keys let unrelated comments arrive concurrently without losing state.
+    key = f'notifications/discussion-comments/{comment_id}.json'
+    prior = read(key)
+    if prior is not None:
+        if (prior.get('schemaVersion') != 1 or prior.get('commentId') != comment_id or
+                not re.fullmatch(r'[0-9]+', str(prior.get('discordMessageId', '')))):
+            raise ValueError('Invalid discussion notification state')
+        print(f'Discussion comment already announced: {comment_id}')
+        return
+    message_id = deliver(message)
+    save(key, {'schemaVersion': 1, 'commentId': comment_id, 'discordMessageId': message_id})
+    print(f'Announced discussion comment: {comment_id}', flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('phase', choices=('prepare', 'send'))
+    parser.add_argument('phase', choices=('prepare', 'send', 'discussion'))
     parser.add_argument('--bucket', required=True)
     parser.add_argument('--site', type=Path, required=True)
     args = parser.parse_args()
     webhook = os.environ.get('DISCORD_SOLVE_WEBHOOK_URL', '')
     if not webhook:
         print('Discord notifications are disabled: repository secret is not configured.')
+        return
+    if args.phase == 'discussion':
+        if os.environ.get('GITHUB_EVENT_NAME') != 'discussion_comment':
+            raise ValueError('Expected a GitHub discussion_comment event')
+        event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+        announce_discussion(event, args.site, lambda message: send(webhook, message),
+                            lambda key: s3_read(args.bucket, key, optional=True),
+                            lambda key, value: s3_write(args.bucket, value, key=key))
         return
     state = s3_read(args.bucket, STATE_KEY, optional=True)
     if args.phase == 'prepare':

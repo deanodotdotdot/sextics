@@ -90,6 +90,25 @@ workflow announces newly published atlas entries and accepted solves automatical
 Solve messages credit the PR author and link to the accepted PR and instance.
 There is no separate bot process, Discord bot account, or polling service.
 
+`discussion-alerts.yml` also handles GitHub's `discussion_comment: created` event,
+including replies and comments posted through the website. Each alert identifies
+the commenter and links directly to the comment on hodge.computer; discussions
+outside the atlas link to GitHub. Comment bodies are not copied into the feed.
+Edits and deletions do not send alerts, and enabling this workflow does not replay
+old comments. The webhook's configured name and avatar are used for all messages.
+This workflow does not rebuild the website or require a running preview.
+
+Comment delivery records live separately at
+`notifications/discussion-comments/<comment-id>.json` in the website bucket.
+They retain the Discord message ID and prevent a successful workflow rerun from
+posting the same comment twice. Each comment has its own concurrency group and
+storage key, so a burst of comments does not cancel pending alerts or overwrite
+another comment's record. The workflow reuses the existing publishing identity;
+no new secret, AWS permission, GitHub App webhook, or backend deployment is needed.
+Run **Announce discussion comments** manually to check tests, secret presence,
+and storage access without sending a message. Retry failed comment deliveries
+through their original workflow run, subject to the delivery caveat below.
+
 Before the first deployment with this secret, the workflow initializes its baseline
 from the existing hosted atlas. It does not announce historical results. After upload,
 it waits for the new revision to be visible, then sends any pending announcements.

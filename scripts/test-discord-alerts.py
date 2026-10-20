@@ -57,6 +57,8 @@ class Alerts(unittest.TestCase):
         self.assertIn('solver', message['embeds'][0]['fields'][0]['value'])
         self.assertIn('/pull/153', message['embeds'][0]['fields'][1]['value'])
         self.assertEqual(message['allowed_mentions'], {'parse': []})
+        self.assertNotIn('username', message)
+        self.assertNotIn('avatar_url', message)
 
     def test_new_entry_already_solved_gets_one_message(self):
         index = {'records': self.old['records'] + [record('new-target', True)]}
@@ -93,8 +95,9 @@ class Alerts(unittest.TestCase):
     def test_send_confirms_saved_message_and_suppresses_mentions(self):
         response = io.BytesIO(b'{"id":"123"}')
         with patch.object(alerts.urllib.request, 'urlopen', return_value=response) as call:
-            alerts.send('https://discord.com/api/webhooks/123/private-token',
-                        {'content': 'Example', 'allowed_mentions': {'parse': []}})
+            message_id = alerts.send('https://discord.com/api/webhooks/123/private-token',
+                                     {'content': 'Example', 'allowed_mentions': {'parse': []}})
+        self.assertEqual(message_id, '123')
         request = call.call_args.args[0]
         self.assertTrue(request.full_url.endswith('?wait=true'))
         self.assertEqual(json.loads(request.data)['allowed_mentions'], {'parse': []})
@@ -128,6 +131,112 @@ class Alerts(unittest.TestCase):
         with patch.object(alerts.subprocess, 'run',
                           return_value=SimpleNamespace(returncode=1, stderr='An error (NoSuchKey)')):
             self.assertIsNone(alerts.s3_read('bucket', 'key', optional=True))
+
+
+class DiscussionAlerts(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.site = Path(self.tmp.name)
+        (self.site / 'discussions').mkdir()
+        (self.site / 'data').mkdir()
+        (self.site / 'discussions/index.json').write_text(json.dumps({
+            'repository': 'hodge-computer/sextics',
+            'instances': {'holdout': {'number': 44}}}))
+        (self.site / 'data/index.json').write_text(json.dumps({
+            'records': [record('fermat', True), record('holdout')]}))
+        self.event = {
+            'action': 'created', 'repository': {'full_name': 'hodge-computer/sextics'},
+            'discussion': {'number': 44, 'title': 'An old title'},
+            'comment': {'id': 19002099, 'parent_id': None,
+                        'html_url': alerts.REPO + '/discussions/44#discussioncomment-19002099',
+                        'user': {'login': 'fqlx'},
+                        'body': '@everyone `$(cat /secret)` <script>bad()</script>'}}
+
+    def test_new_comment_links_to_website_and_uses_current_atlas_title(self):
+        comment_id, message = alerts.discussion_payload(self.event, self.site)
+        self.assertEqual(comment_id, 19002099)
+        embed = message['embeds'][0]
+        self.assertEqual(embed['title'], 'New discussion comment · 02')
+        self.assertEqual(embed['description'], 'Holdout')
+        self.assertEqual(embed['url'], alerts.SITE + '/#case/holdout/discussion/19002099')
+        self.assertEqual(embed['fields'][0]['value'], '`fqlx`')
+        self.assertIn('/discussion/19002099', embed['fields'][1]['value'])
+        self.assertNotIn('username', message)
+        self.assertNotIn('avatar_url', message)
+        self.assertEqual(message['allowed_mentions'], {'parse': []})
+        self.assertNotIn('secret', json.dumps(message))
+        self.assertNotIn('@everyone', json.dumps(message))
+
+    def test_reply_links_to_reply_itself(self):
+        self.event['comment']['parent_id'] = 12345
+        _, message = alerts.discussion_payload(self.event, self.site)
+        self.assertTrue(message['embeds'][0]['url'].endswith('/19002099'))
+
+    def test_edits_deletions_and_other_actions_are_ignored(self):
+        for action in ('edited', 'deleted', None):
+            self.event['action'] = action
+            with self.subTest(action=action):
+                self.assertIsNone(alerts.discussion_payload(self.event, self.site))
+
+    def test_non_atlas_discussion_uses_github_and_escapes_title(self):
+        self.event['discussion'].update(number=200, title='[link](https://example.com) *bold*')
+        self.event['comment']['html_url'] = alerts.REPO + '/discussions/200#discussioncomment-19002099'
+        _, message = alerts.discussion_payload(self.event, self.site)
+        embed = message['embeds'][0]
+        self.assertEqual(embed['title'], 'New discussion comment')
+        self.assertEqual(embed['url'], self.event['comment']['html_url'])
+        self.assertEqual(embed['description'], r'\[link\]\(https://example.com\) \*bold\*')
+
+    def test_unexpected_repository_ids_urls_and_author_are_rejected(self):
+        bad = []
+        event = copy.deepcopy(self.event)
+        event['repository']['full_name'] = 'someone/else'
+        bad.append(event)
+        for field, value in [('id', '../unsafe'), ('id', True), ('id', -2),
+                             ('html_url', 'https://example.com/'),
+                             ('user', {'login': '`unsafe`'})]:
+            event = copy.deepcopy(self.event)
+            event['comment'][field] = value
+            bad.append(event)
+        for event in bad:
+            with self.subTest(event=event):
+                with self.assertRaises(ValueError):
+                    alerts.discussion_payload(event, self.site)
+
+    def test_successful_delivery_saves_message_id_and_reruns_do_not_repeat(self):
+        stored, delivered = {}, []
+        def deliver(message):
+            delivered.append(message)
+            return '999999'
+        for _ in range(2):
+            alerts.announce_discussion(self.event, self.site, deliver, stored.get,
+                                       lambda key, value: stored.__setitem__(key, value))
+        self.assertEqual(len(delivered), 1)
+        self.assertEqual(stored, {'notifications/discussion-comments/19002099.json': {
+            'schemaVersion': 1, 'commentId': 19002099, 'discordMessageId': '999999'}})
+        # An independently arriving reply has its own marker, not a shared history.
+        reply = copy.deepcopy(self.event)
+        reply['comment'].update(id=19002100, parent_id=19002099,
+                                html_url=alerts.REPO + '/discussions/44#discussioncomment-19002100')
+        alerts.announce_discussion(reply, self.site, deliver, stored.get,
+                                   lambda key, value: stored.__setitem__(key, value))
+        self.assertEqual(len(delivered), 2)
+        self.assertEqual(len(stored), 2)
+
+    def test_failure_does_not_mark_comment_sent(self):
+        def fail(_):
+            raise RuntimeError('Delivery uncertain')
+        saved = []
+        with self.assertRaisesRegex(RuntimeError, 'uncertain'):
+            alerts.announce_discussion(self.event, self.site, fail, lambda _: None,
+                                       lambda key, value: saved.append(value))
+        self.assertEqual(saved, [])
+
+    def test_corrupt_delivery_state_fails_closed(self):
+        with self.assertRaisesRegex(ValueError, 'notification state'):
+            alerts.announce_discussion(self.event, self.site, lambda _: self.fail('must not send'),
+                                       lambda _: {}, lambda key, value: self.fail('must not save'))
 
 
 if __name__ == '__main__':
