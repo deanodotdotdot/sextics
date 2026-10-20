@@ -517,6 +517,29 @@ The same invertible coefficient matrix constructs a polynomial normal vector \(\
 
 Normalized trace returns the primitive to \(K_H\). In characteristic zero, derivations extend uniquely through finite field extensions and commute with trace. This is the reason trace is suitable here; an arbitrary linear coefficient functional would not suffice. The argument constructs a primitive for every polynomial \(B\) on this fixed quotient, but does not yet identify which physical targets its pullback serves.
 
+### Changing the ternary part
+
+The quotient and the curve used on it are separate pieces of the construction. Replacing \(\sum X_i^6\) by another ternary sextic \(f(X)\) preserves the exchange of \(y,T\), the Fermat coefficient curve, and the target-selection identities below. It need not preserve a chosen conic. One must solve the incidence for the changed equation; the original curve is not deformation data for a different hypersurface merely because the same coordinates are available.
+
+For example, take
+
+\[
+f(X)=\sum_iX_i^6+\frac1{14}(X_0^5\cdot X_1+2\cdot X_1^5\cdot X_2+X_2^5\cdot X_0).
+\]
+
+For this \(f\), let \(G=f(X)+P(\alpha X_0^3X_1+\beta X_1^3X_2)+S^3-3SP^2\). At \((\alpha,\beta)=(1,0)\) in characteristic five, the following curve lies on \(14G=0\):
+
+\[
+\begin{aligned}
+X_0&=1+2t^2,&X_1&=t,&X_2&=4+2t+2t^2,\\
+S&=4+t+t^2+3t^3+3t^4,&&P=4+t+4t^2+4t^3+3t^4.
+\end{aligned}
+\]
+
+Use as variables all three coefficients of \(X_0\), the two positive coefficients of \(X_2\), and the four positive coefficients of each of \(S,P\). The thirteen coefficients of the substituted degree-twelve equation give a square system with invertible Jacobian. The [construction of `hodgepodgeconjecture`](https://github.com/hodge-computer/sextics/pull/151) proves the seed and inverse matrix exactly. The integral lifting principle of §5.4 supplies characteristic-zero incidence data and a finite family over the generic coefficient field. A normal constructed for \(14G\) must be multiplied by fourteen before using it for \(G\).
+
+The integration, trace and target extraction then apply to the actual deformed equation. This illustrates the reusable part of the method: the transport identities survive a change in the ternary polynomial, while the curve, its Jacobian and dominance remain mathematical obligations. If a perturbation destroys the exchange or makes the coefficient curve depend on an active coordinate, replacing the conic alone does not repair that different failure.
+
 ### Target selection by the deck character
 
 Take \(\beta\) as the base coordinate, retaining the full change of variables when returning to the physical field. The physical-to-quotient Jacobian is

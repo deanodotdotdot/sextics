@@ -304,6 +304,14 @@
     "holdout-ternary-deformation": {
       "number": 147,
       "nodeId": "D_kwDOVLOOJc4AqQrX"
+    },
+    "reflection-coupled-residual": {
+      "number": 154,
+      "nodeId": "D_kwDOVLOOJc4AqS6B"
+    },
+    "cyclic-triple-residual": {
+      "number": 155,
+      "nodeId": "D_kwDOVLOOJc4AqS6C"
     }
   }
 }

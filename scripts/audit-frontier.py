@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact curation checks for the ten structured frontier targets.
+"""Exact curation checks for the structured frontier targets.
 
 Run with SageMath 10.1 or later: sage -python scripts/audit-frontier.py
 Use --write to regenerate data/<id>/checks.json after reviewing target changes.
@@ -19,6 +19,7 @@ IDS = (
     'crossed-ternary-asymmetric', 'polarized-k3-remainder',
     'klein-coupled-character', 'symmetric-sextic-residual',
     'rank-one-biquartic', 'quadric-contact-broken', 'four-plus-two-residual',
+    'reflection-coupled-residual', 'cyclic-triple-residual',
 )
 R = PolynomialRing(QQ, names=('X0', 'X1', 'X2', 'Y0', 'Y1', 'Y2'))
 Z = R.gens()

@@ -1283,6 +1283,32 @@
         "origin": "contribution",
         "awardedAt": "2026-10-20T07:37:41Z"
       }
+    },
+    {
+      "id": "reflection-coupled-residual",
+      "title": "Reflection · complementary character",
+      "status": "open",
+      "formalStatus": "unproved",
+      "evidenceKind": "none",
+      "certificateAvailable": false,
+      "visibility": "navigation",
+      "draftDisplayStatus": "open",
+      "category": "Challenge instances",
+      "q": 1,
+      "path": "data/reflection-coupled-residual/record.json"
+    },
+    {
+      "id": "cyclic-triple-residual",
+      "title": "Cyclic triple cover · complementary character",
+      "status": "open",
+      "formalStatus": "unproved",
+      "evidenceKind": "none",
+      "certificateAvailable": false,
+      "visibility": "navigation",
+      "draftDisplayStatus": "open",
+      "category": "Challenge instances",
+      "q": 1,
+      "path": "data/cyclic-triple-residual/record.json"
     }
   ]
 }

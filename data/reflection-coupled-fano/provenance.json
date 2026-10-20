@@ -10,7 +10,9 @@
   ],
   "statementSource": "instance.rec",
   "contextSource": "why.md",
-  "sameVarietyInstances": [],
+  "sameVarietyInstances": [
+    "reflection-coupled-residual"
+  ],
   "mathematicalChecks": "checks.json",
   "checkCommand": "sage -python scripts/audit-frontier.py",
   "existenceStatus": "Known by the cited geometric theorem; no explicit witness supplied.",

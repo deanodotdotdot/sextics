@@ -7,6 +7,7 @@ on:
       - '.github/solve-policy.json'
       - '.github/workflows/*'
       - 'formal/lean/**'
+      - 'scripts/*discord*.py'
 
 permissions:
   contents: read
@@ -27,6 +28,7 @@ jobs:
           python3 -m pip install -r scripts/requirements-content.txt
           python3 scripts/proposals/test_check.py
           python3 scripts/test-content.py
+          python3 scripts/test-discord-alerts.py
           node scripts/test-leaderboard.cjs
           node scripts/test-divisor.cjs
       - name: Prepare pinned Lean

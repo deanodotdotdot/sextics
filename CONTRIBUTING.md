@@ -20,7 +20,7 @@ Contribute through a direct GitHub pull request for one fixed instance. Add the 
 4. Add only the solution files listed below. Do not edit or remove existing files.
 5. Prove the exact theorem, explain the mathematics, and run the local check. Inspect the complete diff.
 6. Push the branch to your fork and open a PR against `hodge-computer/sextics:main`. Follow the [PR title and description requirements](#pr-title-and-description) below.
-7. Address verification failures in the same PR. The owner reviews the mathematical explanation and gives final sign-off before merging.
+7. Address verification failures in the same PR. The owner reviews the mathematical explanation; their merge is the final sign-off.
 
 ### Files
 
@@ -170,7 +170,7 @@ This checks the proof against the checkout's target and exports logs, without co
 
 ### Review and acceptance
 
-The protected workflow compiles in an OS sandbox, replays every submitted module with `leanchecker`, and audits the exact theorem and transitive axioms. Proposal code receives no network access, repository write access, or GitHub credentials. A green `solve/lean` status means verification passed; the owner's review is a separate step. After the owner approves the checked commit, no additional Lean run is needed if the head and base remain unchanged. An updated PR commit or changed base requires fresh checks, and a new PR commit requires renewed owner sign-off.
+The protected workflow compiles in an OS sandbox, replays every submitted module with `leanchecker`, and audits the exact theorem and transitive axioms. Proposal code receives no network access, repository write access, or GitHub credentials. A green `solve/lean` status means verification passed and the PR is ready for the owner to merge. The owner's merge is the approval; a separate approving review is not required, including for an owner-authored PR. An updated PR commit or changed base requires fresh checks before merging.
 
 The owner merges the checked head with a merge commit. The trusted publication workflow then validates the successful run, source hashes, unchanged target, contributor identity, and merge parents. It writes an acceptance receipt and rebuilds the website and leaderboard. The instance remains open if publication fails; fix the cause and rerun publication rather than editing status flags. See [verification and owner sign-off](MAINTAINING.md#verification-sign-off-and-publication).
 

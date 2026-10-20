@@ -15,7 +15,6 @@ import zipfile
 import yaml
 
 from acceptance import REPOSITORY, read_acceptance, require, sha256, solution_record, statement_hash, accepted_sources
-from review import approved, latest_owner_review, dispatched_approval
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -58,24 +57,13 @@ def validate_report(report, pr, run, merge, policy):
         require('scripts/proposals/review.py' in report['verifierSha256'], 'Missing sign-off source binding')
 
 
-def validate_owner_authorization(report, pr, run, policy, reviews):
-    """A green proof check is not owner approval. Authenticate that separately."""
-    head=pr['head']['sha']
-    owner=policy['owner']
-    latest=latest_owner_review(reviews,owner)
-    if approved(reviews,owner,head):
-        return {'method':'review','reviewId':latest['id'],'githubLogin':owner,'headCommit':head}
-    # Do not let a saved dispatch override an explicitly withdrawn review.
-    require(not latest or latest['state'] not in ('CHANGES_REQUESTED','DISMISSED'),
-            'Owner approval was withdrawn; obtain a new approving review before publication')
-    signoff=report.get('ownerAuthorization') or {}
-    if (signoff.get('method')=='workflow_dispatch' and
-        signoff.get('actor')==run.get('actor',{}).get('login') and
-        signoff.get('triggeringActor')==run.get('triggering_actor',{}).get('login') and
-        dispatched_approval(run['event'],signoff.get('actor',''),signoff.get('triggeringActor',''),
-                            signoff.get('headCommit',''),owner,head)):
-        return {'method':'workflow_dispatch','runId':run['id'],'githubLogin':owner,'headCommit':head}
-    raise ValueError('Lean passed, but the owner has not approved this exact commit. Approve the PR, then retry publication; an unchanged proof and base do not need another Lean run.')
+def merge_authorization(pr, policy):
+    """The configured owner's merge is the solve sign-off, including on own PRs."""
+    require(pr.get('merged') is True and
+            pr.get('merged_by', {}).get('login', '').lower() == policy['owner'].lower(),
+            'Only the configured owner can authorize a solve by merging it')
+    return {'method': 'owner_merge', 'githubLogin': policy['owner'],
+            'headCommit': pr['head']['sha'], 'mergeCommit': pr['merge_commit_sha']}
 
 
 def publish(number):
@@ -133,8 +121,7 @@ def publish(number):
         require(accepted_sources(folder)==report['sourceHashes'],
                 'Merged proposal differs from the checked sources')
         if report['schemaVersion']==2:
-            reviews=api(f'repos/{REPOSITORY}/pulls/{number}/reviews?per_page=100',paginate=True)
-            receipt['ownerAuthorization']=validate_owner_authorization(report,pr,run,policy,reviews)
+            receipt['ownerAuthorization']=merge_authorization(pr,policy)
         # Version 1 required authorization inside the successful workflow itself.
         # Preserve that evidence when publishing or retrying older checked solves.
     solution=solution_record(ROOT,receipt)

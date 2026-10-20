@@ -82,6 +82,29 @@ pushes to `main`. It always checks out current `main`, never the submitted proof
 branch or its artifacts. It does not run Lean again. Lambda code and new
 discussion mappings require an owner-operated backend deployment separately.
 
+## Discord announcements
+
+Create an incoming webhook in the announcement channel and store its full URL as
+the repository Actions secret `DISCORD_SOLVE_WEBHOOK_URL`. The website deployment
+workflow announces newly published atlas entries and accepted solves automatically.
+Solve messages credit the PR author and link to the accepted PR and instance.
+There is no separate bot process, Discord bot account, or polling service.
+
+Before the first deployment with this secret, the workflow initializes its baseline
+from the existing hosted atlas. It does not announce historical results. After upload,
+it waits for the new revision to be visible, then sends any pending announcements.
+The website bucket's `notifications/discord-state.json` records announced instance
+and solve IDs, using the publisher's existing S3 permissions; it contains no secrets.
+Keep this state when redeploying or rolling back to avoid duplicate announcements.
+
+The sender confirms each message with Discord and saves progress after each one.
+Retries skip recorded announcements; rate limits are retried automatically. A failed
+notification step is visible in Actions and does not undo the website upload. Rerun
+deployment to deliver pending messages. If a request times out or the run stops after
+Discord saved a message but before S3 recorded it, inspect the channel before retrying:
+Discord and S3 cannot commit atomically, so that narrow interruption can duplicate a
+message. Removing the secret disables announcements. Never commit or log the webhook URL.
+
 ## Domain and email
 
 The domain is registered at Hover and uses a Route 53 hosted zone. The apex A

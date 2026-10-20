@@ -1,0 +1,24 @@
+{
+  "instanceId": "cyclic-triple-residual",
+  "variables": [
+    "X0",
+    "X1",
+    "X2",
+    "Y0",
+    "Y1",
+    "Y2"
+  ],
+  "statementSource": "instance.rec",
+  "contextSource": "why.md",
+  "sameVarietyInstances": [
+    "cyclic-triple-fano"
+  ],
+  "mathematicalChecks": "checks.json",
+  "checkCommand": "sage -python scripts/audit-frontier.py",
+  "references": [
+    "data/cyclic-triple-fano/why.md",
+    "docs/03-geometric-support.md",
+    "docs/04-known-locus-and-frontier.md"
+  ],
+  "existenceStatus": "No existence conclusion for this target follows from the screened quotient-density constructions."
+}

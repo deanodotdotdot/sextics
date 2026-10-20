@@ -94,6 +94,22 @@ A small coefficient residual is useful for discovery, but is not a certificate. 
 
 Once a candidate is stable, reconstruct its coefficients over \(\mathbb Q\) or a specified number field. For a reconstructed denominator, solve the complete numerator system again in exact arithmetic. If it is inconsistent, the numerical candidate has not produced a certificate; the reconstruction or the proposed denominator must change. If it is consistent, retain the actual numerator tuple and the quotient from \(E_2\), then check the identity below independently.
 
+### Exact incidence lifting
+
+A useful alternative to reconstructing a whole rational field is to reconstruct a small piece of its supporting geometry. Let \(R\) be an integral coefficient ring, including the fixed coefficients of the hypersurface and any endpoint relations. Let \(E_1,\ldots,E_m\in R[u_1,\ldots,u_m]\) be a square incidence system, and let \(\Delta=\det(\partial E_i/\partial u_j)\). A point over a field with \(E_i=0\) and \(\Delta\ne0\) proves that
+
+\[
+S=\bigl(R[u_1,\ldots,u_m]/(E_1,\ldots,E_m)\bigr)[1/\Delta]
+\]
+
+is nonzero. Its invertible Jacobian makes it étale and hence flat over \(R\). Since \(R\) is a domain, passage to its fraction field keeps this nonzero algebra nonzero. A field factor of the generic étale algebra is a finite separable extension of that fraction field, carrying a solution and the required nonvanishing determinant. Additional open conditions may be inverted if they hold at the seed. An injective extension of the generic coefficient field, such as passage to complex coefficients, preserves the argument.
+
+This is the mechanism behind the modular quartic of §3.3 and the replacement conic of §2.7. It does not say that an arbitrary point modulo a prime lifts, or that an arbitrary change in the equation preserves a solution. The exact equation must be defined over the integral base before reduction; square nonsingularity, flatness and the generic-field injection are the bridge. The characteristic-zero coupling stays fixed, even when its modular reduction is simpler.
+
+A lifted curve is still not a certificate. The application must prove that its family dominates the required hypersurface, that the induced function-field extension is finite, and that a polynomial normal and compatible commuting derivatives give the integration identity. Affine cones illustrate the danger: every point lies on a radial line \(c(t)=tp\), but the gradient of a sextic on that line is divisible by \(t^5\). No polynomial vector \(\psi(t)\) can satisfy \(\nabla F(c(t))\cdot\psi(t)=1\). Merely finding many such lines therefore supplies none of the required normal data.
+
+An existence proof through finite field factors and trace can avoid expanding enormous coefficients. Extracting a practical denominator is a separate computational task. A curve degree or incidence dimension is not, by itself, the degree of the final cleared and homogenized denominator.
+
 ## 5.5 Exact verification and Lean acceptance
 
 For any proposed field \(v=N/D\), normalized or otherwise, form the polynomial
