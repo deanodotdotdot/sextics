@@ -381,6 +381,13 @@
       "acceptedAt": "2026-10-19T14:03:12Z"
     },
     {
+      "instanceId": "holdout-bundle",
+      "githubLogin": "fqlx",
+      "origin": "contribution",
+      "awardedAt": "2026-10-20T20:49:04Z",
+      "acceptedAt": "2026-10-20T21:29:12Z"
+    },
+    {
       "instanceId": "reflection-coupled-fano",
       "githubLogin": "fqlx",
       "origin": "contribution",
