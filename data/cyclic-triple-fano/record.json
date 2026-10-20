@@ -368,13 +368,37 @@
   "slice": "slices/cyclic-triple-fano.json",
   "rationale": "why.md",
   "provenanceFile": "provenance.json",
-  "formalStatus": "unproved",
-  "status": "open",
-  "evidenceKind": "none",
-  "certificateAvailable": false,
+  "formalStatus": "proved",
+  "status": "solved",
+  "evidenceKind": "existence-proof",
+  "certificateAvailable": true,
   "content": {
-    "why": "data/cyclic-triple-fano/why.html"
+    "why": "data/cyclic-triple-fano/why.html",
+    "solution": "data/cyclic-triple-fano/solution.html"
   },
-  "witnessAvailability": "missing",
-  "draftDisplayStatus": "open"
+  "pullRequest": {
+    "number": 153,
+    "url": "https://github.com/hodge-computer/sextics/pull/153",
+    "headCommit": "92325b22a74d803302e659dcada056cb5cae59b3",
+    "baseCommit": "e001627f2c3bb63219eb3f9c7007d9ba01fa49c4",
+    "mergeCommit": "d5881c13a7e785b6328cd823133f5245937b93e9"
+  },
+  "certificate": {
+    "proofSource": "data/cyclic-triple-fano/Solution.lean"
+  },
+  "witnessAvailability": "lean-source",
+  "leanVerification": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/cyclic-triple-fano/Solution.lean",
+    "receipt": "data/cyclic-triple-fano/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  },
+  "credit": {
+    "githubLogin": "benediamond",
+    "origin": "contribution",
+    "awardedAt": "2026-10-20T12:39:59Z"
+  },
+  "draftDisplayStatus": "solved"
 }

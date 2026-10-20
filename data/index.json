@@ -1085,15 +1085,20 @@
     {
       "id": "cyclic-triple-fano",
       "title": "Cyclic triple cover · Fano density",
-      "status": "open",
-      "formalStatus": "unproved",
-      "evidenceKind": "none",
-      "certificateAvailable": false,
+      "status": "solved",
+      "formalStatus": "proved",
+      "evidenceKind": "existence-proof",
+      "certificateAvailable": true,
       "visibility": "navigation",
-      "draftDisplayStatus": "open",
+      "draftDisplayStatus": "solved",
       "category": "Challenge instances",
       "q": 1,
-      "path": "data/cyclic-triple-fano/record.json"
+      "path": "data/cyclic-triple-fano/record.json",
+      "credit": {
+        "githubLogin": "benediamond",
+        "origin": "contribution",
+        "awardedAt": "2026-10-20T12:39:59Z"
+      }
     },
     {
       "id": "split-ternary-q2",
