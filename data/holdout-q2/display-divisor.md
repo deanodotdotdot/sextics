@@ -101,7 +101,7 @@ The large degree is solely a conservative choice of clearing, not a lower bound 
 
 ## Display on a fixed-ratio slice
 
-The saved slice keeps \(Y_0/X_0\) and \(Y_1/X_1\) constant. The exporter checks that the line-coordinate denominators, both source minors, and both quintic denominators are nonzero there. Away from \(X_0X_1=0\), all coefficient-clearing factors are consequently nonzero constants. The remaining zero set is the union of the 27 factors
+The section retained in `fixed-slice-divisor.json` keeps \(Y_0/X_0\) and \(Y_1/X_1\) constant. The atlas uses a different, unrestricted section and does not display this divisor overlay. The exporter checks that the line-coordinate denominators, both source minors, and both quintic denominators are nonzero on the fixed-ratio section. Away from \(X_0X_1=0\), all coefficient-clearing factors are consequently nonzero constants. The remaining zero set is the union of the 27 factors
 
 \[
 X_2^2+k^2\cdot Y_2^2-e_j\cdot X_0^2-f_j\cdot X_1^2,
@@ -109,4 +109,4 @@ X_2^2+k^2\cdot Y_2^2-e_j\cdot X_0^2-f_j\cdot X_1^2,
 
 for each endpoint, together with \(X_0=0\) and \(X_1=0\). Conjugate factors have the same zeros on the real amplitudes and are drawn once; multiplicities are suppressed. This preserves the support of the polynomial specified above.
 
-`scripts/export-holdout-q2-divisor.py` isolates the roots with complex ball arithmetic, verifies all four cubic-line equations for every root, and checks invertibility of the exact source construction after specialization. It exports floating-point coefficients for per-pixel evaluation. The numerical display is not a new proof of the certificate, nor does it certify topology. Changing the fixed ratios, phases, or saved plane requires regenerating the export.
+`scripts/export-holdout-q2-divisor.py` isolates the roots with complex ball arithmetic, verifies all four cubic-line equations for every root, and checks invertibility of the exact source construction after specialization. It regenerates `fixed-slice-divisor.json`, preserving that section independently of the atlas view; `--slice` and `--output` select another fixed-ratio section and destination. The export contains floating-point coefficients for per-pixel evaluation. It is not a new proof of the certificate, nor does it certify topology. Changing the fixed ratios, phases, or saved plane requires regenerating the export.

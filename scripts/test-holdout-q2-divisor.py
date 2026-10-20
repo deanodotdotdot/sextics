@@ -80,9 +80,8 @@ for prime in [1009,10039]:
   check(power(f,3)-3*mul(f,power(h,2))+b*I+d*h,0*I)
 print('Exact finite-field checks: cleared line matrices and all line equations passed.')
 
-record=json.loads((ROOT/'data/holdout-q2/record.json').read_text())
-display=json.loads((ROOT/'data/holdout-q2/display-divisor.json').read_text())
-rebuilt=export.factors_for(record['render'],2048)
+display=json.loads((ROOT/'data/holdout-q2/fixed-slice-divisor.json').read_text())
+rebuilt=export.factors_for(display,2048)
 assert rebuilt['factors']==display['factors']
 # Compare exported floating-point factors to independently isolated roots.
 ctx.prec=2048

@@ -535,7 +535,7 @@ function create(canvas,options={}){
   const listeners=[];
   const FOV=42*Math.PI/180,minDistance=.035,maxDistance=12;
   let baseYaw=.710,basePitch=.455,baseDistance=3.22,baseCenter=[0,0,0];
-  let homeOrientation=ScreenTrackball.fromYawPitch(baseYaw,basePitch);
+  let homeOrientation=ScreenTrackball.fromYawPitch(baseYaw,basePitch),homeOffset=[0,0,0,1];
   let cameraMode='parallax',cameraOrientation=homeOrientation.slice(),orbitOrientation=homeOrientation.slice();
   let cameraDistance=baseDistance,orbitDistance=baseDistance,cameraCenter=[0,0,0],orbitCenter=[0,0,0];
   let targetX=0,targetY=0,currentX=0,currentY=0,drag=null,touchGesture=null,last=performance.now(),lastDraw=0;
@@ -612,7 +612,12 @@ function create(canvas,options={}){
       const saved=r.camera||{yaw:.710,pitch:.455,distance:3.22,center:[0,0,0]};
       if(!Number.isFinite(saved.yaw)||!Number.isFinite(saved.pitch)||!Number.isFinite(saved.distance)||saved.distance<minDistance||saved.distance>maxDistance||!Array.isArray(saved.center)||saved.center.length!==3||!saved.center.every(Number.isFinite))throw new Error('Invalid saved camera.');
       baseYaw=saved.yaw;basePitch=saved.pitch;baseDistance=saved.distance;baseCenter=saved.center.slice();
-      homeOrientation=ScreenTrackball.fromYawPitch(baseYaw,basePitch);resetCamera();
+      const baseOrientation=ScreenTrackball.fromYawPitch(baseYaw,basePitch);
+      if(saved.orientation!==undefined&&(!Array.isArray(saved.orientation)||saved.orientation.length!==4||!saved.orientation.every(Number.isFinite)))throw new Error('Invalid saved camera orientation.');
+      homeOrientation=saved.orientation===undefined?baseOrientation:ScreenTrackball.normalize(saved.orientation);
+      // Retain the saved camera's roll during background motion and mode changes.
+      homeOffset=ScreenTrackball.normalize(ScreenTrackball.multiply(baseOrientation.map((v,i)=>i<3?-v:v),homeOrientation));
+      resetCamera();
       if(r.bakedHome){
         const mesh=await baked();if(id!==job||!usable())return;
         busy=false;upload(mesh,selected);return;
@@ -697,7 +702,7 @@ function create(canvas,options={}){
     if(!activeCount||!activeVao)return;
     const ease=1-Math.exp(-dt*6.2);currentX+=(targetX-currentX)*ease;currentY+=(targetY-currentY)*ease;
     const idle=reduced?0:.010*Math.sin(now*.00023),idle2=reduced?0:.007*Math.sin(now*.00017+1.7);
-    const desiredOrientation=cameraMode==='free'?orbitOrientation:ScreenTrackball.fromYawPitch(baseYaw+.115*currentX+idle,basePitch-.082*currentY+idle2);
+    const desiredOrientation=cameraMode==='free'?orbitOrientation:ScreenTrackball.normalize(ScreenTrackball.multiply(ScreenTrackball.fromYawPitch(baseYaw+.115*currentX+idle,basePitch-.082*currentY+idle2),homeOffset));
     const desiredDistance=cameraMode==='free'?orbitDistance:baseDistance,desiredCenter=cameraMode==='free'?orbitCenter:[baseCenter[0]+.038*currentX,baseCenter[1]-.026*currentY,baseCenter[2]+(reduced?0:.008*Math.sin(now*.00016))],cameraEase=1-Math.exp(-dt*(cameraMode==='free'?12:7));
     cameraOrientation=ScreenTrackball.slerp(cameraOrientation,desiredOrientation,cameraEase);cameraDistance+=(desiredDistance-cameraDistance)*cameraEase;for(let i=0;i<3;i++)cameraCenter[i]+=(desiredCenter[i]-cameraCenter[i])*cameraEase;
     const basis=ScreenTrackball.basis(cameraOrientation),eye=cameraCenter.map((c,i)=>c+cameraDistance*basis.back[i]);
