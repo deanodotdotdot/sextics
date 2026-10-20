@@ -78,6 +78,10 @@ for summary in index['records']:
     camera = render.get('camera', {})
     require(all(isinstance(camera.get(k), (int, float)) and math.isfinite(camera[k]) for k in ['yaw', 'pitch', 'distance']), f'{rid}: missing finite saved camera')
     require(camera['distance'] > 0 and len(camera.get('center', [])) == 3 and all(math.isfinite(v) for v in camera['center']), f'{rid}: invalid camera framing')
+    if 'orientation' in camera:
+        orientation = camera['orientation']
+        require(isinstance(orientation, list) and len(orientation) == 4 and all(isinstance(v, (int, float)) and math.isfinite(v) for v in orientation), f'{rid}: invalid camera orientation')
+        require(abs(sum(v*v for v in orientation) - 1) < 1e-10, f'{rid}: camera orientation is not a unit quaternion')
     phases = {sum(e for e, sign in zip(powers, render['phaseSigns']) if sign < 0) % 2 for _, powers in record['F']['terms']}
     require(len(phases) == 1, f'{rid}: phase choice does not yield a real polynomial up to scalar')
     mesh_relative = render.get('mesh')

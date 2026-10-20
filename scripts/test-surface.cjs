@@ -77,6 +77,23 @@ function controller({supported = true, transferThrows = false, hidden = false} =
 }
 
 (async () => {
+  // Saved poses can include roll. It survives reset and returning to the
+  // background view; selecting an older yaw/pitch-only record clears it.
+  const pose = core(), quaternion = [.7848410404195184,.12778571965730126,.5102919966531698,-.32756286309133836];
+  const rolled = {...pose.record, render:{...pose.record.render, camera:{...pose.record.render.camera, orientation:quaternion}}};
+  const samePose = () => assert.ok(Math.abs(pose.renderer.getCamera().orientation.reduce((s,v,i)=>s+v*quaternion[i],0)) > 1-1e-12);
+  await pose.renderer.setCase(rolled); samePose();
+  pose.frame(100); pose.frame(150); samePose();
+  pose.renderer.setMode('free'); pose.renderer.resetCamera(); samePose();
+  pose.renderer.setMode('parallax'); pose.frame(200); pose.frame(250); samePose();
+  await pose.renderer.setCase(pose.record);
+  const legacy = core(); await legacy.renderer.setCase(legacy.record);
+  assert.deepEqual(Array.from(pose.renderer.getCamera().orientation),Array.from(legacy.renderer.getCamera().orientation));
+  for (const orientation of [[0,0,0,0],[0,0,1],[0,NaN,0,1]]) {
+    await assert.rejects(pose.renderer.setCase({...rolled,render:{...rolled.render,camera:{...rolled.render.camera,orientation}}}), /orientation/i);
+  }
+  pose.renderer.destroy(); legacy.renderer.destroy();
+
   // Report ready only after the GPU confirms an actual frame, not after upload.
   let c = core(); await c.renderer.setCase(c.record);
   assert.equal(c.status.at(-1).state, 'loading');
