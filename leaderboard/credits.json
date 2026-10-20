@@ -407,6 +407,13 @@
       "origin": "contribution",
       "awardedAt": "2026-10-19T19:34:22Z",
       "acceptedAt": "2026-10-19T20:58:42Z"
+    },
+    {
+      "instanceId": "holdout-ternary-deformation",
+      "githubLogin": "hodgepodgeconjecture",
+      "origin": "contribution",
+      "awardedAt": "2026-10-20T07:37:41Z",
+      "acceptedAt": "2026-10-20T12:09:17Z"
     }
   ]
 }

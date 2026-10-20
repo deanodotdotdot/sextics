@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "instanceId": "holdout-ternary-deformation",
+  "solver": {
+    "githubLogin": "hodgepodgeconjecture"
+  },
+  "evidenceStatus": "lean-accepted",
+  "creditOrigin": "contribution",
+  "submittedAt": "2026-10-20T07:37:41Z",
+  "acceptedAt": "2026-10-20T12:09:17Z",
+  "witnessAvailability": "lean-source",
+  "witness": {
+    "proofSource": "data/holdout-ternary-deformation/Solution.lean"
+  },
+  "explanation": "solution.md",
+  "pullRequest": {
+    "number": 151,
+    "url": "https://github.com/hodge-computer/sextics/pull/151",
+    "headCommit": "0d8c2de2bf309b3bd1e71252c15ac3daf1eedcd2",
+    "baseCommit": "518cbaa9fb1ef3a475ed88be2ed63207790ccb9f",
+    "mergeCommit": "851ba6f8cdb467c6ff85244646af3ac611017ae9"
+  },
+  "proof": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/holdout-ternary-deformation/Solution.lean",
+    "receipt": "data/holdout-ternary-deformation/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  }
+}

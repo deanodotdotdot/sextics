@@ -344,13 +344,37 @@
   "slice": "slices/holdout-ternary-deformation.json",
   "rationale": "why.md",
   "provenanceFile": "provenance.json",
-  "formalStatus": "unproved",
-  "status": "open",
-  "evidenceKind": "none",
-  "certificateAvailable": false,
+  "formalStatus": "proved",
+  "status": "solved",
+  "evidenceKind": "existence-proof",
+  "certificateAvailable": true,
   "content": {
-    "why": "data/holdout-ternary-deformation/why.html"
+    "why": "data/holdout-ternary-deformation/why.html",
+    "solution": "data/holdout-ternary-deformation/solution.html"
   },
-  "witnessAvailability": "missing",
-  "draftDisplayStatus": "open"
+  "pullRequest": {
+    "number": 151,
+    "url": "https://github.com/hodge-computer/sextics/pull/151",
+    "headCommit": "0d8c2de2bf309b3bd1e71252c15ac3daf1eedcd2",
+    "baseCommit": "518cbaa9fb1ef3a475ed88be2ed63207790ccb9f",
+    "mergeCommit": "851ba6f8cdb467c6ff85244646af3ac611017ae9"
+  },
+  "certificate": {
+    "proofSource": "data/holdout-ternary-deformation/Solution.lean"
+  },
+  "witnessAvailability": "lean-source",
+  "leanVerification": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/holdout-ternary-deformation/Solution.lean",
+    "receipt": "data/holdout-ternary-deformation/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  },
+  "credit": {
+    "githubLogin": "hodgepodgeconjecture",
+    "origin": "contribution",
+    "awardedAt": "2026-10-20T07:37:41Z"
+  },
+  "draftDisplayStatus": "solved"
 }

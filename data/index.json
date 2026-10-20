@@ -1269,15 +1269,20 @@
     {
       "id": "holdout-ternary-deformation",
       "title": "Deformed ternary · conic quotient",
-      "status": "open",
-      "formalStatus": "unproved",
-      "evidenceKind": "none",
-      "certificateAvailable": false,
+      "status": "solved",
+      "formalStatus": "proved",
+      "evidenceKind": "existence-proof",
+      "certificateAvailable": true,
       "visibility": "navigation",
-      "draftDisplayStatus": "open",
+      "draftDisplayStatus": "solved",
       "category": "Challenge instances",
       "q": 1,
-      "path": "data/holdout-ternary-deformation/record.json"
+      "path": "data/holdout-ternary-deformation/record.json",
+      "credit": {
+        "githubLogin": "hodgepodgeconjecture",
+        "origin": "contribution",
+        "awardedAt": "2026-10-20T07:37:41Z"
+      }
     }
   ]
 }
