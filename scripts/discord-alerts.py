@@ -70,7 +70,7 @@ def payload(kind, number, record, site):
             {'name': 'Accepted proof', 'value': f'[PR #{pr["number"]}]({pr["url"]})', 'inline': True}]
     else:
         embed['fields'] = [{'name': 'Open target', 'value': f'[Explore and discuss]({SITE}/#case/{rid}/discussion)'}]
-    return {'username': 'hodge.computer', 'embeds': [embed], 'allowed_mentions': {'parse': []}}
+    return {'embeds': [embed], 'allowed_mentions': {'parse': []}}
 
 
 def s3_read(bucket, key, *, optional=False):
