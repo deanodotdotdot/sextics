@@ -1,8 +1,8 @@
 import Proposal.CompanionScalar
 import Proposal.CompanionResidue
 import Proposal.RationalAmbient
-import HodgeComputer.Constructions.EllipticCompanions.AffineCompanion
-import HodgeComputer.Constructions.EllipticCompanions.Residues
+import Proposal.EllipticAffineCompanion
+import Proposal.EllipticResidues
 
 /-!
 The first protected ternary, using T as normal coordinate.  The cone has

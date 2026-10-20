@@ -1,7 +1,7 @@
 import Proposal.CompanionResidue
-import HodgeComputer.Constructions.EllipticCompanions.AffineCompanion
-import HodgeComputer.Constructions.EllipticCompanions.Calculus
-import HodgeComputer.Constructions.EllipticCompanions.Residues
+import Proposal.EllipticAffineCompanion
+import Proposal.EllipticCalculus
+import Proposal.EllipticResidues
 
 /-!
 Actual ordinary elliptic primitive for the second protected ternary.
