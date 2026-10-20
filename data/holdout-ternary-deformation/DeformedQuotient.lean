@@ -101,6 +101,18 @@ lemma quotientTangent_apply (d a b : R) (i : Fin 4) (p : MvPolynomial (Fin 5) R)
     (weightedEquation d a b) (quotientProjection_kernel d a b) (quotient_normal_ne_zero d a b) p
 end Field
 
+section ScaledIdentity
+variable {K T : Type*} [Field K] [CharZero K] [CommRing T]
+lemma weightedEquation_eval_fourteen (f : K →+* T) (a b : K) (x : Fin 5 → T) :
+    14*MvPolynomial.eval₂Hom f x (weightedEquation (14⁻¹) a b)=
+      DeformedConic.H (f a) (f b) x := by
+  have hi : (14:T)*f ((14:K)⁻¹)=1 := by
+    rw [← map_ofNat f 14,← map_mul,mul_inv_cancel₀ (by norm_num : (14:K) ≠ 0),map_one]
+  simp only [weightedEquation,DeformedConic.H,map_add,map_sub,map_mul,map_pow,
+    map_ofNat,MvPolynomial.eval₂Hom_X',MvPolynomial.eval₂Hom_C]
+  linear_combination (x 0^5*x 1+2*x 1^5*x 2+x 2^5*x 0)*hi
+end ScaledIdentity
+
 end DeformedGeometry
 #print axioms DeformedGeometry.weightedEquation_irreducible
 #print axioms DeformedGeometry.quotientTangent_apply

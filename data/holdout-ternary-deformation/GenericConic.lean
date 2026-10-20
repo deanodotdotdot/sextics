@@ -19,7 +19,13 @@ open scoped TensorProduct
 attribute [local instance] fermatCurve_adjoinRoot_isDomain fermat_base_charZero
 
 abbrev FermatRing := FermatBaseRing ℂ
+noncomputable instance fermatRing_commRing : CommRing FermatRing := inferInstance
+instance fermatRing_domain : IsDomain FermatRing := fermatCurve_adjoinRoot_isDomain
+instance fermatRing_charZero : CharZero FermatRing := fermat_base_charZero
 abbrev ParameterRing := MvPolynomial (Fin 3) FermatRing
+noncomputable instance parameterRing_commRing : CommRing ParameterRing := inferInstance
+instance parameterRing_domain : IsDomain ParameterRing := inferInstance
+instance parameterRing_charZero : CharZero ParameterRing := inferInstance
 abbrev ParameterField := FractionRing ParameterRing
 noncomputable instance parameterField_field : Field ParameterField := inferInstance
 instance parameterField_charZero : CharZero ParameterField := inferInstance
@@ -39,7 +45,8 @@ def genericEquations : Fin 13 → MvPolynomial (Fin 13) ParameterRing :=
 
 def seedMap : ParameterRing →+* ℂ :=
   MvPolynomial.eval₂Hom (baseEval (1 : ℂ) 0 (by norm_num)) ![4,4,4]
-instance seedAlgebra : Algebra ParameterRing ℂ := seedMap.toAlgebra
+section Specialization
+local instance seedAlgebra : Algebra ParameterRing ℂ := seedMap.toAlgebra
 
 @[simp] lemma seedMap_alpha : seedMap alpha=1 := by simp [seedMap,alpha]
 @[simp] lemma seedMap_beta : seedMap beta=0 := by simp [seedMap,beta]
@@ -70,6 +77,8 @@ instance generic_incidence_nontrivial : Nontrivial (SquareEtaleRing genericEquat
   rw [hm,Matrix.det_transpose]
   exact hj
 
+end Specialization
+
 abbrev GenericIncidence := SquareGenericAlgebra ParameterField genericEquations
 noncomputable instance (priority := 2000) genericIncidence_module : Module ParameterField GenericIncidence :=
   Algebra.toModule
@@ -97,6 +106,16 @@ instance coefficientField_finite : Module.Finite ParameterField CoefficientField
 instance coefficientField_charZero : CharZero CoefficientField :=
   charZero_of_injective_ringHom (f := algebraMap ParameterField CoefficientField)
     (algebraMap ParameterField CoefficientField).injective
+
+noncomputable instance coefficientField_parameterAlgebra : Algebra ParameterRing CoefficientField :=
+  ((algebraMap ParameterField CoefficientField).comp (algebraMap ParameterRing ParameterField)).toAlgebra
+noncomputable instance (priority := 2000) coefficientField_parameterModule : Module ParameterRing CoefficientField :=
+  Algebra.toModule
+noncomputable instance (priority := 2000) coefficientField_parameterSMul : SMul ParameterRing CoefficientField :=
+  coefficientField_parameterModule.toSMul
+instance coefficientField_parameterTower : IsScalarTower ParameterRing ParameterField CoefficientField :=
+  IsScalarTower.of_algebraMap_eq (R := ParameterRing) (S := ParameterField)
+    (A := CoefficientField) (fun _ => rfl)
 
 def coefficients : Fin 13 → CoefficientField := squareGenericCoordinates genericEquations coefficientFactor
 lemma coefficients_equations (i : Fin 13) :
