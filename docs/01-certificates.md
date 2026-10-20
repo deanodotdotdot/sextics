@@ -248,6 +248,15 @@ These bounds leave the central search problem untouched: they do not bound the d
 
 For fixed \(F\) and \(q\), the equation is linear in the pair \((A,v)\). If \(v_j\) serves \(A_j\), then \(\sum _{j}c_j\cdot v_j\) serves \(\sum _{j}c_jA_j\). A product of the denominators supplies a common denominator, so supported target spaces add when supports are united. A decomposition into symmetry characters can therefore organize a search without requiring one denominator to serve every component separately.
 
+In cleared form, certificates \((D,N,Q)\) for \(A\) and \((E,M,R)\) for \(B\) combine as
+
+\[
+D_{A+B}=DE,\qquad N_{A+B}=EN+DM,\qquad
+Q_{A+B}=E^2Q+D^2R.
+\]
+
+The resulting defect is \(E^2\mathcal E_A+D^2\mathcal E_B=F^{q+1}(E^2Q+D^2R)\). Nonzero quotient terms therefore cause no obstruction to addition. Denominator legality is preserved by products, and for positive \(q\) each numerator has degree \(\deg D+\deg E+6q-5\). The shared Lean module `HodgeComputer.CertificateOperations` proves this operation for every positive pole order, including existential certificates.
+
 If \(F\) and \(A\) are rational and \(v\) is defined over a number field \(K\), normalized trace gives a rational certificate:
 
 \[

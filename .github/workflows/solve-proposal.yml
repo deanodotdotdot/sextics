@@ -79,8 +79,7 @@ jobs:
           auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
           git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" fetch origin "pull/$PR/head"
           test "$(git rev-parse FETCH_HEAD)" = "$HEAD"
-          git diff --name-only "$BASE...$HEAD" > /tmp/solve-changes.txt
-          if grep -Eq '^data/[^/]+/(proof\.json|solution\.md|witness\.json|[A-Z][A-Za-z0-9_]*\.lean)$' /tmp/solve-changes.txt; then
+          if [ "$(python3 scripts/proposals/classify.py --base "$BASE" --head "$HEAD")" = solve ]; then
             echo 'solve=true' >> "$GITHUB_OUTPUT"
           else
             echo 'Maintenance PR: explicit owner authorization is required, including in preview mode.' >> "$GITHUB_STEP_SUMMARY"

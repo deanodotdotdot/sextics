@@ -22,6 +22,8 @@ Thus the old quotient coordinates \(S=y^2+T^2\), \(P=yT\) no longer describe the
 
 The coefficient curve now varies with an active coordinate. The derivative compatibility and normal-source identities proved over the fixed Fermat curve cannot simply be reused.
 
+The complementary diagonal quotient does not avoid this change. Its weights \((5,1,5)\) on \(Y\) give the perturbation weight two modulo six, so it no longer preserves the equation. The two chain constructions fail at their geometric input, before a choice of polynomial source or curve seed.
+
 A solution would therefore test whether a cover-and-trace argument can accommodate moving branch data. Possible approaches include a different auxiliary cover, a transport calculation that incorporates the varying coefficient relation, or a new family of rational curves. The [deformed-ternary companion](#case/holdout-ternary-deformation) demonstrates the different situation in which a replacement conic and its nonsingular incidence suffice because the original cover symmetry and coefficient curve remain available. The shared lifting theorem does not restore a symmetry absent from the changed equation.
 
 Exact checks establish smoothness and rule out linear direct-sum decompositions, coordinate-reflection formulas, and the target-fixing junior diagonal quotients screened in [Chapter 4](#technical-information/known-locus). These are boundaries of specified constructions, not a claim that every possible method has been excluded. No certificate or general existence conclusion for this perturbed target is supplied here.

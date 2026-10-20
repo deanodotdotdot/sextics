@@ -10,6 +10,8 @@ The [Fermat-cover construction](#technical-information/explicit-constructions) i
 \]
 It is not invariant under \(y\leftrightarrow T\). Thus the equation no longer descends through \(S=y^2+T^2\), \(P=yT\) to the weighted quotient used by that construction. Maintaining the same bidegree and central target is insufficient to maintain the transfer.
 
+The complementary quotient in [Chapter 2, §2.8](#technical-information/explicit-constructions) is also unavailable unchanged: the added term has weight four under its diagonal weights \((5,1,5)\) on \(Y\). Preserving the two-link bidegree does not preserve either of these serving quotients.
+
 This makes the instance a useful comparison with [the cyclic coupling](#case/cycle-three): both produce an unmatched \(T^2\) term on this cover, but only the cyclic example retains the full paired-sign group. One can therefore ask whether the obstruction is best addressed through a replacement cover, a different quotient, or a method insensitive to these sign characters. A failed correction to the existing conic does not exclude such alternatives.
 
 The [mixed-biweight deformation](#case/mixed-biweight) supplies the complementary comparison: its paired signs survive, but its cover acquires an unmatched fourth power. Together these entries separate symmetry of the physical sextic, symmetry after base change, and the target-density identities needed to return a certificate.

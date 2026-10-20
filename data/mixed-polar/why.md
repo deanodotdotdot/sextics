@@ -11,6 +11,8 @@ Compare the identical target on [the all-six holdout instance](#case/holdout-all
 \]
 It lacks the exchanged term proportional to \(y\cdot T^3\). Consequently the equation does not descend to the same weighted quotient, even though the balanced target has exactly the trace character used successfully on the holdout. A favorable target projection cannot compensate for the loss of the quotient geometry on which its primitive is constructed.
 
+The complementary quotient of [Chapter 2, §2.8](#technical-information/explicit-constructions) has a different failure here. Its diagonal action with weights \((5,1,5)\) on \(Y\) gives the extra coupling weight two. Consequently the polynomial-density integration theorem on that quotient cannot be imported without first constructing a replacement quotient.
+
 The common factor \(X_0\cdot X_1\cdot Y_0\cdot Y_1\) in the first coupling and the added term still leaves useful structure. It suggests investigating adapted quadratic coordinates or a replacement cover, with the asymmetric combination of \(X_0^2\) and \(Y_1^2\) kept explicit. A successful construction must control both the equation and the density; matching the target's pairwise balance alone is insufficient.
 
 The [discussion calculation by `1337isnot1337`](https://github.com/hodge-computer/sextics/discussions/58#discussioncomment-19046015) reports a complete exclusion through denominator degree six, retaining the full numerator correction space. This reported bound is not formalized in Lean and does not establish unrestricted nonexistence. They make this a useful test of a mechanism that reaches beyond small polars while retaining a sparse, structured sextic.

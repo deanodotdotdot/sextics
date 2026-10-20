@@ -657,4 +657,76 @@ so the full cleared defect is \(F^2Q\). The quotient need not vanish. Both \(g_0
 
 This is a finite algebraic existence proof of the required certificate. It does not provide an expanded denominator or a numerical degree bound. Extracting a usable divisor requires making the finite coefficient algebra, traces, and clearing explicit. The certificate statement, the source-map criterion, and the practical size of a witness are distinct questions.
 
+## 2.8 A complementary quotient and its polynomial densities
+
+The trace-zero construction of §2.7 misses the monomial \(A_*=X_0^3\cdot Y_0\cdot Y_1^2\): its deck exponent is zero, and its antisymmetrized quotient source vanishes. A different quotient serves this target on the same chain sextic \(F_H\). The construction of `fqlx` supplies both an explicit incidence system and its [formal certificate](https://github.com/hodge-computer/sextics/pull/161).
+
+Let \(g\) fix \(X\) and act on \((Y_0,Y_1,Y_2)\) with weights \((5,1,5)\) modulo six. Both the equation and the residue with numerator \(A_*\) are invariant: the numerator has character \(\zeta\), and the volume form has character \(\zeta^5\). On a rational coordinate open put
+
+\[
+p=Y_0Y_1,\qquad v=Y_1Y_2,\qquad
+\lambda=\frac{Y_1^3}{Y_0^3+iY_2^3},\qquad i^2=-1.
+\]
+
+These invariant coordinates give, over \(k=\mathbb C(\lambda)\), the hypersurface
+
+\[
+K=\sum_{j=0}^2X_j^6+X_0^3X_1p+X_1^3X_2v
+  +a p^3+b v^3,\qquad
+a=\lambda+\lambda^{-1},\quad b=i(\lambda-\lambda^{-1}).
+\]
+
+For the full six-coordinate map \(\theta=(X_0,X_1,X_2,p,v,\lambda)\), direct calculation gives
+
+\[
+K(\theta)=F_H,\qquad J_\theta=-6\lambda Y_1,\qquad
+\rho=-\frac{X_0^3p}{6\lambda},\qquad J_\theta\rho(\theta)=A_*.
+\]
+
+Thus the required quotient density is polynomial in the five fiber coordinates, with coefficients in \(k\). This observation identifies the source; constructing its primitive is a separate step.
+
+### Curves, normals, and integration
+
+Take a generic endpoint \((c_0,0,c_2,p_0,v_0)\) satisfying
+
+\[
+c_0^6+c_2^6+a p_0^3+b v_0^3=0.
+\]
+
+Over its function field seek a curve with \(\Phi_1=t\), with \(\Phi_0,\Phi_2\) quadratic in \(t\), and with \(\Phi_p,\Phi_v\) quartic. Fix the constant coefficients to be the endpoint. The twelve positive coefficients are unknowns, and the twelve equations are \([t^j]K(\Phi)=0\), \(1\le j\le12\). In the order of the two coefficients of \(\Phi_0\), two of \(\Phi_2\), four of \(\Phi_p\), and four of \(\Phi_v\), a nonsingular seed over \(\mathbb F_5\) is
+
+\[
+\begin{gathered}
+(a,b)=(0,3),\qquad(c_0,c_2,p_0,v_0)=(1,1,4,1),\\
+u=(1,0,4,1,4,2,2,4,4,1,1,2),\qquad \det\Delta=3.
+\end{gathered}
+\]
+
+Here \(\Delta\) is the Jacobian of all twelve incidence equations. The endpoint relation also holds over the integers at \((a,b)=(0,-2)\), and \(\lambda=i\) realizes this parameter value. The integral lifting principle of §5.4 therefore produces a nonsingular complex point on the actual coefficient locus. Localizing at \(\det\Delta\), étale flatness carries nontriviality to the generic endpoint; a finite field factor supplies the curve coefficients. No inversion of \(a\) or \(\lambda^2+1\) is permitted at the seed, where both vanish.
+
+The incidence matrix does more than move the curve. Start a normal vector with \(e_0/(6c_0^5)\), whose gradient pairing has constant coefficient one. Its remaining coefficients are canceled using \(\Delta^{-1}\) and the twelve coefficient variations of the curve. This gives a polynomial vector \(\Psi(t)\) with \(\nabla K(\Phi)\cdot\Psi=1\). The determinant formed from this normal, the curve tangent, and the three independent endpoint derivatives has constant coefficient \(1/(6c_0^5)\ne0\). This is the evaluation determinant needed for residue transport, distinct from the incidence determinant.
+
+The curve defines a finite embedding of the quotient function field into \(E(t)\), where \(E\) is finite over the endpoint field. Injectivity follows from the independent endpoint coordinates, the exact identity \(\Phi_1=t\), and irreducibility of the hypersurface equation. The polynomial normal and evaluation determinant then put every polynomial source on \(K\) into the integration mechanism of §2.7. Coefficientwise integration in \(t\), followed by normalized trace, gives its residue primitive.
+
+For \(\rho\) above, full Piola transport through \(\theta\) and legal homogeneous clearing give a certificate for \(A_*\). Although the relative construction is over \(\mathbb C(\lambda)\), the physical change of variables includes the derivatives of \(\lambda\). It is not a constant on the original sextic. Combining this certificate with the cover certificate for \(X_0^3Y_0^3\) gives the character-separating bundle, using the common-denominator identity in Chapter 1. The quotient remainders are retained; neither summand is required to have a strict certificate.
+
+### Polynomial and rational source boundaries
+
+For an odd sextic monomial \(A=M(X)Y_0^aY_1^bY_2^c\), put \(e=b-a-c-1\) as in §2.7. The cover handles \(e\not\equiv0\pmod6\). In the complementary sector, there are two possibilities:
+
+\[
+\begin{array}{c|c}
+e & A/J_\theta\text{ in the quotient coordinates}\\
+\hline
+0 & -M(X)p^a v^c/(6\lambda)\\[2pt]
+-6 & -M(X)p^a v^c/\bigl(6\lambda^2(p^3+i v^3)\bigr).
+\end{array}
+\]
+
+The second identity uses \(Y_1^6=\lambda(p^3+i v^3)\). The \(e=0\) sources are polynomial on the fiber, so the same curve and integration theorem serve them, with their own source identities. There are fifty such monomials, forty-seven in the primitive basis of §4.6. Together with the cover's 149 primitive basis directions, these give a finite-algebraic route to 196 of the 208 basis directions. This is the mathematical scope of the source maps, not a claim of 196 separately accepted Lean submissions.
+
+The other twelve primitive basis directions have \(e=-6\). Their displayed densities have a fiber denominator, so the polynomial-source integration theorem does not apply directly. Integrating an arbitrary rational function of \(t\) is not the same as polynomial integration; poles can introduce nonzero residues. A different source representative or primitive construction is needed. Geometric existence for these targets is nevertheless already supplied by §4.6. They test effective extraction and formalization, not an unknown-existence frontier.
+
+These counts concern the two displayed source maps, not their closure under automorphisms. For example, \(F_H\) is unchanged by exchanging \(X_2,Y_2\). That exchange carries \(X_2Y_0^2Y_2^3\) to the cover-served target \(X_2^3Y_0^2Y_2\). It similarly serves \(X_iY_0Y_2^4\) and \(X_iY_0^3Y_2^2\), for \(i=0,1\), by transporting their cover certificates. Thus five of the twelve rational-density directions have another finite-algebraic route immediately, bringing the span of these constructions and their exchanged copies to at least 201 primitive basis directions. A pole in one quotient presentation does not itself obstruct a certificate.
+
 Cofactor transport makes fields explicit, algebraic cycle classes prove target spanning, and finite covers can expose symmetries absent on the original variety. Each method must still identify its physical target image. None establishes that a suitable map or supporting family exists for a general \(Y\)-even sextic.

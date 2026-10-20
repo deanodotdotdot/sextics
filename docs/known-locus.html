@@ -241,9 +241,13 @@ assert sum(map(cover, raw)) == 158
 assert sum(map(cover, basis)) == 149
 assert len(raw) - sum(map(cover, raw)) == 68
 assert len(basis) - sum(map(cover, basis)) == 59
+assert sum(e[4]-e[3]-e[5]-1 == 0 for e in raw) == 50
+assert sum(e[4]-e[3]-e[5]-1 == 0 for e in basis) == 47
+assert sum(e[4]-e[3]-e[5]-1 == -6 for e in basis) == 12
 </code></pre>
-<p>The central source and nine additional single-monomial atlas applications have checked Lean proofs using the shared moving-conic machinery. That machinery constructs a residue primitive for every polynomial source on its fixed quotient; each application also proves the identities selecting its physical target. The all-target argument above instead uses geometric support for the quotient fourfold and the diagonal quotient. It establishes a mathematical existence theorem without claiming that these geometric inputs have been formalized in the shared library.</p>
-<p>In particular, the <a href="#case/holdout-bundle">character-separating bundle</a> has known existence: the cover serves <span class="inline-math" data-math>X_0^3\cdot Y_0^3</span>, while the diagonal quotient serves <span class="inline-math" data-math>X_0^3\cdot Y_0\cdot Y_1^2</span>. The companion has deck exponent zero, so it is not obtained by the same trace-zero specialization. Extracting its field or formalizing the quotient support remains useful work. Producing compact explicit divisors for the existing cover certificates is a separate computational problem.</p>
+<p>These are counts for the displayed source maps. The <span class="inline-math" data-math>X_2,Y_2</span> exchange supplies five further basis directions by transporting cover certificates, as explained in §2.8; the twelve rational quotient densities are not twelve obstructions to all finite-algebraic constructions.</p>
+<p>The central source and nine additional single-monomial atlas applications have checked Lean proofs using the shared moving-conic machinery. Each application proves the source identities selecting its physical target. The complementary construction in §2.8 gives polynomial-density primitives on the diagonal quotient, with a separate checked curve incidence and full physical transport. Its polynomial sources account for forty-seven of the fifty-nine complementary primitive basis directions; twelve yield rational fiber densities and are outside that polynomial-source theorem. The all-target argument above covers these as well, through geometric support. Its general geometric inputs are not asserted to be formalized in the shared library.</p>
+<p>The <a href="#case/holdout-bundle">character-separating bundle</a> is a concrete assembly of the two mechanisms: the cover serves <span class="inline-math" data-math>X_0^3\cdot Y_0^3</span>, while the complementary quotient serves <span class="inline-math" data-math>X_0^3\cdot Y_0\cdot Y_1^2</span>. The second summand has deck exponent zero and cannot be obtained by the old trace-zero source formula. Its finite-algebraic construction and the assembly into a common certificate are formalized by <code>fqlx</code>. Producing compact explicit divisors for either curve construction remains a separate computational problem.</p>
 <p>The theorem concerns this fixed variety. The coefficient-differentiation principle in §4.5 requires a family in the relevant deformation directions; it cannot be applied to an isolated certificate by formally changing arbitrary coefficients. Extending the cover or its curve family to a new equation requires proving those geometric and algebraic hypotheses again. Complete target coverage on a special variety does not supply the family dominating all even sextics required in §4.4.</p>
 <h3 id="the-equal-coefficient-equation">The equal-coefficient equation</h3>
 <p>The same all-target support argument applies to <span class="inline-math" data-math>F_{\mathrm{eq}}</span> in §2.7. The actions <span class="inline-math" data-math>d,e,r,\sigma</span> preserve its cover, and the physical diagonal <span class="inline-math" data-math>g</span> has the same fixed point and tangent weights. Its generic weighted quotient is quasismooth: at <span class="inline-math" data-math>(\alpha,\beta)=(0,1)</span> its equation is</p>
@@ -264,23 +268,19 @@ assert len(basis) - sum(map(cover, basis)) == 59
 <tbody>
 <tr>
   <td><a href="#case/cycle-three">Cyclic three-link target</a> and <a href="#case/cycle-q2">its pole-two companion</a></td>
-  <td>The closing edge destroys the exchange on the fixed Fermat cover. A replacement seed alone does not restore the missing quotient; the higher-pole target also needs its full certificate identity.</td>
+  <td>The closing edge destroys both the exchange on the fixed Fermat cover and the complementary diagonal symmetry. A replacement seed alone does not restore either quotient; the higher-pole target also needs its full certificate identity.</td>
 </tr>
 <tr>
   <td><a href="#case/mixed-biweight">Mixed biweight</a>, <a href="#case/off-paired">broken paired signs</a>, and <a href="#case/mixed-polar">mixed polar</a></td>
-  <td>The cover has unmatched fourth-power, square, or asymmetric mixed terms. These are equation-level failures of that exchange, distinct from a singular curve incidence.</td>
+  <td>The cover has unmatched fourth-power, square, or asymmetric mixed terms. These also break the complementary diagonal symmetry. The failures concern the quotient equations, rather than only a singular curve incidence.</td>
 </tr>
 <tr>
   <td><a href="#case/dense-rational">Dense rational sextic</a></td>
   <td>A smooth explicit benchmark with no supplied serving quotient. Proximity to Fermat and a finite formal deformation do not give a rational certificate at the specified coefficients.</td>
 </tr>
 <tr>
-  <td><a href="#case/holdout-bundle">Holdout · character-separating bundle</a></td>
-  <td>Existence follows from §4.6 by combining the cover and a diagonal quotient. Formalizing or computing the second support, rather than changing the conic, is the missing step.</td>
-</tr>
-<tr>
   <td><a href="#case/holdout-moving-branch">Moving branch</a></td>
-  <td>A mixed sextic term makes the coefficient curve depend on an active coordinate. A derivative-compatible replacement for the fixed-base cover and trace is required.</td>
+  <td>A mixed sextic term makes the coefficient curve depend on an active coordinate. The same perturbation breaks the complementary diagonal quotient. A derivative-compatible replacement for the fixed-base geometry is required.</td>
 </tr>
 <tr>
   <td><a href="#case/reflection-coupled-residual">Reflection · complementary character</a></td>
@@ -320,6 +320,6 @@ assert len(basis) - sum(map(cover, basis)) == 59
 </tr>
 </tbody>
 </table>
-<p>The bundle target has a geometric existence proof; its remaining task is a concrete certificate or a formal implementation of that argument. The split-ternary third-order-pole certificate supplies a worked realization of the higher-residue mechanism of §3A.3. The modular quartic, replacement conic, cubic-cover line, and algebraic elliptic contraction provide worked realizations of several other existence mechanisms; they do not erase the character, equation, branch or pole-order boundaries listed here. For the residual targets, failure of the specified constructions is not an assertion that every possible method has been ruled out.</p>
+<p>The complementary-quotient bundle demonstrates how two different source maps can be assembled without requiring a strict certificate. Its rational-density boundary remains an extraction problem within the known-existence chain locus. The split-ternary third-order-pole certificate supplies a worked realization of the higher-residue mechanism of §3A.3. The modular quartic, replacement conic, cubic-cover line, and algebraic elliptic contraction provide worked realizations of several other existence mechanisms; they do not erase the character, equation, branch or pole-order boundaries listed here. For the residual targets, failure of the specified constructions is not an assertion that every possible method has been ruled out.</p>
 <p>The <a href="#case/quadric-contact-broken">broken-reflection certificate</a> and the Fermat-cover certificate illustrate complementary improvements: changing the supporting geometry can solve a target excluded by an earlier denominator or density map. The general theorem sought in §4.4 is stronger still: one nonzero support class in a family dominating the full even-sextic parameter space. Complete target coverage on one special variety does not by itself supply that family.</p>
 <p>The records include reproducible smoothness and target checks, together with the stated symmetry or denominator obstructions. Smoothness follows either from a Fermat reduction modulo five or from a maximal-coordinate derivative estimate. The motivations explain the scope of each method screen. Neither those checks nor a visually interesting slice constitutes an accepted certificate.</p>
