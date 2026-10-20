@@ -8,7 +8,6 @@ import argparse
 from datetime import datetime, timezone
 import io
 import json
-import os
 from pathlib import Path
 import subprocess
 import zipfile
@@ -16,7 +15,6 @@ import zipfile
 import yaml
 
 from acceptance import REPOSITORY, read_acceptance, require, sha256, solution_record, statement_hash, accepted_sources
-from review import approved, latest_owner_review, dispatched_approval
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -59,52 +57,16 @@ def validate_report(report, pr, run, merge, policy):
         require('scripts/proposals/review.py' in report['verifierSha256'], 'Missing sign-off source binding')
 
 
-def publication_signoff(pr, policy, approved_head):
-    """Authenticate an explicit post-merge sign-off in the publisher workflow."""
-    require(approved_head == pr['head']['sha'], 'Publication sign-off must match the exact PR head')
-    require(os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch' and
-            os.environ.get('GITHUB_REPOSITORY') == REPOSITORY and
-            os.environ.get('GITHUB_REF') == 'refs/heads/main',
-            'Publication sign-off requires the main-branch publication workflow')
-    event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
-    require(event.get('inputs', {}).get('approved_head') == approved_head and
-            str(event.get('inputs', {}).get('pr_number')) == str(pr['number']),
-            'Publication sign-off differs from the dispatched inputs')
-    current = api(f'repos/{REPOSITORY}/actions/runs/{int(os.environ["GITHUB_RUN_ID"])}')
-    require(current['path'] == '.github/workflows/publish-solve.yml' and
-            current.get('head_branch') == 'main' and
-            current.get('head_sha') == os.environ.get('GITHUB_SHA') and
-            dispatched_approval(current['event'], current['actor']['login'],
-                                current['triggering_actor']['login'], approved_head,
-                                policy['owner'], pr['head']['sha']),
-            'Publication sign-off must be dispatched and rerun by the owner')
-    return {'method': 'publication_dispatch', 'runId': current['id'],
-            'githubLogin': policy['owner'], 'headCommit': approved_head}
+def merge_authorization(pr, policy):
+    """The configured owner's merge is the solve sign-off, including on own PRs."""
+    require(pr.get('merged') is True and
+            pr.get('merged_by', {}).get('login', '').lower() == policy['owner'].lower(),
+            'Only the configured owner can authorize a solve by merging it')
+    return {'method': 'owner_merge', 'githubLogin': policy['owner'],
+            'headCommit': pr['head']['sha'], 'mergeCommit': pr['merge_commit_sha']}
 
 
-def validate_owner_authorization(report, pr, run, policy, reviews, approved_head=''):
-    """A green proof check is not owner approval. Authenticate that separately."""
-    head=pr['head']['sha']
-    owner=policy['owner']
-    latest=latest_owner_review(reviews,owner)
-    if approved(reviews,owner,head):
-        return {'method':'review','reviewId':latest['id'],'githubLogin':owner,'headCommit':head}
-    # Do not let a saved dispatch override an explicitly withdrawn review.
-    require(not latest or latest['state'] not in ('CHANGES_REQUESTED','DISMISSED'),
-            'Owner approval was withdrawn; obtain a new approving review before publication')
-    if approved_head:
-        return publication_signoff(pr, policy, approved_head)
-    signoff=report.get('ownerAuthorization') or {}
-    if (signoff.get('method')=='workflow_dispatch' and
-        signoff.get('actor')==run.get('actor',{}).get('login') and
-        signoff.get('triggeringActor')==run.get('triggering_actor',{}).get('login') and
-        dispatched_approval(run['event'],signoff.get('actor',''),signoff.get('triggeringActor',''),
-                            signoff.get('headCommit',''),owner,head)):
-        return {'method':'workflow_dispatch','runId':run['id'],'githubLogin':owner,'headCommit':head}
-    raise ValueError('Lean passed, but the owner has not approved this exact commit. Approve the PR, then retry publication; an unchanged proof and base do not need another Lean run.')
-
-
-def publish(number, approved_head=''):
+def publish(number):
     policy=json.loads((ROOT/'.github/solve-policy.json').read_text())
     require(policy['mode']=='live', 'Publication is disabled in preview mode')
     pr=api(f'repos/{REPOSITORY}/pulls/{number}')
@@ -159,8 +121,7 @@ def publish(number, approved_head=''):
         require(accepted_sources(folder)==report['sourceHashes'],
                 'Merged proposal differs from the checked sources')
         if report['schemaVersion']==2:
-            reviews=api(f'repos/{REPOSITORY}/pulls/{number}/reviews?per_page=100',paginate=True)
-            receipt['ownerAuthorization']=validate_owner_authorization(report,pr,run,policy,reviews,approved_head)
+            receipt['ownerAuthorization']=merge_authorization(pr,policy)
         # Version 1 required authorization inside the successful workflow itself.
         # Preserve that evidence when publishing or retrying older checked solves.
     solution=solution_record(ROOT,receipt)
@@ -177,7 +138,4 @@ def publish(number, approved_head=''):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--pr',type=int,required=True)
-    parser.add_argument('--approved-head',default='',
-                        help='Owner sign-off from the authenticated publication dispatch')
-    args=parser.parse_args()
-    publish(args.pr,args.approved_head)
+    publish(parser.parse_args().pr)

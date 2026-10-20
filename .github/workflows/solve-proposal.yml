@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Pull request to verify (an approving review does not require a rerun)
+        description: Pull request to verify
         required: true
         type: string
       approved_head:
-        description: Optional owner sign-off; paste the full reviewed head commit SHA
+        description: Maintenance PR sign-off; paste the full reviewed head commit SHA
         required: false
         type: string
 
@@ -152,7 +152,7 @@ jobs:
           AUTHOR: ${{ steps.context.outputs.author }}
           PR: ${{ steps.context.outputs.pr }}
         run: python3 scripts/proposals/check.py --base "$BASE" --head "$HEAD" --author "$AUTHOR" --pr "$PR" --output /tmp/proposal-report
-      - name: Report solve sign-off or require maintenance authorization
+      - name: Report readiness for owner merge or require maintenance authorization
         id: authorization
         env:
           GH_TOKEN: ${{ github.token }}
@@ -238,7 +238,7 @@ jobs:
           state=failure
           if [ "$RESULT" = success ]; then state=success; fi
           description='Proposal verification failed; see workflow details'
-          if [ "$state" = success ]; then description='Lean verified; owner approval and merge required'; fi
+          if [ "$state" = success ]; then description='Lean verified; ready for owner merge'; fi
           if [ "$IS_SOLVE" != true ]; then
             description='Maintenance requires owner authorization'
             if [ "$state" = success ]; then description='Owner-authorized maintenance; not a solve'; fi

@@ -50,23 +50,26 @@ The checker generates `HodgeTarget` from the base record, and optional `HodgeWit
 
 Candidate code receives no networking, credentials, or repository write access. Protected target artifacts, candidate artifacts, and the final trusted wrapper have separate write permissions. Linux uses Docker; local macOS checking uses `sandbox-exec`. The pinned toolchain, dependencies, verifier, and OS remain trusted components. Verification fails if isolation is unavailable.
 
-The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed; pending owner review does not turn a successful proof check red. The run summary describes the review step separately.
+The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed; the result is ready for the owner to merge. No separate approving review is required.
 
 ### Owner sign-off
 
-`.github/solve-policy.json` selects `live` mode. A live solve requires the configured owner's approving review of the exact checked head. A new commit, dismissed approval, or subsequent request for changes requires renewed sign-off. Maintenance PRs also require explicit owner authorization, regardless of the mode.
+`.github/solve-policy.json` selects `live` mode and the account authorized to merge
+solves. After a solve's `solve/lean` check succeeds, the owner reviews its explanation
+and uses **Create a merge commit**. That merge is the sign-off. No separate approving
+review is required, including when the owner authored the PR. The publisher checks
+GitHub's `merged_by` identity against the configured owner; it does not grant credit
+for a merge performed by another account. Repository write/merge access should remain
+limited to the owner, with the trusted Actions publisher allowed to record acceptance.
 
-After a solve's `solve/lean` check succeeds, use **Files changed → Review changes → Approve**, then **Create a merge commit**. Submitting the review does not rerun Lean. The publisher reads the current GitHub reviews and reuses the existing successful check, provided the checked head and base are unchanged. Do not dispatch another proof run merely to pick up an approving review. If either commit changed, verify again before merging.
+If publication of an eligible, already-merged solve failed, rerun **Publish accepted
+solve** with its PR number. It reuses the successful Lean check against the original
+merge parents and source files. A changed head or base requires fresh verification
+before merging. This retry cannot turn a failed or unchecked proof into an acceptance.
 
-GitHub does not permit authors to approve their own PRs. The owner can instead run the “Solve proposal” workflow with the PR number and full reviewed SHA in `approved_head`. Supply this sign-off on the initial verification run when possible; dispatching this workflow still runs the proof checker. Both the original workflow actor and rerun actor must be the configured owner, and the SHA must still be the current head. This records explicit sign-off on that commit, not on later updates. The publisher authenticates the saved sign-off against the workflow's GitHub identity and rejects it if an owner review was subsequently withdrawn. The existing GitHub UI or GitHub CLI can invoke this workflow; there is no separate submission CLI.
-
-If an already-checked PR was merged without sign-off, run **Publish accepted solve**
-on `main`, supplying its PR number and full reviewed head SHA in `approved_head`.
-This records the owner's approval without repeating Lean. The publisher authenticates
-the dispatch and rerun actors, the exact inputs, and the trusted workflow, then applies
-the existing proof, source, merge-parent, and attribution checks. It cannot repair a
-failed proof check, changed source, or a merge against an unchecked base. A withdrawn
-review still requires a new approving review.
+Maintenance PRs retain their explicit authorization requirement. For an owner-authored
+maintenance PR, dispatch **Solve proposal** with its number and full reviewed head SHA
+in `approved_head`. Both the original workflow actor and rerun actor must be the owner.
 
 Use a **merge commit**, preserving the checked head as its second parent. Merge only against the checked base. Squash/rebase merges and base drift fail publication. When merging through GitHub CLI or an owner script, bind the merge request to the reviewed head SHA. Do not merge another solve until the previous publication commit has landed and the next proof has been checked against current main.
 
@@ -76,8 +79,7 @@ Branch protection or repository rulesets can require `solve/lean`, up-to-date br
 
 `publish-solve.yml` runs on a merged PR or an explicit retry. It checks out trusted main and invokes `scripts/proposals/publish.py`. The publisher requires:
 
-- An owner-merged PR targeting this repository's main branch.
-- The owner's current approving review of the exact head, or an authenticated explicit workflow sign-off. The approval check is independent of Lean and does not recompile the proof.
+- The configured owner's merge of the checked head into this repository's main branch. The merge is the sign-off, regardless of PR authorship.
 - A successful protected workflow run associated with the exact checked head and base.
 - Matching workflow/verifier hashes and a matching preserved verification report.
 - A merge commit whose parents are exactly the checked base and head.

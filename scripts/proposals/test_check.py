@@ -72,12 +72,12 @@ class ProposalChecks(unittest.TestCase):
                      '--reviews',str(reviews),'--head',head,'--report',str(report)]
             result=subprocess.run(command,capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
-            self.assertIn('Lean verification passed. Awaiting owner approval',result.stdout)
+            self.assertIn('Lean verification passed. Ready for owner merge',result.stdout)
             self.assertIsNone(json.loads(report.read_text())['ownerAuthorization'])
             result=subprocess.run(command+['--event','workflow_dispatch','--actor',owner,
                 '--triggering-actor',owner,'--approved-head',head],capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
-            self.assertEqual(json.loads(report.read_text())['ownerAuthorization']['headCommit'],head)
+            self.assertIsNone(json.loads(report.read_text())['ownerAuthorization'])
             # A sign-off cannot be attached to an incomplete or different check.
             for mutation in ({'result':'structure-only'},{'headCommit':'b'*40},{'kernelReplay':False}):
                 report.write_text(json.dumps({**checked,**mutation}))
@@ -105,7 +105,7 @@ class ProposalChecks(unittest.TestCase):
     def test_maintenance_cannot_bypass_owner_review_in_preview(self):
         self.assertTrue(requires_owner_review('preview',maintenance=True))
         self.assertTrue(requires_owner_review('live',maintenance=True))
-        self.assertTrue(requires_owner_review('live',maintenance=False))
+        self.assertFalse(requires_owner_review('live',maintenance=False))
         self.assertFalse(requires_owner_review('preview',maintenance=False))
         with self.assertRaises(ValueError): requires_owner_review('disabled',maintenance=False)
 
@@ -150,7 +150,7 @@ class PublicationAuthorization(unittest.TestCase):
     def setUp(self):
         self.head='a'*40; self.base='b'*40
         self.policy={'owner':'benediamond'}
-        self.pr={'merged':True,'number':122,'head':{'sha':self.head},
+        self.pr={'merged':True,'number':122,'head':{'sha':self.head},'merge_commit_sha':'d'*40,
                  'user':{'login':'contributor'},'merged_by':{'login':'benediamond'},
                  'base':{'ref':'main','repo':{'full_name':'hodge-computer/sextics'}}}
         self.report={'schemaVersion':2,'baseCommit':self.base,'headCommit':self.head,
@@ -168,8 +168,6 @@ class PublicationAuthorization(unittest.TestCase):
         with patch.object(publish,'git',return_value=b'trusted fixture'):
             publish.validate_report(self.report,self.pr,self.run,self.merge,self.policy)
 
-    def authorize(self, reviews):
-        return publish.validate_owner_authorization(self.report,self.pr,self.run,self.policy,reviews)
 
     def test_automatic_and_manual_run_commit_associations(self):
         self.validate()
@@ -197,70 +195,25 @@ class PublicationAuthorization(unittest.TestCase):
         self.report['schemaVersion']=3
         with self.assertRaisesRegex(ValueError,'report version'):self.validate()
 
-    def test_approval_reuses_completed_check_without_changing_author(self):
-        self.validate()
-        with self.assertRaisesRegex(ValueError,'owner has not approved'):self.authorize([])
-        self.assertEqual(self.authorize([self.review])['reviewId'],1)
-        self.assertEqual(self.report['githubLogin'],'contributor')
+    def test_owner_merge_authorizes_contributor_and_owner_authored_prs(self):
+        for author in ('contributor','benediamond'):
+            self.pr['user']['login']=author
+            self.report['githubLogin']=author
+            self.validate()
+            authorization=publish.merge_authorization(self.pr,self.policy)
+            self.assertEqual(authorization,{'method':'owner_merge','githubLogin':'benediamond',
+                'headCommit':self.head,'mergeCommit':'d'*40})
+            self.assertEqual(self.report['githubLogin'],author)
 
-    def test_stale_nonowner_and_withdrawn_approvals_are_rejected(self):
-        for review in ({**self.review,'commit_id':'c'*40},
-                       {**self.review,'user':{'login':'stranger'}},
-                       {**self.review,'id':2,'state':'DISMISSED'},
-                       {**self.review,'id':2,'state':'CHANGES_REQUESTED'}):
-            with self.subTest(review=review),self.assertRaises(ValueError):self.authorize([review])
-        comment={**self.review,'id':3,'state':'COMMENTED'}
-        self.assertEqual(self.authorize([self.review,comment])['reviewId'],1)
+    def test_unmerged_or_nonowner_merges_are_rejected(self):
+        for update in ({'merged':False},{'merged_by':{'login':'stranger'}}):
+            previous=copy.deepcopy(self.pr)
+            self.pr.update(update)
+            with self.subTest(update=update),self.assertRaises(ValueError):self.validate()
+            with self.subTest(update=update),self.assertRaises(ValueError):
+                publish.merge_authorization(self.pr,self.policy)
+            self.pr=previous
 
-    def test_manual_signoff_must_match_the_authenticated_run_and_head(self):
-        self.run.update(event='workflow_dispatch',head_sha=self.base,
-                        actor={'login':'benediamond'},triggering_actor={'login':'benediamond'})
-        signoff={'method':'workflow_dispatch','actor':'benediamond',
-                 'triggeringActor':'benediamond','headCommit':self.head}
-        self.report['ownerAuthorization']=signoff
-        self.assertEqual(self.authorize([])['runId'],123)
-        for field,value in (('actor','stranger'),('triggeringActor','stranger'),('headCommit','c'*40)):
-            self.report['ownerAuthorization']={**signoff,field:value}
-            with self.subTest(field=field),self.assertRaises(ValueError):self.authorize([])
-        self.report['ownerAuthorization']=signoff
-        self.run['actor']={'login':'stranger'}
-        with self.assertRaises(ValueError):self.authorize([])
-        self.run['actor']={'login':'benediamond'}
-        with self.assertRaisesRegex(ValueError,'withdrawn'):
-            self.authorize([{**self.review,'state':'DISMISSED'}])
-
-    def test_postmerge_dispatch_authenticates_owner_inputs_and_workflow(self):
-        current={'id':999,'path':'.github/workflows/publish-solve.yml',
-                 'event':'workflow_dispatch','head_branch':'main','head_sha':'d'*40,
-                 'actor':{'login':'benediamond'},'triggering_actor':{'login':'benediamond'}}
-        with tempfile.TemporaryDirectory() as tmp:
-            event=Path(tmp)/'event.json'
-            event.write_text(json.dumps({'inputs':{'pr_number':'122','approved_head':self.head}}))
-            env={'GITHUB_EVENT_NAME':'workflow_dispatch','GITHUB_REPOSITORY':'hodge-computer/sextics',
-                 'GITHUB_REF':'refs/heads/main','GITHUB_SHA':'d'*40,
-                 'GITHUB_RUN_ID':'999','GITHUB_EVENT_PATH':str(event)}
-            def authorize(reviews=()):
-                return publish.validate_owner_authorization(self.report,self.pr,self.run,
-                                                            self.policy,list(reviews),self.head)
-            with patch.dict(os.environ,env),patch.object(publish,'api',return_value=current):
-                self.validate()  # All original proof/base bindings still apply.
-                self.assertEqual(authorize()['method'],'publication_dispatch')
-                self.assertEqual(authorize()['headCommit'],self.head)
-                self.assertEqual(self.report['githubLogin'],'contributor')
-                for field,value in (('path','untrusted.yml'),('event','pull_request_target'),
-                                    ('head_branch','other'),('head_sha','e'*40),
-                                    ('actor',{'login':'stranger'}),('triggering_actor',{'login':'stranger'})):
-                    original=current[field];current[field]=value
-                    with self.subTest(field=field),self.assertRaises(ValueError):authorize()
-                    current[field]=original
-                with self.assertRaisesRegex(ValueError,'withdrawn'):
-                    authorize([{**self.review,'state':'DISMISSED'}])
-                event.write_text(json.dumps({'inputs':{'pr_number':'123','approved_head':self.head}}))
-                with self.assertRaisesRegex(ValueError,'dispatched inputs'):authorize()
-                event.write_text(json.dumps({'inputs':{'pr_number':'122','approved_head':'e'*40}}))
-                with self.assertRaisesRegex(ValueError,'dispatched inputs'):authorize()
-                with self.assertRaisesRegex(ValueError,'exact PR head'):
-                    publish.publication_signoff(self.pr,self.policy,'e'*40)
 
 class ProposalBoundary(unittest.TestCase):
     def setUp(self):

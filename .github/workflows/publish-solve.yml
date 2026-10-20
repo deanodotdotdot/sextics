@@ -9,10 +9,6 @@ on:
         description: Merged solve PR to publish or retry
         required: true
         type: string
-      approved_head:
-        description: Optional owner sign-off for an already-checked merged PR (full head SHA)
-        required: false
-        type: string
 
 permissions:
   contents: write
@@ -73,11 +69,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number || inputs.pr_number }}
-          APPROVED_HEAD: ${{ inputs.approved_head }}
         run: |
           set -euo pipefail
           [[ "$PR" =~ ^[0-9]+$ ]]
-          python3 scripts/proposals/publish.py --pr "$PR" --approved-head "$APPROVED_HEAD"
+          python3 scripts/proposals/publish.py --pr "$PR"
       - name: Commit the derived acceptance, atlas, and leaderboard
         id: commit
         env:
