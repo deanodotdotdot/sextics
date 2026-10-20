@@ -1,11 +1,11 @@
 <h1 id="complementary-diagonal-quotient-and-moving-conic-certificate">Complementary diagonal quotient and moving-conic certificate</h1>
-<p>This construction addresses the unchanged <code>holdout-bundle</code> instance, in
+<p>This construction serves the <code>holdout-bundle</code> instance, in
 the variable order <code>(X0,X1,X2,Y0,Y1,Y2)</code>, with pole parameter <code>q=1</code>:</p>
 <div class="page-equation" data-math data-display>F=\sum_{j=0}^2X_j^6+\sum_{j=0}^2Y_j^6
   +X_0^3X_1Y_0Y_1+X_1^3X_2Y_1Y_2,
 \qquad
 A_{\rm bundle}=X_0^3Y_0^3+X_0^3Y_0Y_1^2.</div>
-<p>The new work concerns <span class="inline-math" data-math>A_*=X_0^3Y_0Y_1^2</span>. The accepted Fermat-cover
+<p>The complementary construction concerns <span class="inline-math" data-math>A_*=X_0^3Y_0Y_1^2</span>. The accepted Fermat-cover
 construction supplies the first summand. The certificate is an existence
 proof over <span class="inline-math" data-math>\mathbb C</span>, with unrestricted finite denominator degree and
 an unrestricted quotient remainder <span class="inline-math" data-math>Q</span>. No rational-coefficient or
@@ -200,7 +200,7 @@ with</p>
 F\left(D\sum_j\partial_jN_j-\sum_jN_j\partial_jD\right)=F^2Q.</div>
 <p>The final theorem has no field-map, conic, primitive, normal, or
 determinant hypothesis. This route does not require <span class="inline-math" data-math>Q=0</span>.</p>
-<h2 id="6-assembly-of-the-unchanged-bundle">6. Assembly of the unchanged bundle</h2>
+<h2 id="6-assembly-of-the-bundle">6. Assembly of the bundle</h2>
 <p>For certificate data <span class="inline-math" data-math>(D_0,N^{(0)},Q_0)</span> of the accepted first
 summand and <span class="inline-math" data-math>(D_*,N^{(*)},Q_*)</span> above, use</p>
 <div class="page-equation" data-math data-display>D=D_0D_*,\quad
@@ -232,22 +232,4 @@ physical transport for the missing summand.</p>
 the repository authors' Chapter 4, Section 4.6 and the instance's
 <a href="#case/holdout-bundle">mathematical context</a>. The contribution here is the closed Lean
 certificate for this fixed bundle.</p>
-<p>The reference repository commit is
-<code>a27594117baa30dbd39b2b62066d5b55a8a00dc3</code>; the pinned toolchain is
-Lean 4.33.0 with mathlib <code>db584cd6d46c92f209a44c0f1c829460d327499d</code>.
-The supplied development package records local verification on
-2026-10-20 against that reference commit, with the fixed instance and
-trusted source files unchanged. All 29 proposal modules and
-both generated protected wrappers compiled and passed independent
-<code>leanchecker</code> replay. The unchanged trusted <code>Audit.lean</code>, compiled and
-run natively with Lean 4.33.0, passed its protected-declaration, exact-statement,
-and axiom-dependency checks. It reported <code>HodgeSubmission.checked</code>,
-<code>witnessChecked: false</code>, and only <code>propext</code>, <code>Classical.choice</code>, and
-<code>Quot.sound</code>. Here <code>witnessChecked: false</code> identifies the allowed
-existential theorem mode; no expanded polynomial witness was submitted.</p>
-<p>An earlier interpreted development audit reached the shared memory limit.
-The successful native run used the identical trusted source and checks.
-These development checks are separate from the PR's protected workflow,
-which independently compiles and replays the submitted sources in a
-sandbox and audits the exact theorem and its axioms. Repository acceptance
-and publication require that workflow and the owner's checked merge.</p>
+<p>The protected workflow checks the exact existential statement by compiling the submitted modules, replaying their declarations with <code>leanchecker</code>, and auditing their axiom dependencies. The accepted theorem uses only <code>propext</code>, <code>Classical.choice</code>, and <code>Quot.sound</code>. No expanded polynomial witness is supplied; the result establishes existence over complex coefficients with unrestricted finite denominator degree and a general quotient remainder.</p>

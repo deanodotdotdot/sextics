@@ -8,7 +8,7 @@ Let `R = ℂ[X0,X1,X2,Y0,Y1,Y2]`. For the chosen sextic `F`, pole parameter `q`,
 - Each `Nᵢ` is homogeneous of degree `deg(D) + 6q − 5`; zero components are allowed by the homogeneous predicate.
 - The rational field `vᵢ = Nᵢ / D` satisfies `F^(q+1) ∣ A − q·dF(v) + F·div(v)` in the localization away from `F`.
 
-The standing instances have `q ∈ {1,2}`, `F(X,−Y)=F(X,Y)`, and `A(X,−Y)=−A(X,Y)`. Field parity may be enforced by averaging; it must not accidentally narrow the stated existential problem.
+The standing instances have positive integral `q`, `F(X,−Y)=F(X,Y)`, and `A(X,−Y)=−A(X,Y)`. Field parity may be enforced by averaging; it must not accidentally narrow the stated existential problem.
 
 ## A finite algebraic witness
 
@@ -34,6 +34,8 @@ The Lean project pins its toolchain and mathlib manifest. Instance-specific proo
 ## Reusable constructions
 
 The shared library is the Lean counterpart of the mathematical book: organized, reusable statements with explicit hypotheses and concrete applications. Keep exploratory calculations, unsuccessful searches, and target-specific closure arguments outside it. Preserve accepted instance sources as verification evidence; new applications import the maintained library.
+
+[`HodgeComputer.CertificateOperations`](lean/HodgeComputer/CertificateOperations.lean) supplies `Verify.add` and `HasCertificate.add` for every positive pole order. It combines different legal denominators and retains both quotient remainders. `HasCertificate.zero` supplies the neutral source. These are the cleared-form operations of Chapter 1, extracted from `fqlx`'s [bundle assembly](https://github.com/hodge-computer/sextics/pull/161), which uses the addition formula in the accepted one-reflection construction.
 
 [`HodgeComputer.Constructions.HoldoutCover`](lean/HodgeComputer/Constructions/HoldoutCover/README.md) contains the Fermat-cover and moving-conic machinery from `fqlx`'s accepted [holdout proof](https://github.com/hodge-computer/sextics/pull/128). The construction supplies a primitive for an arbitrary polynomial source on its weighted quotient; an application must prove the source and derivative identities that transport its own target back to the original sextic.
 
