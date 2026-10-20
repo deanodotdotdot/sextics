@@ -1,0 +1,315 @@
+<h1 id="a-modular-quartic-finite-trace-and-the-reflection-certificate">A modular quartic, finite trace, and the reflection certificate</h1>
+<p>This proposal constructs a certificate for the fixed instance <strong>reflection-coupled-fano</strong>. Its central ingredient is an explicit weighted quartic on the characteristic-five reduction of the reflection quotient, together with an invertible <span class="inline-math" data-math>24\times24</span> deformation matrix. An étale lifting argument supplies a polynomial family through the generic complex endpoint. Polynomial integration and finite trace then produce the rational vector field required by the certificate contract.</p>
+<p>The construction proves existence. It does not export expanded denominator and numerator polynomials or a numerical denominator degree. Every occurrence of the coupling coefficient in characteristic zero is the exact number <span class="inline-math" data-math>5/7</span>; the sextic, numerator, and pole parameter remain those of <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/instance.rec">instance.rec</a>.</p>
+<h2 id="1-the-fixed-target-and-the-reflection-quotient">1. The fixed target and the reflection quotient</h2>
+<p>Write</p>
+<div class="page-equation" data-math data-display>(x_0,x_1,x_2,x_3,x_4,z)=(X_0,X_1,X_2,Y_0,Y_1,Y_2),
+\qquad c=\frac57.</div>
+<p>Introduce <span class="inline-math" data-math>u=z^2</span> and define</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+H_c(x,u)={}&amp;x_0^6+x_1^6+x_2^6+x_3^6+x_4^6+u^3+cP(x,u),\\
+P(x,u)={}&amp;x_0^3x_1x_3x_4+x_0x_1x_3^3x_4
+ +x_0x_1x_3^2u+2x_0x_1x_4^2u\\
+&amp;+3x_0x_2^3x_3x_4+2x_1^3x_2x_3x_4
+ +x_1x_2x_3x_4^3.
+\end{aligned}</div>
+<p>Thus the protected physical polynomial is exactly</p>
+<div class="page-equation" data-math data-display>F(x,z)=H_{5/7}(x,z^2),
+\qquad q=1,
+\qquad A(x,z)=x_0^3z^3.</div>
+<p>The quotient source used below is</p>
+<div class="page-equation" data-math data-display>B(x,u)=x_0^3u.</div>
+<p>With <span class="inline-math" data-math>\phi(p)=p(x,z^2)</span>, the source identity is <span class="inline-math" data-math>z\phi(B)=A</span>. The factor <span class="inline-math" data-math>1/2</span> arising from differentiation of <span class="inline-math" data-math>z^2</span> will occur in the last numerator component, not in <span class="inline-math" data-math>B</span>.</p>
+<p>The <a href="#case/reflection-coupled-fano">motivation</a> and <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/provenance.json">provenance</a> already explain why the reflection quotient gives a nonconstructive existence argument. In weighted projective coordinates, the five <span class="inline-math" data-math>x_i</span> have weight one, <span class="inline-math" data-math>u</span> has weight two, and <span class="inline-math" data-math>H_c</span> has weighted degree six. The present construction supplies concrete curve and deformation data and derives the finite certificate algebraically.</p>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/CoupledDomain.lean">CoupledDomain.lean</a> defines the quotient and physical equations. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/SourceBinding.lean">SourceBinding.lean</a> identifies the physical equation, source, and pole parameter with the definitions generated from the protected record. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/Solution.lean">Solution.lean</a> is the final binding to</p>
+<pre><code>Submission.certificate :
+  HodgeComputer.HasCertificate
+    HodgeSubmission.F HodgeSubmission.A HodgeSubmission.q
+
+</code></pre>
+<p>The meaning of this statement is given by the repository's <a href="https://github.com/hodge-computer/sextics/blob/main/formal/README.md">formal contract</a>. It asks for a nonzero homogeneous denominator <span class="inline-math" data-math>D</span>, six homogeneous numerators <span class="inline-math" data-math>N_i</span> of degree <span class="inline-math" data-math>\deg D+1</span>, relative primality of <span class="inline-math" data-math>F</span> and <span class="inline-math" data-math>D</span>, and a polynomial <span class="inline-math" data-math>Q</span> satisfying</p>
+<div class="page-equation" data-math data-display>A D^2-D\sum_{i=0}^5N_i\partial_iF
+ +F\left(D\sum_{i=0}^5\partial_iN_i
+          -\sum_{i=0}^5N_i\partial_iD\right)=F^2Q.
+\qquad\text{(1)}</div>
+<p>The quotient <span class="inline-math" data-math>Q</span> is allowed to be nonzero.</p>
+<h2 id="2-coordinate-domains-and-a-legal-normal-chart">2. Coordinate domains and a legal normal chart</h2>
+<p>The proof uses actual coordinate domains before passing to function fields. Both <span class="inline-math" data-math>H_c(x,u)</span> and <span class="inline-math" data-math>F_c(x,z)=H_c(x,z^2)</span> are monic of degree six in <span class="inline-math" data-math>x_0</span>.</p>
+<p>For <span class="inline-math" data-math>H_c</span>, specialize</p>
+<div class="page-equation" data-math data-display>x_1=x_2=x_4=0,\qquad x_3=T+1,\qquad u=-1.</div>
+<p>The resulting polynomial in <span class="inline-math" data-math>x_0</span> is</p>
+<div class="page-equation" data-math data-display>x_0^6+(T+1)^6-1.</div>
+<p>Its constant term is divisible by <span class="inline-math" data-math>T</span>, and its coefficient of <span class="inline-math" data-math>T</span> is <span class="inline-math" data-math>6</span>, so it is not divisible by <span class="inline-math" data-math>T^2</span> in characteristic zero. Eisenstein's criterion at <span class="inline-math" data-math>T</span>, followed by the monic-specialization lemma, proves irreducibility of <span class="inline-math" data-math>H_c</span>. The same specialization proves irreducibility of <span class="inline-math" data-math>F_c</span> over <span class="inline-math" data-math>\mathbb C</span> after setting <span class="inline-math" data-math>z=i</span>, since <span class="inline-math" data-math>i^6=-1</span>. These are irreducibility statements over the complex coefficient ring; no inference from rational irreducibility to complex coprimality is used.</p>
+<p>The normal coordinate throughout is <span class="inline-math" data-math>x_0</span>. Specializing every other coordinate to zero sends the equation to <span class="inline-math" data-math>x_0^6</span> and its <span class="inline-math" data-math>x_0</span>-derivative to <span class="inline-math" data-math>6x_0^5</span>. Consequently,</p>
+<div class="page-equation" data-math data-display>H_c\nmid \partial_0H_c,\qquad F_c\nmid\partial_0F_c.
+\qquad\text{(2)}</div>
+<p>The corresponding normal derivatives are therefore nonzero in the quotient function fields.</p>
+<p>The endpoint section is <span class="inline-math" data-math>x_1=0</span>. With independent coordinates <span class="inline-math" data-math>r_2,r_3,r_4,r_5</span>, its coordinate ring has the monic presentation</p>
+<div class="page-equation" data-math data-display>R_{\mathrm{end}}
+=R_0[r_2,r_3,r_4,r_5,\xi]\big/
+\left(\xi^6+3c\xi r_2^3r_3r_4
+ +r_2^6+r_3^6+r_4^6+r_5^3\right),
+\qquad\text{(3)}</div>
+<p>where <span class="inline-math" data-math>R_0=\mathbb Z[1/7]</span> and <span class="inline-math" data-math>c=5/7\in R_0</span>. Its distinguished point is</p>
+<div class="page-equation" data-math data-display>e=(\xi,0,r_2,r_3,r_4,r_5).</div>
+<p>The endpoint equation is also irreducible. Setting <span class="inline-math" data-math>r_2=r_3=0</span>, <span class="inline-math" data-math>r_4=1</span>, and <span class="inline-math" data-math>r_5=T-1</span> gives</p>
+<div class="page-equation" data-math data-display>\xi^6+T^3-3T^2+3T,</div>
+<p>which is Eisenstein at <span class="inline-math" data-math>T</span> in characteristic zero. Monicity also makes extension of the coefficient domain injective. In particular, the endpoint ring over <span class="inline-math" data-math>R_0</span> embeds in the corresponding ring over <span class="inline-math" data-math>\mathbb C</span>, and then in its fraction field <span class="inline-math" data-math>K_{\mathrm{end}}</span>.</p>
+<p>These facts are proved in <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/EndpointDomain.lean">EndpointDomain.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/CoupledDomain.lean">CoupledDomain.lean</a>, and <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticEndpoint.lean">ArithmeticEndpoint.lean</a>. The monic presentations give</p>
+<div class="page-equation" data-math data-display>\operatorname{trdeg}_{\mathbb C}K_{\mathrm{end}}=4,
+\qquad
+\operatorname{trdeg}_{\mathbb C}
+\operatorname{Frac}\bigl(\mathbb C[x_0,\ldots,x_4,u]/(H_c)\bigr)=5.
+\qquad\text{(4)}</div>
+<h2 id="3-an-explicit-quartic-in-characteristic-five">3. An explicit quartic in characteristic five</h2>
+<p>Because <span class="inline-math" data-math>7</span> is invertible modulo five, the exact coefficient <span class="inline-math" data-math>c=5/7</span> reduces to zero. The reduction of the quotient equation is</p>
+<div class="page-equation" data-math data-display>H_0=x_0^6+x_1^6+x_2^6+x_3^6+x_4^6+u^3.</div>
+<p>Let <span class="inline-math" data-math>j^2=2</span> in characteristic five. The displayed calculation lies in
+<span class="inline-math" data-math>\mathbb F_{25}=\mathbb F_5[j]</span>. In homogeneous parameters <span class="inline-math" data-math>(s:t)</span>, take</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+x_0&amp;=j(s^4+t^4),&amp;
+x_1&amp;=(2+j)(s^3t+st^3),&amp;
+x_2&amp;=js^2t^2,\\
+x_3&amp;=j(s^3t-st^3),&amp;
+x_4&amp;=s^4-t^4,&amp;
+u&amp;=s^8+s^4t^4+t^8.
+\end{aligned}
+\qquad\text{(5)}</div>
+<p>The first five coordinates are quartics and the last is an octic, as required by the weights. There is no common zero of the first five coordinates: the identities</p>
+<div class="page-equation" data-math data-display>x_0+jx_4=2js^4,\qquad x_0-jx_4=2jt^4</div>
+<p>exclude a basepoint. At <span class="inline-math" data-math>s=1,t=0</span>, the endpoint is</p>
+<div class="page-equation" data-math data-display>(j,0,0,0,1,1).
+\qquad\text{(6)}</div>
+<p>The coefficient of <span class="inline-math" data-math>t</span> in <span class="inline-math" data-math>x_1(1,t)</span> is <span class="inline-math" data-math>2+j</span>, which is nonzero: otherwise <span class="inline-math" data-math>j=-2</span> would give <span class="inline-math" data-math>j^2=4</span>, contradicting <span class="inline-math" data-math>j^2=2</span>.</p>
+<p>The equation can be checked directly. Since <span class="inline-math" data-math>j^5=-j</span>, the sum of the five sixth powers in the chart <span class="inline-math" data-math>s=1</span> is</p>
+<div class="page-equation" data-math data-display>4+2t^4+4t^8+3t^{12}+4t^{16}+2t^{20}+4t^{24}.</div>
+<p>This is the negative of <span class="inline-math" data-math>(1+t^4+t^8)^3</span> in characteristic five. Thus (5) lies on <span class="inline-math" data-math>H_0=0</span>.</p>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticSeed.lean">QuarticSeed.lean</a> proves the polynomial identity over any field of characteristic five containing such a <span class="inline-math" data-math>j</span>. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticSeed.lean">ArithmeticSeed.lean</a> obtains a suitable root in an algebraic closure of <span class="inline-math" data-math>\mathbb F_5</span>, so the formal proof needs no external finite-field oracle.</p>
+<h3 id="the-exact-deformation-matrix">The exact deformation matrix</h3>
+<p>Fix the endpoint and allow the coefficients of <span class="inline-math" data-math>t,t^2,t^3,t^4</span> in each of the six coordinates to vary. For <span class="inline-math" data-math>u</span>, keep the coefficients of <span class="inline-math" data-math>t^5,t^6,t^7</span> zero and the coefficient of <span class="inline-math" data-math>t^8</span> equal to one. There are <span class="inline-math" data-math>6\cdot4=24</span> variables.</p>
+<p>The substituted equation has degree at most 24. Its constant term already vanishes because the endpoint lies on the hypersurface. Requiring the coefficients of <span class="inline-math" data-math>t^1,\ldots,t^{24}</span> to vanish gives exactly 24 equations.</p>
+<p>The six gradient polynomials along the seed, in coordinate order <span class="inline-math" data-math>x_0,x_1,x_2,x_3,x_4,u</span>, are</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+G_0&amp;=-j(1+t^{20}),\\
+G_1&amp;=(2-j)(t^5+t^{15}),\\
+G_2&amp;=-jt^{10},\\
+G_3&amp;=-j(t^5-t^{15}),\\
+G_4&amp;=1-t^{20},\\
+G_5&amp;=3+t^4+4t^8+t^{12}+3t^{16}.
+\end{aligned}
+\qquad\text{(7)}</div>
+<p>The Jacobian column corresponding to the <span class="inline-math" data-math>t^r</span>-coefficient of coordinate <span class="inline-math" data-math>i</span> is the vector of coefficients of <span class="inline-math" data-math>G_i t^r</span>, for <span class="inline-math" data-math>r=1,2,3,4</span>.</p>
+<p>Here is a short exact proof of invertibility. Suppose a vector in the kernel corresponds to variations
+<span class="inline-math" data-math>\sum_{r=1}^4 a_{i,r}t^r</span> in the five <span class="inline-math" data-math>x_i</span> and
+<span class="inline-math" data-math>\sum_{r=1}^4 b_rt^r</span> in <span class="inline-math" data-math>u</span>.</p>
+<p>The coefficient equations at <span class="inline-math" data-math>t^5,t^{10},t^{15},t^{20}</span> are respectively</p>
+<div class="page-equation" data-math data-display>b_1=0,\qquad 4b_2=0,\qquad b_3=0,\qquad 3b_4=0.</div>
+<p>Thus all four <span class="inline-math" data-math>b_r</span> vanish. For each <span class="inline-math" data-math>r=1,2,3,4</span>, the remaining equations at <span class="inline-math" data-math>t^r,t^{20+r}</span> give</p>
+<div class="page-equation" data-math data-display>-ja_{0,r}+a_{4,r}=0,\qquad
+-ja_{0,r}-a_{4,r}=0,</div>
+<p>and those at <span class="inline-math" data-math>t^{5+r},t^{15+r}</span> give</p>
+<div class="page-equation" data-math data-display>(2-j)a_{1,r}-ja_{3,r}=0,\qquad
+(2-j)a_{1,r}+ja_{3,r}=0.</div>
+<p>The equation at <span class="inline-math" data-math>t^{10+r}</span> is <span class="inline-math" data-math>-ja_{2,r}=0</span>.
+The scalars <span class="inline-math" data-math>2</span>, <span class="inline-math" data-math>j</span>, and <span class="inline-math" data-math>2-j</span> are nonzero in characteristic five, so every <span class="inline-math" data-math>a_{i,r}</span> vanishes. The kernel is zero, hence the square Jacobian is invertible.</p>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticMatrix.lean">QuarticMatrix.lean</a> formalizes this sparse elimination. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticGradient.lean">QuarticGradient.lean</a> and <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticGradientCoefficients.lean">QuarticGradientCoefficients.lean</a> establish (7) and its coefficients. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticSeedIncidence.lean">QuarticSeedIncidence.lean</a> and <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticSeedJacobian.lean">QuarticSeedJacobian.lean</a> identify this matrix with the actual derivatives of the 24 incidence equations. The proof of nonsingularity uses these exact identities.</p>
+<h2 id="4-lifting-while-keeping-the-coefficient-57-fixed">4. Lifting while keeping the coefficient <span class="inline-math" data-math>5/7</span> fixed</h2>
+<p>The arithmetic incidence is defined over the endpoint ring (3), with the coefficient <span class="inline-math" data-math>5/7</span> already fixed. It does not introduce a deformation parameter that is later assigned a convenient value.</p>
+<p>Let <span class="inline-math" data-math>v_{i,r}</span>, with <span class="inline-math" data-math>i=0,\ldots,5</span> and <span class="inline-math" data-math>r=1,\ldots,4</span>, be the 24 coefficient variables. Define</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+\varphi_i(t)&amp;=e_i+\sum_{r=1}^4v_{i,r}t^r
+ &amp;&amp;(0\le i&lt;5),\\
+\varphi_5(t)&amp;=e_5+\sum_{r=1}^4v_{5,r}t^r+t^8.
+\end{aligned}
+\qquad\text{(8)}</div>
+<p>Let <span class="inline-math" data-math>E_1,\ldots,E_{24}</span> be the positive coefficients of <span class="inline-math" data-math>H_c(\varphi(t))</span>, and let <span class="inline-math" data-math>\Delta</span> be their Jacobian determinant with respect to the <span class="inline-math" data-math>v_{i,r}</span>. Start with</p>
+<div class="page-equation" data-math data-display>S=R_{\mathrm{end}}[v_{i,r}]/(E_1,\ldots,E_{24})</div>
+<p>and invert both <span class="inline-math" data-math>\Delta</span> and <span class="inline-math" data-math>v_{1,1}</span>. The second inversion retains transversality to the endpoint section <span class="inline-math" data-math>x_1=0</span>; it is an additional condition verified at the seed.</p>
+<p>There is a specialization of <span class="inline-math" data-math>R_{\mathrm{end}}</span> to characteristic five sending</p>
+<div class="page-equation" data-math data-display>(\xi,r_2,r_3,r_4,r_5)\longmapsto(j,0,0,1,1).</div>
+<p>The endpoint relation holds because <span class="inline-math" data-math>j^6=3</span> and <span class="inline-math" data-math>3+1+1=0</span> in characteristic five. The seed (5) supplies a point of the localized incidence: all equations vanish, <span class="inline-math" data-math>\Delta\ne0</span>, and <span class="inline-math" data-math>v_{1,1}=2+j\ne0</span>. Therefore this localized ring is nonzero.</p>
+<p>An invertible square Jacobian makes this finitely presented incidence étale over <span class="inline-math" data-math>R_{\mathrm{end}}</span>. The further localization remains étale. Étale algebras are flat, and the injective map from the endpoint domain into <span class="inline-math" data-math>K_{\mathrm{end}}</span> consequently leaves a nonzero generic incidence algebra. This nonzero étale algebra over <span class="inline-math" data-math>K_{\mathrm{end}}</span> has a field factor <span class="inline-math" data-math>E</span> that is a finite separable extension of <span class="inline-math" data-math>K_{\mathrm{end}}</span>.</p>
+<p>The result is a finite extension <span class="inline-math" data-math>E/K_{\mathrm{end}}</span>, together with a tuple (8) over <span class="inline-math" data-math>E[t]</span> satisfying</p>
+<div class="page-equation" data-math data-display>H_c(\varphi)=0,\qquad
+\Delta(\varphi)\ne0,\qquad
+v_{1,1}\ne0.
+\qquad\text{(9)}</div>
+<p>The equations and units survive in the chosen field factor. This argument uses the integral coordinate ring before passage to its generic field; it never evaluates arbitrary rational-function denominators at the modular seed.</p>
+<p>The algebra behind this step is the square-Jacobian and étale construction in the maintained Holdout library, together with mathlib's étale and flatness results. For background, see the Stacks Project sections on <a href="https://stacks.math.columbia.edu/tag/00T1">smooth ring maps</a> and <a href="https://stacks.math.columbia.edu/tag/00U0">étale ring maps</a>.</p>
+<p>The target-specific implementation is <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticBase.lean">ArithmeticBase.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticEndpoint.lean">ArithmeticEndpoint.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/OpenIncidence.lean">OpenIncidence.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticLifting.lean">ArithmeticLifting.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticSeed.lean">ArithmeticSeed.lean</a>, and <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticFamily.lean">ArithmeticFamily.lean</a>. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticIncidence.lean">QuarticIncidence.lean</a> proves the degree, substitution, and differentiation identities for (8). <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticFamily.lean">QuarticFamily.lean</a> packages the exact equations, invertible Jacobian, and nonzero transverse coefficient.</p>
+<h2 id="5-dominance-and-a-finite-extension-of-the-target-field">5. Dominance and a finite extension of the target field</h2>
+<p>Let</p>
+<div class="page-equation" data-math data-display>K=\operatorname{Frac}\bigl(\mathbb C[x_0,\ldots,x_4,u]/(H_c)\bigr),
+\qquad L=E(t).</div>
+<p>Substitution <span class="inline-math" data-math>x_i\mapsto\varphi_i(t)</span> first defines a homomorphism into <span class="inline-math" data-math>E[t]</span>. It must be proved injective on the target coordinate domain before <span class="inline-math" data-math>L</span> can be treated as an extension of <span class="inline-math" data-math>K</span>.</p>
+<p>The constant coefficients of <span class="inline-math" data-math>\varphi_2,\varphi_3,\varphi_4,\varphi_5</span> are the four independent endpoint coordinates <span class="inline-math" data-math>r_2,r_3,r_4,r_5</span>. Hence a polynomial in these four variables cannot become zero under their moving substitutions unless it was already zero: taking the constant coefficient recovers the injective endpoint coefficient map.</p>
+<p>The fifth independent coordinate is <span class="inline-math" data-math>\varphi_1</span>. It has zero constant term and is nonzero, since its coefficient of <span class="inline-math" data-math>t</span> is <span class="inline-math" data-math>v_{1,1}\ne0</span>. The anchored-substitution lemma proves that these conditions preserve injectivity when adjoining <span class="inline-math" data-math>x_1</span>. Its proof proceeds by polynomial recursion: the constant coefficient detects a nonzero constant-in-<span class="inline-math" data-math>x_1</span> term; after this term vanishes, multiplication by the nonzero polynomial <span class="inline-math" data-math>\varphi_1</span> can be canceled in the domain <span class="inline-math" data-math>E[t]</span>. Linearity of <span class="inline-math" data-math>\varphi_1</span> is not required.</p>
+<p>Thus substitution is injective on <span class="inline-math" data-math>\mathbb C[x_1,x_2,x_3,x_4,u]</span>. The monic irreducible equation in <span class="inline-math" data-math>x_0</span>, together with its root <span class="inline-math" data-math>\varphi_0</span>, then gives an injective map from the full hypersurface coordinate ring into <span class="inline-math" data-math>L</span>. It extends to <span class="inline-math" data-math>K\hookrightarrow L</span>.</p>
+<p>By (4), <span class="inline-math" data-math>K</span> has transcendence degree five. Since <span class="inline-math" data-math>E/K_{\mathrm{end}}</span> is finite, <span class="inline-math" data-math>E</span> has transcendence degree four, and <span class="inline-math" data-math>E(t)</span> has transcendence degree five. The extension <span class="inline-math" data-math>L/K</span> is therefore algebraic. The argument also supplies the necessary essential-finite-type property over <span class="inline-math" data-math>\mathbb C</span>; this makes the algebraic extension finite. Equality of transcendence degrees alone is not used to assert finiteness.</p>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/Lifting.lean">Lifting.lean</a> contains the anchored-substitution lemma. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/TargetEmbedding.lean">TargetEmbedding.lean</a> defines the target coordinate ring and field, proves the embedding, checks its coordinate evaluation identities, and proves finiteness using the shared transcendence-degree results.</p>
+<h2 id="6-a-polynomial-normal-and-five-commuting-derivations">6. A polynomial normal and five commuting derivations</h2>
+<p>Write <span class="inline-math" data-math>G_i(t)=(\partial_iH_c)(\varphi(t))</span>, now in characteristic zero, and put <span class="inline-math" data-math>g=G_0(0)</span>. The endpoint normal-chart argument gives <span class="inline-math" data-math>g\ne0</span>: the monic irreducible endpoint polynomial (3) has degree six in <span class="inline-math" data-math>\xi</span>, while its nonzero derivative <span class="inline-math" data-math>6\xi^5+3c r_2^3r_3r_4</span> has degree five. Its class is therefore nonzero in <span class="inline-math" data-math>K_{\mathrm{end}}</span> and remains nonzero in <span class="inline-math" data-math>E</span>.</p>
+<p>The invertible incidence Jacobian produces a polynomial normal vector</p>
+<div class="page-equation" data-math data-display>\psi=(\psi_0,\ldots,\psi_5)\in E[t]^6</div>
+<p>such that</p>
+<div class="page-equation" data-math data-display>\sum_{i=0}^5G_i(t)\psi_i(t)=1,
+\qquad
+\psi_i(0)=
+\begin{cases}
+g^{-1}&amp;i=0,\\
+0&amp;i\ne0.
+\end{cases}
+\qquad\text{(10)}</div>
+<p>One can see the construction directly. Begin with the constant vector <span class="inline-math" data-math>(g^{-1},0,\ldots,0)</span>. The error <span class="inline-math" data-math>1-G_0(t)/g</span> has zero constant term. The Jacobian identifies positive coefficient variations of degrees one through four with polynomials of degrees one through 24. Its inverse supplies corrections with zero constant terms whose gradient pairing is exactly this error. The degree bound makes equality of all these coefficients a polynomial identity. This is <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticNormal.lean">QuarticNormal.lean</a>.</p>
+<p>There are four canonical derivations of <span class="inline-math" data-math>K_{\mathrm{end}}</span>, obtained by differentiating the independent endpoint coordinates and differentiating the monic root implicitly. Each extends uniquely through the finite separable extension <span class="inline-math" data-math>E/K_{\mathrm{end}}</span>; the extensions commute. Extend them coefficientwise to <span class="inline-math" data-math>E[t]</span> and to <span class="inline-math" data-math>E(t)</span>. Add the time derivation <span class="inline-math" data-math>\partial_t</span>, which kills <span class="inline-math" data-math>E</span>. Denote the five commuting derivations by</p>
+<div class="page-equation" data-math data-display>D_0=\partial_t,\quad D_1,D_2,D_3,D_4.</div>
+<p>They kill complex scalars, preserve the polynomial ring <span class="inline-math" data-math>E[t]</span>, and satisfy <span class="inline-math" data-math>D_0(t)=1</span>.</p>
+<p>Form the six-by-six matrix</p>
+<div class="page-equation" data-math data-display>M=\bigl[\ \psi\mid D_0\varphi\mid D_1\varphi
+                   \mid D_2\varphi\mid D_3\varphi\mid D_4\varphi\ \bigr].
+\qquad\text{(11)}</div>
+<p>At <span class="inline-math" data-math>t=0</span>, the normal column is supported only in row <span class="inline-math" data-math>x_0</span>. In row <span class="inline-math" data-math>x_1</span>, the endpoint derivatives vanish and the time derivative is <span class="inline-math" data-math>v_{1,1}</span>. In the last four rows, the four endpoint-derivative columns form the identity matrix. Expansion along the first column and then the <span class="inline-math" data-math>x_1</span> row gives</p>
+<div class="page-equation" data-math data-display>(\det M)(0)=g^{-1}v_{1,1}\ne0.
+\qquad\text{(12)}</div>
+<p>Thus <span class="inline-math" data-math>M</span> is invertible over <span class="inline-math" data-math>L</span>. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticSource.lean">QuarticSource.lean</a> proves the derivation and determinant statements. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuotientGradient.lean">QuotientGradient.lean</a> identifies the gradient used by the incidence with the formal multivariate derivative of <span class="inline-math" data-math>H_c</span>.</p>
+<h2 id="7-polynomial-integration-finite-trace-and-denominator-clearing">7. Polynomial integration, finite trace, and denominator clearing</h2>
+<p>This step applies the polynomial-family machinery from the accepted Holdout construction, with every geometric and differential input now provided by the quartic family.</p>
+<p>Let <span class="inline-math" data-math>\rho</span> denote substitution into <span class="inline-math" data-math>L</span>. Set</p>
+<div class="page-equation" data-math data-display>g_i=\rho(\partial_iH_c),\qquad
+b_i=\rho(\partial_iB),\qquad
+\mathcal H_{ij}=\rho(\partial_j\partial_iH_c),
+\qquad J=\det M.</div>
+<p>The canonical tangent derivations of the target function field are</p>
+<div class="page-equation" data-math data-display>\nabla_i=\partial_{i+1}
+ -\frac{\partial_{i+1}H_c}{\partial_0H_c}\partial_0,
+\qquad i=0,\ldots,4.</div>
+<p>The inverse of (11) expresses their extensions to <span class="inline-math" data-math>L</span> as linear combinations of the five <span class="inline-math" data-math>D_k</span>. The normal-density identity produces the following polynomial in <span class="inline-math" data-math>t</span>:</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+p(t)={}&amp;J\sum_j\psi_jb_j\\
+&amp;+\rho(B)\left(
+\sum_{k=0}^4\det M[k+1\leftarrow D_k\psi]
+-J\sum_{j,\ell}\psi_j\mathcal H_{j\ell}\psi_\ell
+\right).
+\end{aligned}
+\qquad\text{(13)}</div>
+<p>Here <span class="inline-math" data-math>M[k+1\leftarrow D_k\psi]</span> means that the indicated tangent column is replaced by <span class="inline-math" data-math>D_k\psi</span>. Every entry in (13) belongs to <span class="inline-math" data-math>E[t]</span>: the coordinate functions, the normal, the gradient and Hessian evaluations are polynomial, and all five source derivations preserve this ring.</p>
+<p>In characteristic zero, a polynomial <span class="inline-math" data-math>\sum a_nt^n</span> has the polynomial antiderivative <span class="inline-math" data-math>\sum a_nt^{n+1}/(n+1)</span>. Applying this to (13), and using the inverse tangent matrix, gives <span class="inline-math" data-math>w_0,\ldots,w_4\in L</span> satisfying</p>
+<div class="page-equation" data-math data-display>\sum_{i=0}^4\left(
+\nabla_iw_i-w_i\frac{\nabla_i(\partial_0H_c)}{\partial_0H_c}
+\right)
+=-\left(
+\frac{\partial_0B}{\partial_0H_c}
+-\frac{B\,\partial_0^2H_c}{(\partial_0H_c)^2}
+\right).
+\qquad\text{(14)}</div>
+<p>All terms in this identity are read in <span class="inline-math" data-math>L</span>. The correction terms in (13) are part of the normal-density calculation; integration is applied to that complete density.</p>
+<p>Because <span class="inline-math" data-math>L/K</span> is finite and separable, normalized trace</p>
+<div class="page-equation" data-math data-display>\operatorname{tr}_{L/K}^{\mathrm{norm}}
+=\frac{1}{[L:K]}\operatorname{Tr}_{L/K}</div>
+<p>commutes with the extended derivations and fixes <span class="inline-math" data-math>K</span>. Applying it to the <span class="inline-math" data-math>w_i</span> preserves (14) and gives a solution in <span class="inline-math" data-math>K</span>. This is the step that descends the primitive from the parameter field to the actual quotient function field.</p>
+<p>Choose common polynomial representatives <span class="inline-math" data-math>w_i=n_i/d</span> in <span class="inline-math" data-math>K</span>, with <span class="inline-math" data-math>d</span> nonzero modulo <span class="inline-math" data-math>H_c</span>. Put</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+D_H&amp;=(\partial_0H_c)d,\\
+N_{H,0}&amp;=Bd-\sum_{i=1}^5(\partial_iH_c)n_{i-1},\\
+N_{H,i}&amp;=(\partial_0H_c)n_{i-1}\quad(1\le i\le5).
+\end{aligned}
+\qquad\text{(15)}</div>
+<p>The normal identity is then exact in the polynomial ring:</p>
+<div class="page-equation" data-math data-display>\sum_{i=0}^5N_{H,i}\partial_iH_c=BD_H.
+\qquad\text{(16)}</div>
+<p>Equation (14) says that the divergence numerator</p>
+<div class="page-equation" data-math data-display>D_H\sum_i\partial_iN_{H,i}
+-\sum_iN_{H,i}\partial_iD_H</div>
+<p>vanishes modulo <span class="inline-math" data-math>H_c</span>. Therefore it equals <span class="inline-math" data-math>H_cQ_H</span> for some polynomial <span class="inline-math" data-math>Q_H</span>.</p>
+<p>The denominator is legal: its image in <span class="inline-math" data-math>K</span> is the product of the two nonzero elements <span class="inline-math" data-math>\partial_0H_c</span> and <span class="inline-math" data-math>d</span>. Since <span class="inline-math" data-math>H_c</span> is irreducible over <span class="inline-math" data-math>\mathbb C</span>, this proves <span class="inline-math" data-math>D_H\ne0</span> and <span class="inline-math" data-math>\gcd(H_c,D_H)=1</span>.</p>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/CurveClosure.lean">CurveClosure.lean</a> combines the shared polynomial integration, finite trace, and clearing results. <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/FamilyClosure.lean">FamilyClosure.lean</a>, in <code>quotient_normalized_of_quartic_family</code>, supplies all their hypotheses from the constructed quartic family. This produces unrestricted normalized polynomial data on the quotient; homogeneous extraction is performed after returning to the physical variables.</p>
+<h2 id="8-exact-reflection-transport-and-homogeneous-extraction">8. Exact reflection transport and homogeneous extraction</h2>
+<p>Apply <span class="inline-math" data-math>\phi(p)=p(x,z^2)</span> to the quotient data. Define</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+D_F&amp;=\phi(D_H),\\
+N_{F,i}&amp;=z\phi(N_{H,i})\quad(0\le i&lt;5),\\
+N_{F,5}&amp;=\frac12\phi(N_{H,5}),\\
+Q_F&amp;=z\phi(Q_H).
+\end{aligned}
+\qquad\text{(17)}</div>
+<p>The chain rule, together with <span class="inline-math" data-math>A=z\phi(B)</span>, gives</p>
+<div class="page-equation" data-math data-display>\sum_iN_{F,i}\partial_iF=AD_F.
+\qquad\text{(18)}</div>
+<p>For every polynomial <span class="inline-math" data-math>p</span>,</p>
+<div class="page-equation" data-math data-display>\partial_z\phi(p)=2z\phi(\partial_up),
+\qquad
+\partial_{x_i}\phi(p)=\phi(\partial_{x_i}p).</div>
+<p>These identities also give the exact divergence transformation</p>
+<div class="page-equation" data-math data-display>D_F\sum_i\partial_iN_{F,i}
+-\sum_iN_{F,i}\partial_iD_F=FQ_F.
+\qquad\text{(19)}</div>
+<p>Relative primality is checked separately. Treat <span class="inline-math" data-math>H_c</span> and <span class="inline-math" data-math>F_c</span> as monic polynomials in <span class="inline-math" data-math>x_0</span>. The coefficient-ring substitution <span class="inline-math" data-math>u\mapsto z^2</span> is injective. Monic division therefore reflects divisibility: if <span class="inline-math" data-math>F_c\mid\phi(D_H)</span>, then <span class="inline-math" data-math>H_c\mid D_H</span>. This contradicts legality of <span class="inline-math" data-math>D_H</span>. Together with complex irreducibility of <span class="inline-math" data-math>F_c</span>, it proves <span class="inline-math" data-math>\gcd(F_c,D_F)=1</span>.</p>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ReflectionLift.lean">ReflectionLift.lean</a> proves the substitution, derivative, divergence, and coprimality statements, and packages (18)–(19) as <code>reflection_normalized_data</code>.</p>
+<p>The data in (17) need not yet be homogeneous. The shared <a href="https://github.com/hodge-computer/sextics/blob/main/formal/lean/HodgeComputer/Constructions/HoldoutCover/HomogeneousCertificate.lean">homogeneous certificate construction</a> applies because <span class="inline-math" data-math>F</span> and <span class="inline-math" data-math>A</span> are homogeneous of degree six, <span class="inline-math" data-math>F</span> is prime, and the normal chart (2) is legal.</p>
+<p>This construction first chooses a denominator representative modulo <span class="inline-math" data-math>F</span> whose initial homogeneous component is legal. An exact numerator correction and multiplication by the normal derivative preserve the normalized identities. Finite homogeneous extraction then produces a nonzero homogeneous denominator <span class="inline-math" data-math>\widetilde D</span> of some degree <span class="inline-math" data-math>d</span>, six homogeneous numerators <span class="inline-math" data-math>\widetilde N_i</span> of degree <span class="inline-math" data-math>d+1</span>, and a polynomial <span class="inline-math" data-math>\widetilde Q</span>, with</p>
+<div class="page-equation" data-math data-display>\gcd(F,\widetilde D)=1,\qquad
+\sum_i\widetilde N_i\partial_iF=A\widetilde D,</div>
+<div class="page-equation" data-math data-display>\widetilde D\sum_i\partial_i\widetilde N_i
+-\sum_i\widetilde N_i\partial_i\widetilde D
+=F\widetilde Q.
+\qquad\text{(20)}</div>
+<p>Substituting (20) into the left side of (1) gives <span class="inline-math" data-math>F^2\widetilde Q</span>. These are exactly the degree, nonvanishing, relative-primality, and identity conditions required by <code>HodgeComputer.Verify</code> at <span class="inline-math" data-math>q=1</span>.</p>
+<p>The theorem <code>physical_certificate_of_quartic_family</code> in <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/FamilyClosure.lean">FamilyClosure.lean</a> performs this assembly. The closed arithmetic family and the exact source binding then give the protected theorem in <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/Solution.lean">Solution.lean</a>.</p>
+<h2 id="9-scope-search-observations-and-witness-information">9. Scope, search observations, and witness information</h2>
+<p>The coefficient <span class="inline-math" data-math>5/7</span> is unchanged in the arithmetic incidence and in its complex generic fiber. Reduction modulo five is a way to certify that the same integral incidence has a nonzero étale locus.</p>
+<p>The quartic was found after lower-degree exploration. One concrete limitation of this reduction is easy to state: for a degree-two map to the characteristic-five Fermat quotient, the fifth powers of the five quadratic coordinates span at most three functions. Their products with the degree-at-most-one variations have rank at most six. The weight-two coordinate contributes at most four further columns. Thus the twisted normal map has rank at most ten, below the twelve required for freeness. This obstructs the degree-two version of this particular modular construction. It says nothing about nonexistence of characteristic-zero free conics or of certificates with a particular denominator.</p>
+<p>The final proof requires no classification of all free curves and no unsuccessful-search assumption. The explicit quartic and the selected invertible minor are sufficient. Auxiliary finite-field and finite-precision experiments guided the construction; the formal dependency uses the exact polynomial identities, sparse kernel proof, and algebraic lifting theorem.</p>
+<p>No <code>witness.json</code> is supplied. The proof selects a field factor finite over the generic endpoint field, performs trace descent, chooses common representatives, and applies finite homogeneous extraction. These steps prove the existence of finite polynomials <span class="inline-math" data-math>\widetilde D,\widetilde N_i,\widetilde Q</span>, without evaluating their full coefficient lists. No number-field parametrization or rational-coefficient witness is asserted. There is no claimed minimal denominator degree, no numerical denominator-degree bound, and no requirement that the final quotient be zero.</p>
+<h2 id="10-formal-organization-and-verification-scope">10. Formal organization and verification scope</h2>
+<p>The main correspondences are:</p>
+<table>
+<thead>
+<tr>
+  <th>Mathematical step</th>
+  <th>Principal submitted files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Exact quotient, complex irreducibility, physical homogeneity</td>
+  <td><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/CoupledDomain.lean">CoupledDomain.lean</a></td>
+</tr>
+<tr>
+  <td>Modular quartic and its exact incidence Jacobian</td>
+  <td><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticSeed.lean">QuarticSeed.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticMatrix.lean">QuarticMatrix.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticSeedJacobian.lean">QuarticSeedJacobian.lean</a></td>
+</tr>
+<tr>
+  <td>Integral endpoint and characteristic-zero lifting</td>
+  <td><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/EndpointDomain.lean">EndpointDomain.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticLifting.lean">ArithmeticLifting.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticSeed.lean">ArithmeticSeed.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ArithmeticFamily.lean">ArithmeticFamily.lean</a></td>
+</tr>
+<tr>
+  <td>Polynomial normal, source derivations, nonzero evaluation determinant</td>
+  <td><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticNormal.lean">QuarticNormal.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticFamily.lean">QuarticFamily.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/QuarticSource.lean">QuarticSource.lean</a></td>
+</tr>
+<tr>
+  <td>Dominant evaluation and finite target-field extension</td>
+  <td><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/Lifting.lean">Lifting.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/TargetEmbedding.lean">TargetEmbedding.lean</a></td>
+</tr>
+<tr>
+  <td>Polynomial integration, trace, and legal clearing</td>
+  <td><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/CurveClosure.lean">CurveClosure.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/FamilyClosure.lean">FamilyClosure.lean</a></td>
+</tr>
+<tr>
+  <td>Reflection transport and exact protected target</td>
+  <td><a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/ReflectionLift.lean">ReflectionLift.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/SourceBinding.lean">SourceBinding.lean</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/Solution.lean">Solution.lean</a></td>
+</tr>
+</tbody>
+</table>
+<p>The submission imports the maintained shared constructions rather than duplicating an accepted proof package. All target-specific definitions and identities are in the permitted flat helper files.</p>
+<p>The closed protected theorem compiles in the repository's pinned Lean environment, and its transitive axiom report contains only <code>propext</code>, <code>Classical.choice</code>, and <code>Quot.sound</code>. The prescribed explanation check, fresh protected-target compilation, kernel replay, trusted recursive axiom audit, and complete-diff checks are separate verification obligations. Their actual commands and outcomes are recorded in the accompanying pull request. A local proof check does not itself constitute the project's acceptance receipt or owner sign-off.</p>
+<h2 id="11-mathematical-context-and-attribution">11. Mathematical context and attribution</h2>
+<p>The <a href="https://github.com/hodge-computer/sextics/discussions/111">existing instance discussion</a>, <a href="#case/reflection-coupled-fano">motivation</a>, and <a href="https://github.com/hodge-computer/sextics/blob/main/data/reflection-coupled-fano/provenance.json">provenance</a> were read before the construction. At that time the discussion contained the maintainer's opening and no comments; the new partial results were subsequently shared in <a href="https://github.com/hodge-computer/sextics/discussions/111#discussioncomment-19059042">the progress comment</a>. The existing context distinguishes the known geometric existence result from the challenge of producing a checked finite certificate.</p>
+<ul>
+<li><strong>Benjamin E. Diamond and the repository authors</strong> supplied the fixed problem, the certificate formalism, and the reflection/Fano and residue-support framework in <a href="https://github.com/hodge-computer/sextics/blob/main/docs/01-certificates.md">Chapter 1</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/docs/02-explicit-constructions.md">Chapter 2</a>, and <a href="https://github.com/hodge-computer/sextics/blob/main/docs/03-geometric-support.md">Chapter 3</a>. <strong>Phillip Griffiths's residue theory</strong> underlies the geometric interpretation. Diamond's <a href="https://arxiv.org/html/2603.29157v2#S2">Hodge Structures in Sextic Fourfolds Equipped with an Involution</a> explains the rational-vector-field certificate correspondence in this setting.</li>
+<li>The Fano-covering-curve context in the repository uses the classical rational-curve results of <strong>Shigefumi Mori</strong> and <strong>Yoichi Miyaoka–Shigefumi Mori</strong>, as expounded in <strong>Olivier Debarre's notes</strong>, together with the free-curve results cited there: <a href="https://perso.imj-prg.fr/wp-content/uploads/debarre-pub/M22.pdf">Theorems 7.5 and 7.7, Proposition 9.12, and Corollary 9.13</a>. The present Lean argument supplies its own explicit modular curve, deformation minor, and algebraic family; these geometric existence theorems serve as motivation rather than added formal axioms.</li>
+<li><strong><code>fqlx</code>'s accepted <a href="https://github.com/hodge-computer/sextics/pull/128">Holdout proposal, PR #128</a></strong> supplied the moving-family, polynomial-normal, integration, finite-differential-trace, legal-clearing, and homogeneous-extraction machinery reused here. The <a href="https://github.com/hodge-computer/sextics/blob/main/formal/lean/HodgeComputer/Constructions/HoldoutCover/README.md">maintained HoldoutCover library</a> retains that work's declarations and attribution, including the collaborators and AI assistance recorded in the <a href="https://github.com/hodge-computer/sextics/blob/main/data/holdout/solution.md">original explanation</a>. Its later maintenance and target-parameterized assembly were prepared for <code>benediamond</code> with OpenAI Codex assistance. This proposal contributes the explicit modular quartic for the fixed coupled quotient, the modular deformation certificate, the arithmetic lift, and the target-specific assembly.</li>
+<li><strong><code>HeadOfNaps</code>'s accepted <a href="https://github.com/hodge-computer/sextics/pull/122">quadric-contact-broken proposal, PR #122</a></strong> contributed the <a href="https://github.com/hodge-computer/sextics/blob/main/data/quadric-contact-broken/FractionDerivation.lean">fraction-derivation construction</a> adapted by the shared Holdout machinery. Its disclosed collaborators and AI assistance retain their credit.</li>
+<li><strong>The Lean and mathlib contributors</strong> supplied the polynomial, algebraic-extension, localization, étale-algebra, flatness, derivation, determinant, and transcendence-degree foundations. The proof uses the repository's pinned toolchain and mathlib revision. The <a href="https://leanprover-community.github.io/mathlib4_docs/Mathlib/RingTheory/Etale/Basic.html">mathlib étale-algebra documentation</a> and the Stacks Project references above describe relevant algebraic foundations.</li>
+<li><strong>OpenAI ChatGPT, working through collaborating agents for GitHub contributor <code>fqlx</code></strong>, assisted the curve search, exact calculations, mathematical construction, Lean formalization, debugging, source review, and exposition. This is an AI-assisted contribution. The mathematical dependencies and formal verification, rather than agreement among agents, support the claims.</li>
+</ul>
+<p>The result requested by the proposal is the existential certificate for the exact protected triple. Project acceptance additionally requires the repository's protected checks, mathematical review, and publication process.</p>

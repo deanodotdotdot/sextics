@@ -390,13 +390,37 @@
   "slice": "slices/reflection-coupled-fano.json",
   "rationale": "why.md",
   "provenanceFile": "provenance.json",
-  "formalStatus": "unproved",
-  "status": "open",
-  "evidenceKind": "none",
-  "certificateAvailable": false,
+  "formalStatus": "proved",
+  "status": "solved",
+  "evidenceKind": "existence-proof",
+  "certificateAvailable": true,
   "content": {
-    "why": "data/reflection-coupled-fano/why.html"
+    "why": "data/reflection-coupled-fano/why.html",
+    "solution": "data/reflection-coupled-fano/solution.html"
   },
-  "witnessAvailability": "missing",
-  "draftDisplayStatus": "open"
+  "pullRequest": {
+    "number": 150,
+    "url": "https://github.com/hodge-computer/sextics/pull/150",
+    "headCommit": "1388c6b4fd5b74cf948a8e2728a70176e077cce4",
+    "baseCommit": "b76761af375fa91251d0c8c870535cc6bfc8270e",
+    "mergeCommit": "daa857874addb91e91c0c95df4ca9247d3328c8d"
+  },
+  "certificate": {
+    "proofSource": "data/reflection-coupled-fano/Solution.lean"
+  },
+  "witnessAvailability": "lean-source",
+  "leanVerification": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/reflection-coupled-fano/Solution.lean",
+    "receipt": "data/reflection-coupled-fano/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  },
+  "credit": {
+    "githubLogin": "fqlx",
+    "origin": "contribution",
+    "awardedAt": "2026-10-20T05:39:21Z"
+  },
+  "draftDisplayStatus": "solved"
 }
