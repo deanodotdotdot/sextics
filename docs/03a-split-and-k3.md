@@ -132,6 +132,56 @@ Finite algebraic extensions descend by normalized trace. The independent transla
 
 This realization explains what has to be preserved in a formal extension: the companion primitives, pole separation, all residue boundaries, derivative-compatible descent, and the exact target. It does not turn a fixed pole-one primitive into an arbitrary higher-pole certificate by multiplication. The geometric all-pole theorem and a formal proof of a particular higher-pole target remain distinct tasks.
 
+### Higher-pole residue calculus
+
+The companion method extends to a third-order pole by constructing its second normal residue. Let \(H\) be a hypersurface equation in five affine coordinates, choose the normal coordinate \(x_0\), and put \(g=\partial_0H\ne0\) in its function field. For a polynomial numerator \(B\), write
+
+\[
+R_1(B)=\partial_0(B/g),\qquad
+R_2(B)=\frac12\partial_0\bigl(R_1(B)/g\bigr)
+=\frac12\left(\frac{B_{00}}{g^2}
+-\frac{3B_0H_{00}+BH_{000}}{g^3}
++\frac{3BH_{00}^2}{g^4}\right).
+\]
+
+The corresponding second residue density is \(R_2(B)/g\) in tangent coordinates. This formula alone is not a polynomial-curve primitive: its denominators must be handled along the family, and the coordinate Jacobian also varies.
+
+Suppose a dominant polynomial-curve family supplies a polynomial normal \(\psi\) with \(dH(\psi)=1\). Thicken the curve by \(c(t)+\varepsilon\psi(t)\), and write
+
+\[
+H(c+\varepsilon\psi)=\varepsilon+a\varepsilon^2+b\varepsilon^3+\cdots,
+\qquad B(c+\varepsilon\psi)\,J(\varepsilon)
+=K_0+K_1\varepsilon+K_2\varepsilon^2+\cdots.
+\]
+
+The coefficient giving the residue of the third-order pole is the polynomial density
+
+\[
+P=K_2-3aK_1+(6a^2-3b)K_0.
+\]
+
+Gradient, Hessian, third-derivative, and determinant identities express it as
+\(P=J(0)\bigl(R_2(B)+\operatorname{ResDiv}_g Z\bigr)\), where
+\(\operatorname{ResDiv}_g Z=g\sum_i\partial_i(Z_i/g)\) for the induced tangent derivations, and \(Z\) is the tangent correction. Thus integrating \(P\) in the curve parameter, transporting by the Piola identity, and subtracting \(Z\) gives a primitive for \(R_2(B)\). Normalized trace descends the primitive through the finite extension supplied by the curve family. Polynomiality of the numerator, normal, and coordinate derivatives is essential to this argument.
+
+For a split sextic with target of block bidegree \((7,5)\), this calculus provides the missing companion input. On \(H=7(f+S^3+T^3)\), with \(h\) of degree seven in the ordinary block variables, choose \(B=49hST\) and take \(T\) as normal coordinate. Since \(g=21T^2\),
+
+\[
+\tfrac12 R_1(B)=-\frac{7hS}{6T^2},\qquad
+R_1\bigl(\tfrac12R_1(B)\bigr)=R_2(B).
+\]
+
+Weighted radial descent and the elliptic identity
+\(\delta(a^2/b+b^2/a)=b/a^2-a/b^2\) convert this source to the theta character. The other companion supplies the ordinary character. After contraction and normalized trace, the resulting four-vector satisfies
+
+\[
+\operatorname{div}W-\frac{5W(p)}{3p}-\frac{4W(q_0)}{3q_0}=s,
+\]
+
+where \(p,q_0\) are the affine ternaries and \(s\) is the affine target. Substitution \(X=t(x,a,1)\), \(Y=t\lambda(r,z,1)\) gives \(F=t^6(p+\lambda^6q_0)\). The vertical component and the Jacobian contribution \(2V_\lambda/\lambda\) must both be retained when producing the physical pole-two identity; legal homogeneous clearing then gives a strict certificate with numerator degree \(\deg D+7\).
+
+The [split-ternary construction of `fqlx`](https://github.com/hodge-computer/sextics/pull/159) implements this chain for the exact asymmetric pair in [Split ternaries · third-order pole](#case/split-ternary-q2). The [shared higher-residue library](https://github.com/hodge-computer/sextics/tree/main/formal/lean/HodgeComputer/Constructions/HigherResidues) isolates the normal-jet and polynomial-family arguments. These are reusable conditional steps, not a theorem producing the required family on every hypersurface. In particular, the geometric all-pole statement does not remove the scalar-weight, descent, or denominator obligations of another formal application.
+
 ### Involution-stable ternary decompositions
 
 The same theorem holds whenever \(F=p(U)+q(V)\) for complementary three-dimensional subspaces \(U,V\) preserved by \(\tau \). If all three negative eigendirections lie in one summand, this is the theorem just proved. Otherwise their multiplicities are one and two, after exchange of the summands. Write the resulting normal form as \(p(X_{0},X_{1},Y_{0})+q(X_{2},Y_{1},Y_{2})\). Global invariance forces \(p\) to be even in \(Y_{0}\) and, by its even total degree, \(q\) to be even in \(X_{2}\).
