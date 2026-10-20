@@ -30,7 +30,7 @@ def validate_state(state):
         raise ValueError('Unsupported Discord notification state')
     for key in ('instances', 'solves'):
         if not isinstance(state.get(key), list) or not all(
-                isinstance(x, str) and re.fullmatch(r'[a-z0-9-]+', x) for x in state[key]):
+                isinstance(x, str) and re.fullmatch(r'[A-Za-z0-9-]+', x) for x in state[key]):
             raise ValueError('Invalid Discord notification state')
     if not set(state['solves']) <= set(state['instances']):
         raise ValueError('Notification state contains an unknown solve')

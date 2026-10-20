@@ -41,6 +41,13 @@ class Alerts(unittest.TestCase):
         updated['records'][0]['title'] = 'Edited title'
         self.assertEqual(alerts.pending_events(updated, self.state), [])
 
+    def test_complete_atlas_is_a_valid_initial_baseline(self):
+        index = json.loads((Path(__file__).resolve().parents[1] / 'data/index.json').read_text())
+        state = alerts.validate_state(alerts.snapshot(index))
+        self.assertEqual(len(state['instances']), len(index['records']))
+        self.assertIn('ytype-companion-fiberA-d4-strict-rational', state['instances'])
+        self.assertEqual(alerts.pending_events(index, state), [])
+
     def test_new_open_entry_and_newly_accepted_solve(self):
         index = {'records': [record('old-solve', True), record('open-target', True), record('new-target')]}
         events = alerts.pending_events(index, self.state)
