@@ -1,7 +1,7 @@
 import Proposal.EllipticSource
-import Proposal.EllipticCalculus
-import Proposal.EllipticKernels
-import Proposal.EllipticScalarEmbedding
+import HodgeComputer.Constructions.EllipticCompanions.Calculus
+import HodgeComputer.Constructions.EllipticCompanions.Kernels
+import HodgeComputer.Constructions.EllipticCompanions.ScalarEmbedding
 
 /-!
 Scalar conversion for an arbitrary affine ternary p and the rational source

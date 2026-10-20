@@ -1,5 +1,5 @@
 import Proposal.CompanionSeeds
-import Proposal.EllipticCompanionAlgebra
+import HodgeComputer.Constructions.EllipticCompanions.CompanionAlgebra
 import HodgeComputer.Constructions.PolynomialCurves.ArithmeticLifting
 
 /-!

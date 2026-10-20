@@ -1,5 +1,5 @@
 import Proposal.CertificateClearing
-import Proposal.EllipticContraction
+import HodgeComputer.Constructions.EllipticCompanions.Contraction
 
 /-!
 Target-specific product and weighted descent for split-ternary-q2, conditional

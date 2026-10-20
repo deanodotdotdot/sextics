@@ -1,5 +1,5 @@
 import Proposal.CompanionGeometry
-import Proposal.EllipticCompanionAlgebra
+import HodgeComputer.Constructions.EllipticCompanions.CompanionAlgebra
 
 /-!
 Finite polynomial-curve residue primitives for the exact split companions.
