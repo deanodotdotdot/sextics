@@ -10,7 +10,7 @@ namespace DeformedConic
 open Polynomial
 
 abbrev K := ZMod 5
-local instance : Fact (Nat.Prime 5) := ⟨by decide⟩
+local instance conicSeed_local_1 : Fact (Nat.Prime 5) := ⟨by decide⟩
 def seed : Fin 13 → K := ![1,
 0,
 2,

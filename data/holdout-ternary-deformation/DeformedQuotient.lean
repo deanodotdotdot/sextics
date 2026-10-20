@@ -84,7 +84,7 @@ lemma quotient_normal_ne_zero (d a b : R) :
     quotientResidueMap d a b (integerPartial 0 (weightedEquation d a b)) ≠ 0 := by
   intro h
   exact weightedEquation_not_dvd_normal d a b ((quotientResidueMap_kernel d a b _).mp h)
-local instance (d a b : R) : Algebra ℤ (QuotientField d a b) := Ring.toIntAlgebra _
+local instance deformedQuotient_local_1 (d a b : R) : Algebra ℤ (QuotientField d a b) := Ring.toIntAlgebra _
 def quotientTangent (d a b : R) (i : Fin 4) :
     Derivation ℤ (QuotientField d a b) (QuotientField d a b) :=
   residueTangent (K := QuotientField d a b) (quotientProjection d a b)
@@ -111,6 +111,41 @@ lemma weightedEquation_eval_fourteen (f : K →+* T) (a b : K) (x : Fin 5 → T)
   simp only [weightedEquation,DeformedConic.H,map_add,map_sub,map_mul,map_pow,
     map_ofNat,MvPolynomial.eval₂Hom_X',MvPolynomial.eval₂Hom_C]
   linear_combination (x 0^5*x 1+2*x 1^5*x 2+x 2^5*x 0)*hi
+
+lemma weightedEquation_fourteen (a b : K) :
+    14*weightedEquation (14⁻¹) a b=
+      DeformedConic.H (MvPolynomial.C a) (MvPolynomial.C b) MvPolynomial.X := by
+  have h := weightedEquation_eval_fourteen (MvPolynomial.C : K →+* MvPolynomial (Fin 5) K)
+    a b MvPolynomial.X
+  change 14*MvPolynomial.eval₂ MvPolynomial.C MvPolynomial.X (weightedEquation (14⁻¹) a b)=_ at h
+  rwa [MvPolynomial.eval₂_eta] at h
+
+lemma H_integerPartial (a b : R) (i : Fin 5) :
+    integerPartial i (DeformedConic.H (MvPolynomial.C a) (MvPolynomial.C b) MvPolynomial.X)=
+      DeformedConic.gradient (MvPolynomial.C a) (MvPolynomial.C b) MvPolynomial.X i := by
+  have h2 : MvPolynomial.pderiv i (2 : MvPolynomial (Fin 5) R)=0 := Derivation.map_natCast _ 2
+  have h3 : MvPolynomial.pderiv i (3 : MvPolynomial (Fin 5) R)=0 := Derivation.map_natCast _ 3
+  have h14 : MvPolynomial.pderiv i (14 : MvPolynomial (Fin 5) R)=0 := Derivation.map_natCast _ 14
+  simp only [integerPartial_apply,DeformedConic.H,map_add,map_sub,
+    MvPolynomial.pderiv_pow,MvPolynomial.pderiv_mul,MvPolynomial.pderiv_C,
+    MvPolynomial.pderiv_X,h2,h3,h14]
+  fin_cases i <;> norm_num [DeformedConic.gradient,Pi.single_apply,Fin.ext_iff] <;> ring
+
+lemma weightedEquation_partial_fourteen (a b : K) (i : Fin 5) :
+    14*integerPartial i (weightedEquation (14⁻¹) a b)=
+      DeformedConic.gradient (MvPolynomial.C a) (MvPolynomial.C b) MvPolynomial.X i := by
+  have h := congrArg (integerPartial i) (weightedEquation_fourteen a b)
+  rw [H_integerPartial] at h
+  have hn : integerPartial i (14 : MvPolynomial (Fin 5) K)=0 :=
+    (integerPartial i).map_natCast 14
+  simpa only [Derivation.leibniz,hn,smul_eq_mul,mul_zero,add_zero] using h
+
+lemma weightedEquation_partial_eval_fourteen (f : K →+* T) (a b : K) (x : Fin 5 → T) (i : Fin 5) :
+    14*MvPolynomial.eval₂Hom f x (integerPartial i (weightedEquation (14⁻¹) a b))=
+      DeformedConic.gradient (f a) (f b) x i := by
+  have h := congrArg (MvPolynomial.eval₂Hom f x) (weightedEquation_partial_fourteen a b i)
+  rw [DeformedConic.gradient_map] at h
+  simpa only [map_mul,map_ofNat,MvPolynomial.eval₂Hom_C,MvPolynomial.eval₂Hom_X'] using h
 end ScaledIdentity
 
 end DeformedGeometry

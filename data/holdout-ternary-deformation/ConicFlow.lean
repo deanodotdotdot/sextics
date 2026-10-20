@@ -18,10 +18,10 @@ set_option profiler.threshold 100
 namespace DeformedConic
 open HoldoutConstruction Polynomial
 attribute [local instance] fermatCurve_adjoinRoot_isDomain fermat_base_charZero
-local instance : Algebra ℤ ParameterField := Ring.toIntAlgebra _
-local instance : Algebra ℤ CoefficientField := Ring.toIntAlgebra _
+local instance conicFlow_local_1 : Algebra ℤ ParameterField := Ring.toIntAlgebra _
+local instance conicFlow_local_2 : Algebra ℤ CoefficientField := Ring.toIntAlgebra _
 abbrev FunctionField := FractionRing (Polynomial CoefficientField)
-local instance : Algebra ℤ FunctionField := Ring.toIntAlgebra _
+local instance conicFlow_local_3 : Algebra ℤ FunctionField := Ring.toIntAlgebra _
 
 def parameterDerivation (j : Fin 3) : Derivation ℤ ParameterField ParameterField :=
   extendRingDerivation (P := ParameterRing) (L := ParameterField) (integerPartial (R := FermatRing) j)

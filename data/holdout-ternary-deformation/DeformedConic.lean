@@ -8,7 +8,7 @@ set_option profiler true
 set_option profiler.threshold 100
 namespace DeformedConic
 open Polynomial
-local instance : Fact (Nat.Prime 5) := ⟨by decide⟩
+local instance deformedConic_local_1 : Fact (Nat.Prime 5) := ⟨by decide⟩
 
 def seedJacobian : Matrix (Fin 13) (Fin 13) K := fun i j =>
   MvPolynomial.eval₂Hom (RingHom.id K) seed

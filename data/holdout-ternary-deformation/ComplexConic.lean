@@ -6,7 +6,7 @@ set_option backward.isDefEq.respectTransparency false
 set_option maxHeartbeats 800000
 namespace DeformedConic
 open HoldoutConstruction
-local instance : Fact (Nat.Prime 5) := ⟨by decide⟩
+local instance complexConic_local_1 : Fact (Nat.Prime 5) := ⟨by decide⟩
 
 def integerParameters : Fin 3 → ℤ := ![4,4,4]
 lemma integerParameters_cast : (fun j => (Int.castRingHom K) (integerParameters j))=parameters := by
