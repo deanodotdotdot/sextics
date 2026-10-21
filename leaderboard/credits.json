@@ -444,6 +444,13 @@
       "acceptedAt": "2026-10-19T20:58:42Z"
     },
     {
+      "instanceId": "holdout-moving-branch",
+      "githubLogin": "benediamond",
+      "origin": "contribution",
+      "awardedAt": "2026-10-21T12:56:35Z",
+      "acceptedAt": "2026-10-21T13:22:41Z"
+    },
+    {
       "instanceId": "holdout-ternary-deformation",
       "githubLogin": "hodgepodgeconjecture",
       "origin": "contribution",

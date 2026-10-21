@@ -1281,15 +1281,20 @@
     {
       "id": "holdout-moving-branch",
       "title": "Moving branch · coupled cover",
-      "status": "open",
-      "formalStatus": "unproved",
-      "evidenceKind": "none",
-      "certificateAvailable": false,
+      "status": "solved",
+      "formalStatus": "proved",
+      "evidenceKind": "existence-proof",
+      "certificateAvailable": true,
       "visibility": "navigation",
-      "draftDisplayStatus": "open",
+      "draftDisplayStatus": "solved",
       "category": "Challenge instances",
       "q": 1,
-      "path": "data/holdout-moving-branch/record.json"
+      "path": "data/holdout-moving-branch/record.json",
+      "credit": {
+        "githubLogin": "benediamond",
+        "origin": "contribution",
+        "awardedAt": "2026-10-21T12:56:35Z"
+      }
     },
     {
       "id": "holdout-ternary-deformation",
