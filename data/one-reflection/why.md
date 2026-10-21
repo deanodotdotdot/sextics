@@ -5,7 +5,7 @@ X_0^3\cdot X_1\cdot Y_0\cdot Y_1
 \]
 Both involve the same pair of odd coordinates. The target is the degree-six monomial \(X_0^3\cdot Y_0^3\), keeping the requested class simple while changing the coupling geometry from the central holdout. The visible reflection in \(Y_2\) alone does not serve this target, since its numerator is even in \(Y_2\).
 
-However, [fringewidth observed in the discussion](https://github.com/hodge-computer/sextics/discussions/54#discussioncomment-18986773) that two additional reflections become visible after the block-linear change
+Two additional reflections become visible after the block-linear change
 \[
 P=Y_0+Y_1,\qquad M=Y_0-Y_1.
 \]
@@ -16,6 +16,6 @@ A=\frac18\cdot X_0^3\cdot P\cdot(P^2+3\cdot M^2)
 \]
 The two summands are odd under the \(P\) and \(M\) reflections, respectively.
 
-Thus **existence is already known geometrically** from the reflection theorem in [Chapter 3](#technical-information/geometric-support): each summand descends to the appropriate weighted Fano quotient, whose rational-curve construction provides divisor support. Adding the supported classes and applying the certificate theorem gives existence for this target. The theorem supplies a finite construction in principle, but no explicit witness or accepted Lean proof is currently supplied for this instance.
+Thus **existence is already known geometrically** from the reflection theorem in [Chapter 3](#technical-information/geometric-support): each summand descends to the appropriate weighted Fano quotient, whose rational-curve construction provides divisor support. Adding the supported classes and applying the certificate theorem gives existence for this target. This geometric argument supplies a finite construction in principle; turning it into a usable rational field requires additional algebraic work.
 
 The constructive challenge is to turn these hidden reflections into usable equations for a supporting divisor and a rational vector field. The shared factor \(X_1\cdot Y_0\cdot Y_1\) in the perturbation offers an additional algebraic handle. A successful construction would show how changing coordinates can expose useful quotient geometry even when the displayed target lies outside the sector served by the most obvious reflection. Compare [the coupled Fano target](#case/reflection-coupled-fano), where the favorable reflection character is visible from the outset.

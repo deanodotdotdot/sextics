@@ -8,18 +8,8 @@ The absence of \(X_1,Y_1\) from \(A\) does not remove their role. A field differ
 
 The endpoint product is fixed by \(X_2\leftrightarrow Y_2\), so the residue acquires the opposite sign from the sector supported by that reflection quotient. The wider direct quotient calculation also leaves the target outside its supported span. It belongs to the four-dimensional character component conjugate to the six containing the central cubic, within the ten paired-sign directions distinguished by that calculation. These are precise limitations of the original-variety quotient methods.
 
-The auxiliary Fermat cover changes the useful symmetry. Write
-\[
-T^6=Y_0^6+Y_2^6,\qquad
-\alpha=Y_0/T,\quad\beta=Y_2/T,\qquad
-S=Y_1^2+T^2,\quad P=Y_1\cdot T.
-\]
-The covered equation admits \(Y_1\leftrightarrow T\), and its weighted quotient has source
-\[
-B=\frac{X_0^4\cdot X_2\cdot\beta}{2\cdot\alpha^5}.
-\]
-This source has no \(S,P\)-dependence. The moving-conic construction nevertheless retains the complete quotient equation, including the middle couplings. The lifted correction has deck exponent \(-2\); normalized trace kills it and recovers exactly the prescribed target.
+The [central holdout construction](#case/holdout) provides a different symmetry on a Fermat cover and a moving-conic primitive for polynomial sources on its weighted quotient. This established machinery makes it reasonable to seek a new source on the same auxiliary geometry, instead of inventing a separate supporting family for the endpoint product.
 
-A useful comparison is [\(X_1^2\cdot p\cdot Y_0^2\)](#case/holdout-x12-p-y02). Both targets are linear in the endpoint product, but their remaining degrees give different residue characters. The companion uses an \(S\)-dependent source and exponent \(-4\), while this one uses a source in the even coordinates and exponent \(-2\). The same conic family serves both, with the distinction recorded in the source and trace identities rather than in a new geometric construction.
+The exact transport remains essential. A source depending on the visible even coordinates must produce the right physical density and normal derivative, while the trace must remove the reflected correction. The omitted middle coordinates remain present in the quotient equation throughout.
 
-[Chapter 2](#technical-information/explicit-constructions) develops this source-independent machinery. Together these entries explain why transporting a certificate across targets requires an exact density calculation, and why the successful cover is more flexible than a method restricted to the endpoint product alone.
+Compare [\(X_1^2\cdot p\cdot Y_0^2\)](#case/holdout-x12-p-y02). Both targets are linear in the endpoint product, but their remaining degrees occupy different residue characters. They ask how much of the known construction belongs to the fixed variety and how much depends on the selected class. A shared endpoint symmetry does not make those source calculations interchangeable.

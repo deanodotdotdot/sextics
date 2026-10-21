@@ -6,18 +6,8 @@ It distributes its degree across all three coordinate pairs while remaining line
 
 The equation is invariant under paired sign changes and depends on \(X_2,Y_2\) through their symmetric sixth-power sum and product. Those facts suggest quotient coordinates, but the residue density has to be transported with the equation. Exchanging the endpoint coordinates fixes this numerator and reverses the volume form. Thus the reflection quotient does not serve the class; the broader direct quotient calculation also leaves it among the ten paired-sign directions outside its supported span. A short expression in invariant coordinates is not enough to identify a supported residue.
 
-The Fermat cover uses
-\[
-T^6=Y_0^6+Y_2^6,\qquad
-\alpha=Y_0/T,\quad\beta=Y_2/T,\qquad
-S=Y_1^2+T^2,\quad P=Y_1\cdot T.
-\]
-After the exchange \(Y_1\leftrightarrow T\), the polynomial source on the weighted quotient is
-\[
-B=\frac{S\cdot X_1^2\cdot X_2\cdot\beta}{2\cdot\alpha^3}.
-\]
-The moving-conic primitive lifts to the desired density with a correction of deck exponent \(-4\). Normalized trace kills the correction. This is the same character used for the central cubic, although the source records a different distribution among \(X_1,X_2\) and the coefficient functions \(\alpha,\beta\).
+The [central holdout construction](#case/holdout) supplies an auxiliary Fermat cover with a useful exchange and a moving-conic family on its quotient. The family integrates polynomial sources independently of the choice of the central numerator. It is a natural candidate for extending support to a target whose factors involve all three pairs.
 
-The example shows what is uniform and what remains target-specific in the construction. The same family of conics integrates the new polynomial source, so there is no need to choose a separate geometric family for each numerator. Nevertheless, the source identity and its derivative must be checked for this exact monomial; a certificate for the central target alone would not justify changing its exponents. The dependence on all three pairs remains part of that calculation.
+What remains target-specific is the transport: the quotient source, its normal derivative, and the deck-trace correction must recover exactly \(X_1^2\cdot X_2\cdot Y_0^2\cdot Y_2\). A correct central-target certificate alone does not establish any of those identities after changing exponents. In particular, the separate roles of even-coordinate multipliers and odd coefficient-curve functions must be retained.
 
-Compare [\(X_0^4\cdot p\)](#case/holdout-x04-p). Both targets are linear in the endpoint product, but the latter has the conjugate deck character and a source independent of \(S,P\). This makes the pair useful for seeing why original endpoint symmetry does not determine the cover calculation. [Chapter 2](#technical-information/explicit-constructions) explains these source transformations, and [Chapter 4](#technical-information/known-locus) places them in the full target-space picture.
+Compare [\(X_0^4\cdot p\)](#case/holdout-x04-p), which has the same endpoint product but lies in the conjugate residual character. This pair provides a controlled test of whether the construction is uniform across densities, while keeping its geometry fixed.

@@ -6,18 +6,8 @@ It resembles the central \(X_0^3\cdot Y_0^3\) target after relabeling, but the e
 
 The monomial is invariant under all three paired sign changes and under the endpoint exchange \(X_2\leftrightarrow Y_2\). The latter reverses the residue volume, so its quotient does not serve the class. The broader direct quotient calculation likewise leaves this target among ten independent directions outside its 48-dimensional supported subspace of the 58-dimensional paired-sign sector. The relevant distinction is the character of the residue, including its volume determinant, rather than the numerator alone.
 
-The Fermat cover supplies a different exchange. Write
-\[
-T^6=Y_0^6+Y_2^6,\qquad
-\alpha=Y_0/T,\quad\beta=Y_2/T,\qquad
-S=Y_1^2+T^2,\quad P=Y_1\cdot T.
-\]
-The covered equation is invariant under \(Y_1\leftrightarrow T\), with \(\alpha,\beta\) fixed. On its weighted quotient, the source selecting the middle cubic is
-\[
-B=-\frac{P\cdot X_1^3}{2\cdot\alpha^5}.
-\]
-The same moving-conic family used for the central target constructs its primitive. Here the reflected correction has deck exponent \(2\), rather than \(-4\): the trace kills a positive square of the cover coordinate. Both exponents give the same nontrivial sixth-root character, but their explicit trace identities use different rational expressions.
+The [central holdout construction](#case/holdout) supplies a more promising form of uniformity. Its auxiliary cover has a moving-conic family whose integration theorem accepts polynomial sources on the quotient. The middle cubic can therefore be approached by seeking a new source on that same geometry, without pretending that the oriented chain is invariant under moving its endpoints.
 
-This is a useful test of the construction's target independence. The two neighboring couplings remain in the quotient geometry throughout; they are not discarded by treating one side of the chain as passive. What changes between the central and middle cubes is the polynomial source and the identity recovering the original density. The primitive, its normal derivative, and the deck trace together establish the six-variable certificate.
+The source identity must retain both neighboring couplings. Its normal derivative must match the protected target, and the deck trace must remove the reflected contribution rather than alter the class. These are concrete algebraic obligations beyond the existence of a primitive for an unspecified source.
 
-Compare [the endpoint cube](#case/holdout-p3), whose source contains \(S\) and \(\beta^3\) instead of \(P\). These examples show how one curve family handles classes with different coordinate dependence. [Chapter 2](#technical-information/explicit-constructions) develops the common construction, while [Chapter 4](#technical-information/known-locus) explains why its geometric consequences extend beyond the particular monomials formalized here.
+Compare [the endpoint cube](#case/holdout-p3). The two numerators have the same shape but occupy different positions in the equation. Determining whether one geometric family serves both tests the scope of the construction more sharply than producing a certificate only for a symmetry-invariant sum.

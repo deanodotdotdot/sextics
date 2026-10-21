@@ -8,6 +8,10 @@ The trusted publisher adds `acceptance.json` after checking the successful workf
 
 `.rec` files use YAML. Exact polynomial expressions use the variable order `X0, X1, X2, Y0, Y1, Y2`, rational coefficients, and `**` for powers. Display LaTeX and mesh coefficients are presentation only. An accepted target must not be silently repurposed for another `(F,q,A)`.
 
+## Instance descriptions
+
+Keep `why.md` separate from the solution narrative and ongoing discussion. Open instances use the established results available now; solved instances use the established context immediately before their own solution. Do not include discussion reports or links, the instance's own proof, or later breakthroughs in a solved instance's motivation. See the [curation policy](../MAINTAINING.md#catalogue-curation).
+
 ## Editing an accepted explanation
 
 Edit `solution.md` directly and rebuild the content. The site uses its current text. This does not change the accepted proof, contributor credit, or PR link, and does not require another Lean run. The original submission is retained in Git history. The target, Lean sources, proof manifest, and witness remain tied to the checked proof.
