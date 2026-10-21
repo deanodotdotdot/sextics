@@ -2,6 +2,7 @@ import Proposal.CubicDifferentialTables
 namespace PolarCovariants.DifferentialData
 open Lean.Grind.CommRing TransitiveSignedExpressions TransitiveBivariateExpressions
 open PolarCovariants.IdentityData PolarCubicEncodingCheck PolarCubicJetAlgebra TrivSqZeroExt
+set_option Elab.async false
 set_option linter.unusedSimpArgs false
 set_option maxRecDepth 131072
 set_option maxHeartbeats 32000000
