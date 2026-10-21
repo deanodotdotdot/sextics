@@ -304,7 +304,7 @@ async function route(){
     const contact=contactSummary&&hasCertificate(contactSummary)?await getRecord('contact46006'):contactSummary;
     if(id!==state.loadId)return;
     // Shared front-page camera; the atlas entry retains its own saved view.
-    setScene({...contact,id:'home',title:'Contact cone 46006',render:{divisorTerms:contact?.render?.divisorTerms,divisorProgram:contact?.render?.divisorProgram,pairId:'contact46006',seed:245646,mesh:'meshes/contact46006-adaptive-light-ordered.json',camera:{"yaw":0.71,"pitch":0.455,"distance":1.532096540936717,"center":[0,0,0],"orientation":[-0.3457515492356953,-0.648849719104112,0.041786456405925244,-0.6765380996519467]}}});
+    setScene({...contact,id:'home',title:'Contact cone 46006',render:{divisorTerms:contact?.render?.divisorTerms,divisorProgram:contact?.render?.divisorProgram,pairId:'contact46006',seed:245646,mesh:'meshes/contact46006-adaptive-round4-ordered-packed.json',camera:{"yaw":0.71,"pitch":0.455,"distance":1.532096540936717,"center":[0,0,0],"orientation":[-0.3457515492356953,-0.648849719104112,0.041786456405925244,-0.6765380996519467]}}});
     if(page==='technical-information'){setChaptersExpanded(true);if(chapterId)await renderChapter(chapterId,hash.split('/').slice(2).join('/'),id);else if(state.overview){const content=await loadContent(state.overview.content);if(id===state.loadId){$('technicalBody').innerHTML=content;renderMath($('technicalBody'));}}}
     if(page==='leaderboard')await renderLeaderboard(id);
     return;

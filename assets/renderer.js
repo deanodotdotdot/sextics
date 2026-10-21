@@ -62,6 +62,7 @@ uniform vec3 uCamera;
 uniform float uTime;
 uniform vec3 uOriginalCenter;
 uniform float uDisplayScale;
+uniform float uComplexScale;
 uniform float uDivisorStrength;
 uniform float uProjectionBox;
 uniform float uDivisorMode;
@@ -107,13 +108,21 @@ vec4 projectContact(vec4 sphere){
   }
   return sphere;
 }
-float pixelDivisor() {
+float contactCubic(vec3 u) {
+  return (u.y-4.0*u.z)*(u.y+2.0*u.z)*(u.y+7.0*u.z);
+}
+float pixelDivisor(out vec2 complexValue) {
   vec3 p=vPosition*uDisplayScale+uOriginalCenter;
   float r2=dot(p,p);
   vec4 sphere=vec4(2.0*p,r2-1.0)/(1.0+r2);
   if(uContactProjection)sphere=projectContact(sphere);
   vec3 a=vec3(dot(uDivisorPlane[0],sphere),dot(uDivisorPlane[1],sphere),dot(uDivisorPlane[2],sphere));
   vec3 b=vec3(dot(uDivisorPlane[3],sphere),dot(uDivisorPlane[4],sphere),dot(uDivisorPlane[5],sphere));
+  // Use the same observable as the saved mesh, evaluated at the corrected
+  // surface point. Near its zeros, rounded vertex values and interpolation
+  // can turn a smooth phase boundary into triangular yellow/violet patches.
+  complexValue = uContactProjection
+    ? vec2(contactCubic(a+b),contactCubic(a-b))/uComplexScale : vComplex;
   return divisorField(a,b);
 }
 
@@ -191,7 +200,8 @@ void main() {
   }
   // Derivatives need neighbouring fragments, including those subsequently
   // discarded by x-ray depth peeling. Evaluate before divergent discards.
-  float field = pixelDivisor();
+  vec2 complexValue;
+  float field = pixelDivisor(complexValue);
   float pixelWidth = max(length(vec2(dFdx(field),dFdy(field))),1e-35);
   float divisor = 1.0-smoothstep(0.55,1.45,abs(field)/pixelWidth);
   float alpha = distanceOpacity(length(uCamera-vPosition));
@@ -210,8 +220,8 @@ void main() {
   if (!gl_FrontFacing) N = -N;
   vec3 V = normalize(uCamera-vPosition);
 
-  float phase = fract(atan(vComplex.y,vComplex.x)/TAU + 1.0);
-  float magnitude = length(vComplex);
+  float phase = fract(atan(complexValue.y,complexValue.x)/TAU + 1.0);
+  float magnitude = length(complexValue);
   vec3 albedo = phasePalette(phase);
   // A gentle modulus response without the old striping artefact.
   albedo *= mix(0.76,1.18,smoothstep(0.015,0.55,magnitude));
@@ -578,7 +588,7 @@ function create(canvas,options={}){
       const next=program(gl,VS,FS.replace('// DIVISOR_EXPRESSION',pixel.source));
       if(depthPeeler){depthPeeler.dispose();depthPeeler=null;}
       if(p)gl.deleteProgram(p);p=next;programSource=pixel.source;
-      for(const name of ['Model','View','Projection','Camera','Time','OriginalCenter','DisplayScale','DivisorStrength','ProjectionBox','DivisorMode','ContactProjection','TranslucencyEnabled','TransNear','TransFar','TransMinAlpha','RenderPass'])U[name]=gl.getUniformLocation(p,'u'+name);
+      for(const name of ['Model','View','Projection','Camera','Time','OriginalCenter','DisplayScale','ComplexScale','DivisorStrength','ProjectionBox','DivisorMode','ContactProjection','TranslucencyEnabled','TransNear','TransFar','TransMinAlpha','RenderPass'])U[name]=gl.getUniformLocation(p,'u'+name);
       U.DivisorPlane=gl.getUniformLocation(p,'uDivisorPlane[0]');
     }
     gl.useProgram(p);gl.uniformMatrix4fv(U.Model,false,mat4Identity());
@@ -629,11 +639,22 @@ function create(canvas,options={}){
     activeMeta={...meta,divisorVisible:hasD,projectionBox,xray:{enabled:true,reach:2.0,layers:6},cameraDefault:{yaw:baseYaw,pitch:basePitch,distance:baseDistance,center:baseCenter.slice()},sliceDescription:whole?'The compact real slice, stereographically projected without a box cutoff.':'A real two-dimensional section of X, on a fixed phase-rotated real four-plane; stereographic projection in [−10, 10]³.'};
     const r=selected.render||{},pixel=HodgeDivisor.fragment(hasD?(r.divisorProgram||r.divisorTerms):null,meta.phaseSigns,meta.planeMatrix);
     useDivisorShader(pixel);
-    gl.uniform3fv(U.OriginalCenter,new Float32Array(meta.centerOriginal));gl.uniform1f(U.DisplayScale,meta.displayScale);gl.uniform1f(U.ProjectionBox,projectionBox);gl.uniform1f(U.DivisorStrength,hasD?1:0);gl.uniform1f(U.DivisorMode,1);gl.uniform1i(U.ContactProjection,whole&&meta.pairId==='contact46006'?1:0);
+    gl.uniform3fv(U.OriginalCenter,new Float32Array(meta.centerOriginal));gl.uniform1f(U.DisplayScale,meta.displayScale);gl.uniform1f(U.ComplexScale,Math.max(1e-20,meta.complexScale||1));gl.uniform1f(U.ProjectionBox,projectionBox);gl.uniform1f(U.DivisorStrength,hasD?1:0);gl.uniform1f(U.DivisorMode,1);gl.uniform1i(U.ContactProjection,whole&&meta.pairId==='contact46006'?1:0);
     gl.uniform4fv(U.DivisorPlane,new Float32Array(meta.planeMatrix.flat()));
     activeMeta.divisorEvaluation='per-pixel polynomial';activeMeta.divisorOperations=pixel.operations;
     options.onLabel?.((selected.title||'Sextic fourfold')+' — real slice of F = 0'+(hasD?', with certificate divisor highlighted':''));
     needsDraw=true;awaitingFirstFrame=true;
+  }
+  function unpackDeltaPlanes(buffer, elementBytes, stride) {
+    const bytes=new Uint8Array(buffer);
+    if(bytes.length%(elementBytes*stride)!==0)throw new Error('Invalid delta-packed mesh stream.');
+    const count=bytes.length/elementBytes,output=new Uint8Array(bytes.length);
+    // Restore byte order, then the exact unsigned modular differences.
+    for(let byte=0;byte<elementBytes;byte++)
+      for(let i=0;i<count;i++)output[i*elementBytes+byte]=bytes[byte*count+i];
+    const values=elementBytes===2?new Uint16Array(output.buffer):new Uint32Array(output.buffer);
+    for(let i=stride;i<count;i++)values[i]+=values[i-stride];
+    return output.buffer;
   }
   async function ungzip(url){
     const response=await fetch(url);if(!response.ok)throw new Error('Missing local mesh asset: '+url.pathname);
@@ -669,8 +690,11 @@ function create(canvas,options={}){
         const response=await fetch(url);if(!response.ok)throw new Error('Missing saved slice.');
         const manifest=await response.json(),root=new URL('.',url);
         let buffer,indexBuffer;
-        if(manifest.encoding==='quantized-p3-n3-phase2-v1'){
+        if(['quantized-p3-n3-phase2-v1','quantized-p3-n3-phase2-delta-v1'].includes(manifest.encoding)){
           const parts=await Promise.all(['position','normal','complex','indices'].map(k=>ungzip(new URL(manifest[k],root))));
+          if(manifest.encoding==='quantized-p3-n3-phase2-delta-v1'){
+            for(let i=0;i<4;i++)parts[i]=unpackDeltaPlanes(parts[i],i===3?4:2,i<2?3:i===2?2:1);
+          }
           const pos=new Uint16Array(parts[0]),normal=new Int16Array(parts[1]),phase=new Int16Array(parts[2]),n=manifest.meta.vertexCount;
           if(!Number.isInteger(n)||n<3||n>2000000||pos.length!==3*n||normal.length!==3*n||phase.length!==2*n)throw new Error('Invalid packed mesh.');
           const data=new Float32Array(n*9);
