@@ -1,2 +1,3 @@
 import HodgeComputer.Constructions.ResidueTransport.Density
 import HodgeComputer.Constructions.ResidueTransport.MovingMap
+import HodgeComputer.Constructions.ResidueTransport.CoordinateIndependence
