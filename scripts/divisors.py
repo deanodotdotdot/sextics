@@ -37,7 +37,7 @@ def validate_display(data, folder, render):
 
 
 def validate_slice_identity(data, denominator, render, folder):
-    """Allow a lower-multiplicity display only after an exact identity on B's slice."""
+    """Check a factored formula or lower-multiplicity display exactly on B's slice."""
     import sympy as sp
 
     def require(ok, message):
@@ -46,7 +46,7 @@ def validate_slice_identity(data, denominator, render, folder):
 
     require(data.get('kind') == 'polynomial-program', 'expected a polynomial program')
     power = data.get('sliceIdentity', {}).get('power')
-    require(type(power) is int and 2 <= power <= 8, 'invalid power')
+    require(type(power) is int and 1 <= power <= 8, 'invalid power')
     require(data['degree'] * power == denominator['degree'] <= 64, 'unsupported degree')
     variables = sp.symbols('X0 X1 X2 Y0 Y1 Y2')
     nodes = []

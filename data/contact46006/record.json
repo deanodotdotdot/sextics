@@ -1744,7 +1744,187 @@
           6
         ]
       ]
-    ]
+    ],
+    "divisorProgram": {
+      "schemaVersion": 1,
+      "kind": "polynomial-program",
+      "source": {
+        "path": "witness.json",
+        "definition": "D = product over a = -4, 2, 7 of (X1+a*X2-Y1-a*Y2)*(X1+a*X2+Y1+a*Y2)"
+      },
+      "degree": 6,
+      "normalization": {
+        "gradient": true
+      },
+      "sliceIdentity": {
+        "power": 1
+      },
+      "nodes": [
+        [
+          "variable",
+          1
+        ],
+        [
+          "variable",
+          2
+        ],
+        [
+          "variable",
+          4
+        ],
+        [
+          "variable",
+          5
+        ],
+        [
+          "rational",
+          "-1"
+        ],
+        [
+          "rational",
+          "-4"
+        ],
+        [
+          "mul",
+          5,
+          1
+        ],
+        [
+          "add",
+          0,
+          6
+        ],
+        [
+          "mul",
+          5,
+          3
+        ],
+        [
+          "add",
+          2,
+          8
+        ],
+        [
+          "mul",
+          4,
+          9
+        ],
+        [
+          "add",
+          7,
+          10
+        ],
+        [
+          "add",
+          7,
+          9
+        ],
+        [
+          "rational",
+          "2"
+        ],
+        [
+          "mul",
+          13,
+          1
+        ],
+        [
+          "add",
+          0,
+          14
+        ],
+        [
+          "mul",
+          13,
+          3
+        ],
+        [
+          "add",
+          2,
+          16
+        ],
+        [
+          "mul",
+          4,
+          17
+        ],
+        [
+          "add",
+          15,
+          18
+        ],
+        [
+          "add",
+          15,
+          17
+        ],
+        [
+          "rational",
+          "7"
+        ],
+        [
+          "mul",
+          21,
+          1
+        ],
+        [
+          "add",
+          0,
+          22
+        ],
+        [
+          "mul",
+          21,
+          3
+        ],
+        [
+          "add",
+          2,
+          24
+        ],
+        [
+          "mul",
+          4,
+          25
+        ],
+        [
+          "add",
+          23,
+          26
+        ],
+        [
+          "add",
+          23,
+          25
+        ],
+        [
+          "mul",
+          11,
+          12
+        ],
+        [
+          "mul",
+          29,
+          19
+        ],
+        [
+          "mul",
+          30,
+          20
+        ],
+        [
+          "mul",
+          31,
+          27
+        ],
+        [
+          "mul",
+          32,
+          28
+        ]
+      ],
+      "output": 33
+    }
   },
   "visibility": "navigation",
   "category": "Challenge instances",

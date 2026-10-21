@@ -1,7 +1,7 @@
 {
   "pairId": "contact46006",
   "seed": 245646,
-  "resolution": 256,
+  "resolution": 192,
   "phaseSigns": [
     1,
     1,
@@ -48,17 +48,25 @@
       -0.18893763103621197
     ]
   ],
-  "triangleCount": 918502,
-  "bakedHome": true,
+  "triangleCount": 2018768,
   "camera": {
     "yaw": 0.71,
     "pitch": 0.455,
-    "distance": 3.22,
+    "distance": 1.532096540936717,
     "center": [
       0,
       0,
       0
+    ],
+    "orientation": [
+      -0.42528101220350345,
+      -0.5805797068542108,
+      0.1565163288191464,
+      -0.676436178409478
     ]
   },
-  "note": "Canonical Contact cone view shared by the title page and its atlas entry."
+  "note": "Whole compact slice for home, technical information, and leaderboard; atlas Contact cone retains its boxed view.",
+  "mesh": "meshes/contact46006-whole-192.json",
+  "samplingMode": "sphere",
+  "projectionBox": 0
 }

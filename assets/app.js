@@ -303,7 +303,8 @@ async function route(){
     const contactSummary=state.records.find(r=>r.id==='contact46006');
     const contact=contactSummary&&hasCertificate(contactSummary)?await getRecord('contact46006'):contactSummary;
     if(id!==state.loadId)return;
-    setScene({...contact,id:'home',title:'Contact cone 46006',render:{divisorTerms:contact?.render?.divisorTerms,pairId:'contact46006',seed:245646,camera:{yaw:.710,pitch:.455,distance:3.22,center:[0,0,0]}}});
+    // Shared front-page camera; the atlas entry retains its own saved view.
+    setScene({...contact,id:'home',title:'Contact cone 46006',render:{divisorTerms:contact?.render?.divisorTerms,divisorProgram:contact?.render?.divisorProgram,pairId:'contact46006',seed:245646,mesh:'meshes/contact46006-whole-192.json',camera:{"yaw":0.71,"pitch":0.455,"distance":1.532096540936717,"center":[0,0,0],"orientation":[-0.42528101220350345,-0.5805797068542108,0.1565163288191464,-0.676436178409478]}}});
     if(page==='technical-information'){setChaptersExpanded(true);if(chapterId)await renderChapter(chapterId,hash.split('/').slice(2).join('/'),id);else if(state.overview){const content=await loadContent(state.overview.content);if(id===state.loadId){$('technicalBody').innerHTML=content;renderMath($('technicalBody'));}}}
     if(page==='leaderboard')await renderLeaderboard(id);
     return;
