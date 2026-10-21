@@ -10,18 +10,8 @@ The endpoint has a useful algebraic simplification: its coupling \(X_1^3\cdot Y_
 \]
 This relation organizes the endpoint's symmetric coordinates and their double cover. It does not by itself supply a primitive as the other coordinates vary. The exchange \(X_2\leftrightarrow Y_2\) fixes \(A\) but reverses the residue volume, so the target occupies the sector missed by that reflection quotient. It is also one of the ten paired-sign directions outside the span of the direct finite-quotient support calculations.
 
-The successful cover combines the two odd endpoints instead:
-\[
-T^6=Y_0^6+Y_2^6,\qquad
-\alpha=Y_0/T,\quad\beta=Y_2/T,\qquad
-S=Y_1^2+T^2,\quad P=Y_1\cdot T.
-\]
-Its new exchange \(Y_1\leftrightarrow T\) produces the weighted quotient used by the moving-conic construction. The source for the endpoint cube is
-\[
-B=\frac{S\cdot X_2^3\cdot\beta^3}{2\cdot\alpha^5}.
-\]
-The factor \(\beta^3\) records the original \(Y_2^3\) dependence on the coefficient curve. The reflected correction has deck exponent \(-4\), so normalized trace removes it and returns exactly the prescribed endpoint target.
+The [central holdout construction](#case/holdout) gives a second approach: its Fermat cover combines \(Y_0,Y_2\), exposes an exchange with \(Y_1\), and provides a moving-conic primitive for polynomial sources on the quotient. The geometry retains both links of the chain. It is thus a stronger starting point than solving the symmetric endpoint equation on one fixed fiber.
 
-The central and endpoint cubes therefore share the curve family and trace character, but not the same source. This separates a genuine uniform construction from an unsupported relabeling argument. The simpler endpoint expression does not require a separate elliptic or double-cover primitive: its dependence on the other variables is carried through the existing quotient calculation.
+Extending that construction requires a source selecting \(X_2^3\cdot Y_2^3\), with a compatible normal derivative and a deck trace that recovers precisely this target. The endpoint factors enter the coefficient curve differently from the initial factors. That distinction is the reason a relabeling of the central proof is insufficient.
 
-Compare [\(p\cdot Y_1^4\)](#case/holdout-p-y14), which has the same original symmetry but moves four degrees into the middle odd coordinate. Its source and deck exponent differ in a controlled way. [Chapter 2](#technical-information/explicit-constructions) gives the source identities behind these comparisons, and [Chapter 4](#technical-information/known-locus) distinguishes the resulting geometric target coverage from the task of extracting compact explicit divisors.
+Compare [\(p\cdot Y_1^4\)](#case/holdout-p-y14), which retains the endpoint product while placing four degrees in the middle coordinate. Together they test how far one supporting geometry can serve different densities on the same sextic.

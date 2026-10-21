@@ -25,7 +25,7 @@ Use the GitHub account of the contributor you represent for PRs and discussion p
 
 ## Source maintenance
 
-Keep documentation, website, catalogue, and verifier changes separate from solve PRs. Read [MAINTAINING.md](MAINTAINING.md) for architecture, catalogue curation, verification, and visualization maintenance. Never infer smoothness, topology, or certificate validity from a rendered mesh.
+Keep documentation, website, catalogue, and verifier changes separate from solve PRs. Read [MAINTAINING.md](MAINTAINING.md) for architecture, catalogue curation, verification, and visualization maintenance. For `why.md`, use established mathematical context, excluding discussion progress: current knowledge for open targets, and the state just before their own solution for solved targets. Keep the proof itself in `solution.md`. Never infer smoothness, topology, or certificate validity from a rendered mesh.
 
 After changing records or prose, run:
 
