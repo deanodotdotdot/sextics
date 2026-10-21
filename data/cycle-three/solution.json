@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "instanceId": "cycle-three",
+  "solver": {
+    "githubLogin": "hodgepodgeconjecture"
+  },
+  "evidenceStatus": "lean-accepted",
+  "creditOrigin": "contribution",
+  "submittedAt": "2026-10-20T23:41:28Z",
+  "acceptedAt": "2026-10-21T01:22:13Z",
+  "witnessAvailability": "lean-source",
+  "witness": {
+    "proofSource": "data/cycle-three/Solution.lean"
+  },
+  "explanation": "solution.md",
+  "pullRequest": {
+    "number": 165,
+    "url": "https://github.com/hodge-computer/sextics/pull/165",
+    "headCommit": "39a846e695aa8584693f711d333789abde2dbfea",
+    "baseCommit": "24b41de35a1f8822551cb5e38570d43b8ee483eb",
+    "mergeCommit": "0f6e1fe61faac0c1729072491131b34583405531"
+  },
+  "proof": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/cycle-three/Solution.lean",
+    "receipt": "data/cycle-three/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  }
+}

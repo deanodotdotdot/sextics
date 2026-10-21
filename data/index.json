@@ -958,15 +958,20 @@
     {
       "id": "cycle-three",
       "title": "Three couplings · cyclic",
-      "status": "open",
-      "formalStatus": "unproved",
-      "evidenceKind": "none",
-      "certificateAvailable": false,
+      "status": "solved",
+      "formalStatus": "proved",
+      "evidenceKind": "existence-proof",
+      "certificateAvailable": true,
       "visibility": "navigation",
-      "draftDisplayStatus": "open",
+      "draftDisplayStatus": "solved",
       "category": "Challenge instances",
       "q": 1,
-      "path": "data/cycle-three/record.json"
+      "path": "data/cycle-three/record.json",
+      "credit": {
+        "githubLogin": "hodgepodgeconjecture",
+        "origin": "contribution",
+        "awardedAt": "2026-10-20T23:41:28Z"
+      }
     },
     {
       "id": "mixed-biweight",
