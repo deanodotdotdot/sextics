@@ -300,13 +300,37 @@
   "slice": "slices/mixed-biweight.json",
   "rationale": "why.md",
   "provenanceFile": "provenance.json",
-  "formalStatus": "unproved",
-  "status": "open",
-  "evidenceKind": "none",
-  "certificateAvailable": false,
+  "formalStatus": "proved",
+  "status": "solved",
+  "evidenceKind": "existence-proof",
+  "certificateAvailable": true,
   "content": {
-    "why": "data/mixed-biweight/why.html"
+    "why": "data/mixed-biweight/why.html",
+    "solution": "data/mixed-biweight/solution.html"
   },
-  "witnessAvailability": "missing",
-  "draftDisplayStatus": "open"
+  "pullRequest": {
+    "number": 170,
+    "url": "https://github.com/hodge-computer/sextics/pull/170",
+    "headCommit": "d217f746149cb0bd18537812ceee91e7f4ba0882",
+    "baseCommit": "fc84eb5862d83c3491cdd45cc35bddd151c45892",
+    "mergeCommit": "bca20c4d25379614c75ed97ec68d23d4cab29677"
+  },
+  "certificate": {
+    "proofSource": "data/mixed-biweight/Solution.lean"
+  },
+  "witnessAvailability": "lean-source",
+  "leanVerification": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/mixed-biweight/Solution.lean",
+    "receipt": "data/mixed-biweight/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  },
+  "credit": {
+    "githubLogin": "fqlx",
+    "origin": "contribution",
+    "awardedAt": "2026-10-21T04:53:33Z"
+  },
+  "draftDisplayStatus": "solved"
 }

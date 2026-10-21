@@ -1,0 +1,38 @@
+<h1 id="a-jacobian-primitive-for-the-asymmetric-mixed-biweights">A Jacobian primitive for the asymmetric mixed biweights</h1>
+<h2 id="construction">Construction</h2>
+<p>Put <span class="inline-math" data-math>R=X_2^2</span>, <span class="inline-math" data-math>v=Y_0/X_0</span>,
+<span class="inline-math" data-math>c_1=X_0Y_1/(X_1Y_0)</span>, and <span class="inline-math" data-math>c_2=X_0Y_2/(X_2Y_0)</span>.
+The squared coordinates give the plane cubic</p>
+<div class="page-equation" data-math data-display>U=ax^3+by^3+cz^3+dx^2y+ey^2z+fx^2z,</div>
+<p>where <span class="inline-math" data-math>a=1+v^6</span>, <span class="inline-math" data-math>b=1+c_1^6v^6</span>, <span class="inline-math" data-math>c=1+c_2^6v^6</span>,
+<span class="inline-math" data-math>d=c_1v^2/2</span>, <span class="inline-math" data-math>e=c_1c_2v^2/2</span>, and <span class="inline-math" data-math>f=c_2v^4/3</span>.
+Thus <span class="inline-math" data-math>F=R^3U(X_0^2/R,X_1^2/R,1)</span>, with source <span class="inline-math" data-math>A=v^3R^3x^3</span>.</p>
+<p>The Hessian covariants give a map to the cubic's Weierstrass Jacobian.
+Lean uses integral covariants scaled by <span class="inline-math" data-math>(3,9,27)</span>; the map coordinates
+<span class="inline-math" data-math>\xi=\Theta/H^2</span>, <span class="inline-math" data-math>\eta=-J/(2H^3)</span> retain their classical values.
+<a href="https://github.com/hodge-computer/sextics/blob/main/data/mixed-biweight/CubicSyzygy.lean">CubicSyzygy</a> checks the defining identity, and
+<a href="https://github.com/hodge-computer/sextics/blob/main/data/mixed-biweight/CubicFieldDifferential.lean">CubicFieldDifferential</a> checks its differential.
+With <span class="inline-math" data-math>T=Rv^6</span>, the Jacobian coefficients are polynomials in <span class="inline-math" data-math>R,T</span>.
+The degree <span class="inline-math" data-math>(2,4,6)</span> section in <a href="https://github.com/hodge-computer/sextics/blob/main/data/mixed-biweight/JacobianSeed.lean">JacobianSeed</a> has an
+invertible thirteen-variable incidence Jacobian modulo five.
+Lifting this seed supplies a generically finite parameterization.
+Polynomial integration and trace along a finite field extension produce the
+required rational residue primitive.</p>
+<h2 id="certificate">Certificate</h2>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/mixed-biweight/PhysicalPrimitive.lean">PhysicalPrimitive</a> transports that primitive back to
+the exact sextic, including the moving-map and normal-chart corrections.
+The irreducibility and nonvanishing conditions are established in
+<a href="https://github.com/hodge-computer/sextics/blob/main/data/mixed-biweight/PhysicalField.lean">PhysicalField</a> and the coordinate helpers.
+Shared residue clearing and homogenization then give a nonzero homogeneous
+denominator <span class="inline-math" data-math>D</span>, six numerators <span class="inline-math" data-math>N_i</span> of degree <span class="inline-math" data-math>\deg D+1</span>, and a
+polynomial <span class="inline-math" data-math>Q</span>, with <span class="inline-math" data-math>\gcd(D,F)=1</span>, satisfying</p>
+<div class="page-equation" data-math data-display>AD^2-D\sum_iN_iF_i+
+ F\left(D\sum_i\partial_iN_i-\sum_iN_i\partial_iD\right)=F^2Q.</div>
+<p><a href="https://github.com/hodge-computer/sextics/blob/main/data/mixed-biweight/Solution.lean">Solution</a> binds this existential certificate to the protected
+target. No explicit expanded witness is exported.</p>
+<p>The construction adapts <code>hodgepodgeconjecture</code>'s
+<a href="https://github.com/hodge-computer/sextics/blob/main/data/cycle-three/solution.md">cycle-three proof</a>, including its classical
+covariant normalization following Tom Fisher and the SageMath authors.
+It uses the maintained lifting, trace, transport, and clearing constructions
+of <code>fqlx</code> and the Hodge Computer collaborators, together with Mathlib.
+Prepared for <code>fqlx</code> with OpenAI ChatGPT and Codex assistance.</p>
