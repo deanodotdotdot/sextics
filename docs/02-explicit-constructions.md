@@ -828,7 +828,89 @@ To recover the physical target, vary \(a=\alpha+v^6\) to first order at \(\alpha
 \]
 Pull back the primitive for \(P_J\), add the moving-map correction above, and subtract the correction for changing the physical normal chart. The result solves the original residue-divergence equation. Legal clearing and ordinary homogeneous extraction give \(D,N,Q\) with numerator degree \(\deg D+1\); no bound on \(\deg D\), and no expanded witness, is asserted.
 
-### Scope and character
+### Transitive paired-sign cubics
+
+The directed cycle is not required for this method. Consider instead
+\[
+U=ax^3+by^3+cz^3+dx^2y+ey^2z+fx^2z.
+\]
+Its three mixed monomials form a transitive triangle. In the normalization of the [mixed-biweight construction of `fqlx`](https://github.com/hodge-computer/sextics/pull/170), the invariants are
+\[
+\begin{aligned}
+s_4&=-3bcdf+cd^2e-\tfrac13e^2f^2,\\
+s_6&=27a^2b^2c^2+4a^2ce^3+4b^2cf^3+4bc^2d^3
+       -4bcdef^2+\tfrac83cd^2e^2f+\tfrac8{27}e^3f^3.
+\end{aligned}
+\]
+The corresponding covariants satisfy the same form of syzygy and invariant-differential identity as above. These are identities for arbitrary coefficients in this transitive family. The shared Lean library `TransitiveCubic` contains their exact coefficient proofs; the change of cubic family changes the covariants themselves, not the moving-map principle.
+
+For the mixed-biweight sextic the diagonal coefficients remain
+\((a,b,c)=(1+v^6,1+c_1^6v^6,1+c_2^6v^6)\), while
+\[
+d=\tfrac12c_1v^2,\qquad e=\tfrac12c_1c_2v^2,
+\qquad f=\tfrac13c_2v^4.
+\]
+The substitution \(T=rv^6\), \(X=r^2\xi\), \(Y=r^3\eta\) again makes
+\[
+V=Y^2-X^3-A_4(r,T)X-B_6(r,T),\quad
+A_4=r^4s_4,\quad B_6=-r^6s_6/4
+\]
+polynomial, with degrees four and six. At \(c_1=c_2=1\), its incidence has the exact seed
+\[
+r=1+T^2,\qquad X=3+4T^2+3T^4,\qquad Y=2+3T^6
+\quad\text{over }\mathbb F_5.
+\]
+The thirteen-by-thirteen coefficient Jacobian is invertible. Lifting, independent endpoint parameters, and polynomial integration therefore supply primitives on this Jacobian family. Varying \(a=\alpha+v^6\) gives the polynomial source \(-V_\alpha/(144r)\), and the residue-volume multiplier is again \(-144rv^3\). The two correction terms recover the physical target \(X_0^3\cdot Y_0^3\).
+
+The [moving-branch sextic](#case/holdout-moving-branch) gives a second specialization of the same covariants. It has
+\[
+d=c_1v^2,\qquad e=c_1c_2v^2,\qquad f=\tfrac17c_2^2v^4,
+\]
+with the same diagonal coefficients. Its integral Jacobian equation uses the scale \(111132\). A nonsingular seed at \(c_1=c_2=1\) is
+\[
+\begin{aligned}
+r&=1+2T^2,\\
+X&=4+4T+T^2+3T^3+T^4,\\
+Y&=1+3T^2+4T^4+2T^6
+\end{aligned}
+\quad\text{over }\mathbb F_5.
+\]
+Fixing \(r(0)=1\) and \(X(0)=4\) leaves a square system with thirteen coefficients and invertible incidence derivative. The same lifting and source-transport construction serves \(X_0^3\cdot Y_0^3\). The coefficient specialization and seed change, while the transitive covariants and residue mechanism remain the same.
+
+These examples separate reusable identities from application data. The first-variation formula, integration theorem, and six-coefficient transitive covariants are reusable. The particular coefficient functions, nonsingular incidence, nonzero chart denominators, and source binding must still be proved for each new model. A changed coefficient can invalidate an earlier cover without introducing a new obstruction to this broader Jacobian method.
+
+### Coefficient and source scope
+
+The degree-four and degree-six Jacobian model is a consequence of symmetry, not a peculiarity of the displayed edge patterns. Impose the three paired signs and the diagonal action with weights \((2,1,0,3,2,1)\) modulo six, in addition to global \(Y\)-evenness. The equation space then has 26 monomials. In the paired chart its general cubic has the form
+\[
+\begin{aligned}
+U={}&\sum_{i=0}^2(a_i+b_i v^6)u_i^3
+ +(g_0+g_1v^6)u_0u_1u_2\\
+ &+v^2(d_0u_0^2u_1+d_1u_1^2u_2+d_2u_2^2u_0)
+ +v^4(e_0u_0u_1^2+e_1u_1u_2^2+e_2u_2u_0^2),
+\end{aligned}
+\]
+where the coefficients lie in the passive field. The count is six pure sixth powers, two balanced monomials, and nine monomials for each edge orientation. The induced weights of \((u_0,u_1,u_2)\) are \((4,2,0)\), whose sum is zero modulo six.
+
+The classical \(SL_3\)-invariants \(I_4=s_4\) and \(I_6=-s_6/4\) have coefficient degrees four and six; see [Fisher, *The invariants of a genus one curve*](https://arxiv.org/abs/math/0610318). Consequently \(I_d(U(v))\) has degree at most \(6d\) in \(v\), and its powers of \(v\) are divisible by six. Thus
+\[
+r^d I_d(U(v))\big|_{v^6=T/r}
+\]
+is a homogeneous polynomial of degree \(d\) in \((r,T)\). The same polynomial Jacobian form is therefore available throughout this coefficient space, wherever the generic cubic is smooth.
+
+There are 22 odd degree-six monomials invariant under the paired signs whose residues are invariant under the diagonal action: six have \(Y\)-degree one, ten have degree three, and six have degree five. Their polynomial-source condition follows from the same weights. Write one such target, divided by \(r^3\), as \(c\,v^j M(u)\), with \(c\) passive, \(j\in\{1,3,5\}\), and cubic monomial \(M\). Let \(k_M\) denote its coefficient in \(U\). Then
+\[
+P_{d,M,j}=r^{d-1}v^{j-3}
+ \frac{\partial I_d}{\partial k_M}(U(v)),\qquad d=4,6,
+\]
+becomes a polynomial in \((r,T)\). Indeed, an invariant derivative has coefficient degree \(d-1\), hence \(v\)-degree between zero and \(6(d-1)\). Multiplication by \(v^{j-3}\) gives possible exponents between \(-2\) and \(6(d-1)+2\); residue invariance forces them to be divisible by six. They therefore lie between zero and \(6(d-1)\). This also excludes negative powers of \(r\) after the substitution. In the normalization above, the resulting Jacobian source is
+\[
+\frac{c}{144}\bigl(P_{4,M,j}X+P_{6,M,j}\bigr).
+\]
+
+This is a source-polynomiality statement. To obtain certificates one still needs the cubic-to-Jacobian differential and its first variation, a serving curve family with polynomial normal, and full physical transport. A nonsingular incidence persists over a nonempty open of a coefficient family by the lifting argument, but that does not prove that every specialized member has the same nonsingular seed. The calculation explains why many coefficient and numerator changes belong to one method's scope; it does not assert that 22 further Lean submissions have been verified.
+
+### Character and geometry beyond this family
 
 The all-polynomial-source statement on \(V\) must not be read as all-target coverage on \(F_C\). The source must reach that model with the correct density and correction terms. One useful screen is the diagonal symmetry
 \[
