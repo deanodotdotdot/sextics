@@ -5,6 +5,6 @@
   "repository": "hodge-computer/sextics",
   "maxFiles": 64,
   "maxBytes": 16777216,
-  "timeoutSeconds": 1800,
+  "timeoutSeconds": 3600,
   "memoryMb": 14336
 }

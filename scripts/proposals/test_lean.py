@@ -56,6 +56,22 @@ class LeanAcceptance(unittest.TestCase):
         self.assertFalse(forbidden.exists())
         self.assertLessEqual(set(result['axioms']),{'propext','Classical.choice','Quot.sound'})
 
+    def test_each_module_replayed_including_unused_helpers(self):
+        files={
+            'Solution.lean': PROOF.encode(),
+            'Unused.lean': b'import HodgeTarget\ntheorem unused_helper : True := True.intro\n',
+        }
+        order,imports=module_order(files)
+        result=verify(ROOT,files,self.instance,{'theorem':'Submission.certificate'},
+                      order,imports,self.policy,self.output)
+        self.assertTrue(result['kernelReplay'])
+        self.assertEqual({p.name for p in self.output.glob('kernel-*.log')},
+                         {'kernel-HodgeTarget.log','kernel-Unused.log',
+                          'kernel-Solution.log','kernel-HodgeChecked.log'})
+        for module in ('Unused','Solution'):
+            self.assertIn('replaying Proposal.'+module,
+                          (self.output/('kernel-'+module+'.log')).read_text())
+
     def test_wrong_statement_rejected(self):
         with self.assertRaises(ValueError):self.verify('import HodgeTarget\ntheorem Submission.certificate : True := True.intro\n')
         self.assertIn('HodgeComputer.HasCertificate',(self.output/'compile-HodgeChecked.log').read_text())
