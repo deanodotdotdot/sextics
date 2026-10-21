@@ -118,7 +118,7 @@
       if(comment.updatedAt!==comment.createdAt)header.append(element('span','discussion-edited','edited'));
       const content=element('div','discussion-comment-content');content.id='discussion-comment-content-'+(++commentSequence);
       const toggle=button('',()=>{expandedComments.set(comment.id,content.hidden);updateExpansion();});toggle.classList.add('discussion-comment-toggle');toggle.setAttribute('aria-controls',content.id);
-      const toggleLabel=element('span','');toggle.append(toggleLabel);toggle.insertAdjacentHTML('beforeend','<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg>');
+      toggle.insertAdjacentHTML('beforeend','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>');
       const replyCount=comment.replies?.totalCount||0;
       if(replyCount)header.append(element('span','discussion-reply-count',`${replyCount} ${replyCount===1?'reply':'replies'}`));
       header.append(toggle);article.append(header,content);
@@ -126,7 +126,7 @@
       let rendered=false;
       function updateExpansion(){
         const expanded=expandedComments.get(comment.id);content.hidden=!expanded;article.classList.toggle('discussion-collapsed',!expanded);
-        toggle.setAttribute('aria-expanded',String(expanded));toggle.setAttribute('aria-label',`${expanded?'Collapse':'Expand'} comment by ${author?'@'+author.login:'deleted account'}`);toggleLabel.textContent=expanded?'Collapse':'Expand';
+        toggle.setAttribute('aria-expanded',String(expanded));toggle.setAttribute('aria-label',`${expanded?'Collapse':'Expand'} comment by ${author?'@'+author.login:'deleted account'}`);
         if(expanded&&!rendered){rendered=true;renderContent();}
       }
       function renderContent(){

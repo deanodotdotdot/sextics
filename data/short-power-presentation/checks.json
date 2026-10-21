@@ -1,0 +1,35 @@
+{
+  "q": 1,
+  "term_count": 236,
+  "smoothness": "Good reduction to Fermat modulo 5; six partials are the fifth powers.",
+  "primitive_target": "Target survives the Jacobian ring modulo 5; smooth complete-intersection base change applies.",
+  "hessian_symmetrizer_dimension_mod101": 1,
+  "coordinate_reflections": [],
+  "coordinate_paired_signs": [],
+  "scope": "Exact algebraic screening; not a certificate or a universal obstruction to other constructions.",
+  "presentation": "Six coordinate sixth powers plus (5/7^7)*((L+M)^6+(L-M)^6); Waring rank eight over C.",
+  "L": "X0 + 2*X1 + 3*X2",
+  "M": "Y0 + 3*Y1 + 5*Y2",
+  "middle_catalecticant_rank_mod101": 8,
+  "extensions": {
+    "apolar_quadrics_verified": 13,
+    "quartic_power_rank": 8,
+    "minimal_five_point_circuits": [
+      [
+        0,
+        1,
+        2,
+        6,
+        7
+      ],
+      [
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    ],
+    "linear_automorphisms": "Only global Y sign, projectively; see screening-note.md for the base-locus and coefficient argument."
+  }
+}

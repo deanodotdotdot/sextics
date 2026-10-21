@@ -1,0 +1,91 @@
+{
+  "q": 1,
+  "term_count": 24,
+  "smoothness": "Good reduction to Fermat modulo 5; six partials are the fifth powers.",
+  "primitive_target": "Target survives the Jacobian ring modulo 5; smooth complete-intersection base change applies.",
+  "hessian_symmetrizer_dimension_mod101": 1,
+  "coordinate_reflections": [],
+  "coordinate_paired_signs": [],
+  "scope": "Exact algebraic screening; not a certificate or a universal obstruction to other constructions.",
+  "symmetry": "Simultaneous S3 on X and Y; transpositions have fixed codimension two, not reflections.",
+  "extensions": {
+    "quotient_age_screen": [
+      {
+        "permutation": "identity",
+        "global_involution": true,
+        "fixed_strata": [
+          {
+            "weight": 0,
+            "eigenspace_dimension": 3,
+            "age": "3/2"
+          },
+          {
+            "weight": 3,
+            "eigenspace_dimension": 3,
+            "age": "3/2"
+          }
+        ]
+      },
+      {
+        "permutation": "transposition",
+        "global_involution": false,
+        "fixed_strata": [
+          {
+            "weight": 0,
+            "eigenspace_dimension": 4,
+            "age": "1"
+          },
+          {
+            "weight": 3,
+            "eigenspace_dimension": 2,
+            "age": "2"
+          }
+        ]
+      },
+      {
+        "permutation": "transposition",
+        "global_involution": true,
+        "fixed_strata": [
+          {
+            "weight": 0,
+            "eigenspace_dimension": 3,
+            "age": "3/2"
+          },
+          {
+            "weight": 3,
+            "eigenspace_dimension": 3,
+            "age": "3/2"
+          }
+        ]
+      },
+      {
+        "permutation": "three-cycle",
+        "global_involution": false,
+        "fixed_strata": [
+          {
+            "weight": 0,
+            "eigenspace_dimension": 2,
+            "age": "2"
+          },
+          {
+            "weight": 2,
+            "eigenspace_dimension": 2,
+            "age": "2"
+          },
+          {
+            "weight": 4,
+            "eigenspace_dimension": 2,
+            "age": "2"
+          }
+        ]
+      },
+      {
+        "permutation": "three-cycle",
+        "global_involution": true,
+        "fixed_strata": []
+      }
+    ],
+    "target_S3_average": 0,
+    "residue_representation": "standard, dimension two; simultaneous permutation determinant is one."
+  }
+}

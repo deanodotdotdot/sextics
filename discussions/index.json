@@ -312,6 +312,22 @@
     "cyclic-triple-residual": {
       "number": 155,
       "nodeId": "D_kwDOVLOOJc4AqS6C"
+    },
+    "short-power-presentation": {
+      "number": 174,
+      "nodeId": "D_kwDOVLOOJc4AqVCU"
+    },
+    "quadratic-cubic-pullback": {
+      "number": 175,
+      "nodeId": "D_kwDOVLOOJc4AqVCW"
+    },
+    "eight-plane-configuration": {
+      "number": 176,
+      "nodeId": "D_kwDOVLOOJc4AqVCX"
+    },
+    "diagonal-permutation": {
+      "number": 177,
+      "nodeId": "D_kwDOVLOOJc4AqVCY"
     }
   }
 }
