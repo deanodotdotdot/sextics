@@ -4,7 +4,7 @@
 
 The useful common structure behind the explicit certificates is a transport identity. A change of variables converts \(F\) into an equation with accessible geometry; a rational field on that equation is pulled back by cofactors. Its Jacobian determines the target. Geometry becomes decisive when it proves that the available targets span the required space.
 
-We first work at \(q=1\). An Euler-normalized strict certificate satisfies \(v(F)=A\) and \(\operatorname{div} v=0\). After writing \(v=N/D\), these are \(N(F)=A\cdot D\) and \(D\cdot \operatorname{div} N-N(D)=0\). The residue construction in §2.7 also permits a nonzero quotient in the cleared certificate equation. Every construction requires the homogeneity, involution parity, and denominator legality of [Chapter 1](#technical-information/certificates). Finite sums and normalized field traces preserve the identities.
+We first work at \(q=1\). An Euler-normalized strict certificate satisfies \(v(F)=A\) and \(\operatorname{div} v=0\). After writing \(v=N/D\), these are \(N(F)=A\cdot D\) and \(D\cdot \operatorname{div} N-N(D)=0\). The residue constructions in §§2.7–2.9 also permit a nonzero quotient in the cleared certificate equation. Every construction requires the homogeneity, involution parity, and denominator legality of [Chapter 1](#technical-information/certificates). Finite sums and normalized field traces preserve the identities.
 
 ## 2.1 Cofactor transport
 
@@ -730,3 +730,113 @@ The other twelve primitive basis directions have \(e=-6\). Their displayed densi
 These counts concern the two displayed source maps, not their closure under automorphisms. For example, \(F_H\) is unchanged by exchanging \(X_2,Y_2\). That exchange carries \(X_2Y_0^2Y_2^3\) to the cover-served target \(X_2^3Y_0^2Y_2\). It similarly serves \(X_iY_0Y_2^4\) and \(X_iY_0^3Y_2^2\), for \(i=0,1\), by transporting their cover certificates. Thus five of the twelve rational-density directions have another finite-algebraic route immediately, bringing the span of these constructions and their exchanged copies to at least 201 primitive basis directions. A pole in one quotient presentation does not itself obstruct a certificate.
 
 Cofactor transport makes fields explicit, algebraic cycle classes prove target spanning, and finite covers can expose symmetries absent on the original variety. Each method must still identify its physical target image. None establishes that a suitable map or supporting family exists for a general \(Y\)-even sextic.
+
+
+## 2.9 Moving cubic maps and Jacobian residue transport
+
+A genus-one curve can have a useful map to its Jacobian even when the curve has no chosen rational origin. For a family of cubics, this map varies with the coefficients. Transporting a differentiated residue therefore requires both its invariant differential and the correction caused by the moving map. A primitive on the Jacobian alone does not establish a primitive for the original source.
+
+### Change of normal density
+
+For commuting tangent derivations \(\partial_i\) and a nonzero normal derivative \(g\), write
+\[
+\operatorname{ResDiv}_g(w)
+ =\sum_i\partial_iw_i-\frac{\sum_iw_i\partial_i g}{g}
+ =g\sum_i\partial_i(w_i/g).
+\]
+If \(M\) is the coordinate Jacobian, \(N=M^{-1}\), and the new normal derivative is \(h\), the Piola identity gives
+\[
+\operatorname{ResDiv}_g\left(\frac gh\det(M)Nw\right)
+ =\frac gh\det(M)\operatorname{ResDiv}_h(w).
+\]
+Indeed, the identity with density \(h\) follows from §2.1; replacing the vector by \((g/h)\) times itself changes the density to \(g\). Both the normal ratio and the determinant matter. The coordinate calculation includes derivatives of all parameter ratios.
+
+### First variation of a Weierstrass map
+
+Let \(D\) be a tangent derivation on a characteristic-zero field. Suppose
+\[
+\eta^2=\xi^3+a\xi+b,\qquad Da=Db=0,
+\qquad \frac{D\xi}{2\eta}=\frac m g,
+\]
+with \(m,g,\eta\ne0\). A dot denotes a compatible first variation fixing the tangent coordinate and \(m\). Differentiating the two identities gives
+\[
+2\eta\dot\eta=(3\xi^2+a)\dot\xi+\dot a\xi+\dot b,
+\qquad
+\frac{D\dot\xi}{2\eta}-\frac{D\xi\dot\eta}{2\eta^2}
+ =-\frac{m\dot g}{g^2}.
+\]
+Differentiate the curve identity with \(D\), substitute these two relations, and collect terms. The result is
+\[
+\boxed{\frac{\dot g}{g}
+ =\frac{\dot a\xi+\dot b}{2\eta^2}
+  -\frac g m D\left(\frac{\dot\xi}{2\eta}\right).}
+\]
+The last term is the exact differential correction. Omitting it changes the source.
+
+These hypotheses can be established at a single coefficient value using dual numbers \(K[\epsilon]/(\epsilon^2)\). One proves the curve and differential identities for the first-order deformation and compares their constant and linear terms. This avoids the invalid assumption that differentiation in an auxiliary coefficient is a derivation on the already specialized function field. The shared Lean module `ResidueTransport.MovingMap` gives both the jet formulation and the formulation with commuting derivations.
+
+### A cyclic paired-sign cubic
+
+Consider the fixed sextic
+\[
+F_C=\sum_{i=0}^2(X_i^6+Y_i^6)
+ +\frac12\sum_{i\bmod3}X_i^3\cdot X_{i+1}\cdot Y_i\cdot Y_{i+1}.
+\]
+It has a certificate for \(q=1\), \(A=X_0^3\cdot Y_0^3\). The [construction of `hodgepodgeconjecture`](https://github.com/hodge-computer/sextics/pull/165) supplies a finite-algebraic realization of the transport mechanism, using the shared polynomial-family machinery of `fqlx` and the project contributors.
+
+Put \(r=X_2^2\), \(v=Y_0/X_0\), \(c_i=(Y_i/X_i)/v\), and \(x=X_0^2/r\), \(y=X_1^2/r\). The paired sign changes allow the equation to descend to
+\[
+U=ax^3+by^3+cz^3+dx^2y+ey^2z+fz^2x,
+\]
+where
+\[
+(a,b,c)=(1+v^6,1+c_1^6v^6,1+c_2^6v^6),
+\qquad(d,e,f)=\tfrac12v^2(c_1,c_1c_2,c_2).
+\]
+The physical chart has \(z=1\). For the integral ternary-cubic covariants \(H,\Theta,J\) in the construction, define
+\[
+s_4=ae^2f+bdf^2+cd^2e,\qquad
+s_6=27a^2b^2c^2+4a^2ce^3+4ab^2f^3+6abcdef+4bc^2d^3-d^2e^2f^2.
+\]
+Their exact syzygy on \(U=0\) is
+\[
+J^2=4\Theta^3+4s_4\Theta H^4-s_6H^6.
+\]
+Thus \(\xi=\Theta/H^2\), \(\eta=-J/(2H^3)\) satisfy
+\(\eta^2=\xi^3+s_4\xi-s_6/4\), and their tangent differential obeys
+\(D_y\xi/(2\eta)=3/U_x\). The syzygy and differential identity are polynomial identities, not tests at a sampled cubic. Their normalization and exact definitions are recorded in [the construction explanation](#case/cycle-three).
+
+Set \(T=rv^6\), \(X=r^2\xi\), \(Y=r^3\eta\). After these substitutions the Jacobian equation is polynomial:
+\[
+V=Y^2-X^3-\frac18a_8(c_1,c_2,r,T)X
+             -\frac1{256}b_{256}(c_1,c_2,r,T)=0,
+\]
+where \(a_8=8r^4s_4\), \(b_{256}=-64r^6s_6\). Their degrees in \((r,T)\) are four and six. A polynomial curve on this hypersurface has degrees \((2,4,6)\) in \((r,X,Y)\), with curve parameter \(T\). The thirteen coefficient equations admit the nonsingular seed
+\[
+\begin{aligned}
+r(T)&=1+2T+4T^2,\\
+X(T)&=3+T+3T^2+4T^3+4T^4,\\
+Y(T)&=2+3T+3T^2+4T^3+4T^4+T^5+T^6
+\end{aligned}
+\qquad\text{over }\mathbb F_5,\quad(c_1,c_2)=(2,3).
+\]
+The retained endpoint parameters are \(r(0),X(0)\); the other thirteen coefficients are incidence unknowns. The integral square-system lifting theorem of §5.4, an explicit inverse coefficient Jacobian, and independent endpoints yield a dominant family with a polynomial normal. Polynomial integration and normalized trace then give residue primitives for every polynomial numerator on this **specified Jacobian model**.
+
+To recover the physical target, vary \(a=\alpha+v^6\) to first order at \(\alpha=1\). The source \(P_J=-V_\alpha/(144r)\) is polynomial: the coefficient derivative has the required factor \(r\). The full coordinate matrix from physical tangent coordinates to \((T,c_1,c_2,r,X)\) has residue-volume multiplier
+\[
+\frac{F_{X_0}\det M}{2Y}=-144rv^3.
+\]
+Pull back the primitive for \(P_J\), add the moving-map correction above, and subtract the correction for changing the physical normal chart. The result solves the original residue-divergence equation. Legal clearing and ordinary homogeneous extraction give \(D,N,Q\) with numerator degree \(\deg D+1\); no bound on \(\deg D\), and no expanded witness, is asserted.
+
+### Scope and character
+
+The all-polynomial-source statement on \(V\) must not be read as all-target coverage on \(F_C\). The source must reach that model with the correct density and correction terms. One useful screen is the diagonal symmetry
+\[
+(X_0,X_1,X_2,Y_0,Y_1,Y_2)
+ \longmapsto(\zeta^2X_0,\zeta X_1,X_2,\zeta^3Y_0,\zeta^2Y_1,\zeta Y_2),
+\quad \zeta^6=1.
+\]
+It preserves \(F_C\). The projective volume contributes character \(\zeta^9\), so the residue for the served numerator has character \(\zeta^{15+9}=1\). The pole-two numerator
+\(X_0^2\cdot X_1^2\cdot X_2^3\cdot Y_0^2\cdot Y_1^2\cdot Y_2\) instead gives \(\zeta^{17+9}=\zeta^2\). Averaging to the same invariant quotient kills that component. Its treatment requires an additional character mechanism as well as the appropriate higher-residue identity.
+
+Changing the sextic is a separate boundary. Paired signs still give plane cubics for several neighboring examples, but their extra cubic monomials or different coefficient functions change the Jacobian family and its source. Universal covariant identities remain useful; the nonsingular incidence, polynomial normal, and source transport must be established for the new model. An elliptic correspondence by itself does not integrate an arbitrary rational differential.

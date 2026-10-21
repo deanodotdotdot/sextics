@@ -11,7 +11,7 @@ The intended reader knows basic algebraic geometry, differential forms and Hodge
 | Chapter | Purpose |
 | --- | --- |
 | [1. From invariant cohomology to rational certificates](#technical-information/certificates) | The geometric target, key equation, Euler normalization, support, pole multiplicity and coefficient descent |
-| [2. Explicit constructions](#technical-information/explicit-constructions) | Cofactor transport, cubic-surface target spanning, and polynomial integration on finite covers |
+| [2. Explicit constructions](#technical-information/explicit-constructions) | Cofactor transport, cubic-surface target spanning, finite-cover integration, and moving cubic maps |
 | [2a. Binary blocks](#technical-information/binary-blocks) | Universal binary contact, target spanning and assembly for arbitrary same-parity binary blocks |
 | [3. Geometric support](#technical-information/geometric-support) | Gysin maps, finite transfer, bounded covering curves, reflection quotients and weighted Fano maps |
 | [3a. Split sextics and K3 surfaces](#technical-information/split-and-k3) | Elliptic companions, quotient resolutions, polarized splitting and the Clifford/Kuga–Satake support argument |
