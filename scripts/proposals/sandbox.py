@@ -80,9 +80,16 @@ def verify(root, files, instance, metadata, order, imports, policy, output):
                     command_line += ['-v',f'{p}:{p}:{mode}']
                 for k,v in env.items(): command_line += ['-e',f'{k}={v}']
                 command_line += ['-w',str(sources),'ubuntu:24.04',*args]
+            started = time.monotonic()
+            print(f'{label}: starting', flush=True)
             try:
                 with (output/f'{label}.log').open('wb') as log:
                     command(command_line,cwd=sources,env=env,timeout=remaining,stdout=log)
+            except ValueError as error:
+                print(f'{label}: failed after {time.monotonic()-started:.1f}s', flush=True)
+                raise ValueError(f'{label} failed; see {label}.log in the verification artifact: {error}') from error
+            else:
+                print(f'{label}: passed in {time.monotonic()-started:.1f}s', flush=True)
             finally:
                 if system == 'Linux':
                     subprocess.run(['docker','rm','--force',container_name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=30)
@@ -102,8 +109,13 @@ def verify(root, files, instance, metadata, order, imports, policy, output):
                 if file.is_dir(): continue
                 require(file.is_file() and str(file.relative_to(directory)) in allowed,
                         'Unexpected compiler artifact')
-        # All candidate modules are replayed, including helpers, with no writable artifact mount.
-        run([str(checker),'Proposal',*[name.removesuffix('.lean') for name in protected_names],'HodgeChecked'], 'kernel-replay')
+        # leanchecker starts one concurrent task per matching module. A namespace
+        # replay can exhaust memory on large submissions even with Docker CPU limits.
+        # Use a fresh, read-only process for every module, including unused helpers.
+        for file in sequence:
+            stem = file.removesuffix('.lean')
+            module = stem if file in protected_names or file == 'HodgeChecked.lean' else 'Proposal.'+stem
+            run([str(checker),'--verbose',module], 'kernel-'+stem)
         run([str(lean),'--run',str(root/'scripts/proposals/Audit.lean'),*(['witness'] if has_witness else [])], 'theorem-audit')
         audit = json.loads((output/'theorem-audit.log').read_text())
         require(audit['theorem']=='HodgeSubmission.checked', 'Missing trusted theorem audit')
