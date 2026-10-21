@@ -1339,6 +1339,58 @@
       "category": "Challenge instances",
       "q": 1,
       "path": "data/cyclic-triple-residual/record.json"
+    },
+    {
+      "id": "short-power-presentation",
+      "title": "Eight powers · linear-section remainder",
+      "status": "open",
+      "formalStatus": "unproved",
+      "evidenceKind": "none",
+      "certificateAvailable": false,
+      "visibility": "navigation",
+      "draftDisplayStatus": "open",
+      "category": "Challenge instances",
+      "q": 1,
+      "path": "data/short-power-presentation/record.json"
+    },
+    {
+      "id": "quadratic-cubic-pullback",
+      "title": "Quadratic pullback · residual density",
+      "status": "open",
+      "formalStatus": "unproved",
+      "evidenceKind": "none",
+      "certificateAvailable": false,
+      "visibility": "navigation",
+      "draftDisplayStatus": "open",
+      "category": "Challenge instances",
+      "q": 1,
+      "path": "data/quadratic-cubic-pullback/record.json"
+    },
+    {
+      "id": "eight-plane-configuration",
+      "title": "Eight planes · contact arrangement",
+      "status": "open",
+      "formalStatus": "unproved",
+      "evidenceKind": "none",
+      "certificateAvailable": false,
+      "visibility": "navigation",
+      "draftDisplayStatus": "open",
+      "category": "Challenge instances",
+      "q": 1,
+      "path": "data/eight-plane-configuration/record.json"
+    },
+    {
+      "id": "diagonal-permutation",
+      "title": "Simultaneous permutations · standard sector",
+      "status": "open",
+      "formalStatus": "unproved",
+      "evidenceKind": "none",
+      "certificateAvailable": false,
+      "visibility": "navigation",
+      "draftDisplayStatus": "open",
+      "category": "Challenge instances",
+      "q": 1,
+      "path": "data/diagonal-permutation/record.json"
     }
   ]
 }

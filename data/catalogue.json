@@ -78,6 +78,10 @@
     "holdout-moving-branch",
     "holdout-ternary-deformation",
     "reflection-coupled-residual",
-    "cyclic-triple-residual"
+    "cyclic-triple-residual",
+    "short-power-presentation",
+    "quadratic-cubic-pullback",
+    "eight-plane-configuration",
+    "diagonal-permutation"
   ]
 }

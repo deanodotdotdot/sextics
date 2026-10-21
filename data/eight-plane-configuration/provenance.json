@@ -1,0 +1,20 @@
+{
+  "instanceId": "eight-plane-configuration",
+  "variables": [
+    "X0",
+    "X1",
+    "X2",
+    "Y0",
+    "Y1",
+    "Y2"
+  ],
+  "statementSource": "instance.rec",
+  "contextSource": "why.md",
+  "mathematicalChecks": "checks.json",
+  "checkCommand": "python3 scripts/audit-structural-frontier.py",
+  "references": [
+    "docs/03-geometric-support.md",
+    "docs/04-known-locus-and-frontier.md"
+  ],
+  "existenceStatus": "No certificate or existence conclusion for this target is supplied by the screened constructions."
+}

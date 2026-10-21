@@ -1,0 +1,12 @@
+{
+  "q": 1,
+  "term_count": 236,
+  "smoothness": "Good reduction to Fermat modulo 5; six partials are the fifth powers.",
+  "primitive_target": "Target survives the Jacobian ring modulo 5; smooth complete-intersection base change applies.",
+  "hessian_symmetrizer_dimension_mod101": 1,
+  "coordinate_reflections": [],
+  "coordinate_paired_signs": [],
+  "scope": "Exact algebraic screening; not a certificate or a universal obstruction to other constructions.",
+  "planes": "Eight explicit planes Yi=+/- i Xi, exchanged by the involution.",
+  "extensions": {}
+}
