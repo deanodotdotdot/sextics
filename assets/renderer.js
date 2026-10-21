@@ -66,6 +66,7 @@ uniform float uDivisorStrength;
 uniform float uProjectionBox;
 uniform float uDivisorMode;
 uniform bool uContactProjection;
+uniform bool uDepthOnly;
 uniform vec4 uDivisorPlane[6];
 uniform float uTranslucencyEnabled;
 uniform float uTransNear;
@@ -173,6 +174,21 @@ float distanceOpacity(float distanceToCamera) {
   return clamp(1.0 - (1.0-uTransMinAlpha)*strength*(1.0-smoothT), 0.0, 1.0);
 }
 void main() {
+  if(uDepthOnly) {
+    float alpha = distanceOpacity(length(uCamera-vPosition));
+    if(uRenderPass == 1 && alpha < 1.0) discard;
+    if(uRenderPass == 2) {
+      if(alpha >= 1.0) discard; // this portion is already in the opaque background
+      ivec2 pixel = ivec2(gl_FragCoord.xy);
+      highp float z = gl_FragCoord.z;
+      if(z >= texelFetch(uOpaqueDepth,pixel,0).r) discard;
+      // Highp depth sampling is essential on mobile. Two 24-bit depth units
+      // avoid re-peeling the identical surface sample; lowp samplers break this.
+      if(uHasPreviousDepth && z <= texelFetch(uPreviousDepth,pixel,0).r + 1.2e-7) discard;
+      if(texelFetch(uAccumulated,pixel,0).a >= 0.9999) discard;
+    }
+    outColor=vec4(0.0);return;
+  }
   // Derivatives need neighbouring fragments, including those subsequently
   // discarded by x-ray depth peeling. Evaluate before divergent discards.
   float field = pixelDivisor();
@@ -339,7 +355,16 @@ function createDepthPeeler(gl, surfaceProgram) {
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);for(let i=0;i<3;i++)bindTexture(i,null);
   }
-  function render(width,height,vao,drawSurface,layers=6) {
+  const depthOnlyLoc=gl.getUniformLocation(surfaceProgram,'uDepthOnly');
+  function drawWithPrepass(drawSurface) {
+    gl.uniform1i(depthOnlyLoc,1);gl.colorMask(false,false,false,false);
+    gl.depthFunc(gl.LEQUAL);gl.depthMask(true);drawSurface();
+    gl.uniform1i(depthOnlyLoc,0);gl.colorMask(true,true,true,true);
+    gl.depthFunc(gl.EQUAL);gl.depthMask(false);drawSurface();
+    gl.depthFunc(gl.LEQUAL);gl.depthMask(true);
+  }
+  function render(width,height,vao,drawSurface,layers=6,usePrepass=false) {
+    const drawLayer=()=>usePrepass?drawWithPrepass(drawSurface):drawSurface();
     ensureTargets(width,height);
     const t=targets;
     gl.viewport(0,0,width,height);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);
@@ -352,7 +377,7 @@ function createDepthPeeler(gl, surfaceProgram) {
     // Correctly depth-test the portions outside the fade sphere first.
     gl.bindFramebuffer(gl.FRAMEBUFFER,t.opaqueFbo);
     gl.clearBufferfv(gl.COLOR,0,zero);gl.clearBufferfv(gl.DEPTH,0,one);
-    gl.uniform1i(passLoc,1);gl.uniform1i(prevLoc,0);drawSurface();
+    gl.uniform1i(passLoc,1);gl.uniform1i(prevLoc,0);drawLayer();
     gl.bindFramebuffer(gl.FRAMEBUFFER,t.accumulationFbo);
     gl.clearBufferfv(gl.COLOR,0,zero);
 
@@ -365,7 +390,7 @@ function createDepthPeeler(gl, surfaceProgram) {
       bindTexture(0,t.opaqueDepth);
       bindTexture(1,layer?t.depth[current^1]:t.opaqueDepth);
       bindTexture(2,t.accumulation);
-      gl.uniform1i(passLoc,2);gl.uniform1i(prevLoc,layer?1:0);drawSurface();
+      gl.uniform1i(passLoc,2);gl.uniform1i(prevLoc,layer?1:0);drawLayer();
 
       // Accumulate this nearest remaining layer IN FRONT-TO-BACK ORDER.
       // premultiplied out = prior + (1-prior.alpha) * thisLayer
@@ -745,7 +770,7 @@ function create(canvas,options={}){
     // Animation callbacks can resume before the forwarded visibility event.
     // Sleep/background time must not consume the GPU's response deadline.
     if(delayed)fenceStarted=now;
-    if(now-lastDraw<(busy?180:33.34)&&!needsDraw)return;
+    if(now-lastDraw<(busy?180:16.0)&&!needsDraw)return;
     if(frameFence){
       const state=gl.clientWaitSync(frameFence,0,0);
       if(!usable())return;
@@ -759,10 +784,12 @@ function create(canvas,options={}){
         awaitingFirstFrame=false;status('ready','Surface ready',activeMeta);
       }
     }
-    const dt=Math.min(.05,(now-last)/1000);last=now;lastDraw=now;resize();
+    // Follow elapsed time during slow frames; cap only long suspension gaps.
+    const dt=Math.min(.25,(now-last)/1000);last=now;lastDraw=now;resize();
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     if(!activeCount||!activeVao)return;
-    const ease=1-Math.exp(-dt*6.2);currentX+=(targetX-currentX)*ease;currentY+=(targetY-currentY)*ease;
+    // The camera below supplies the smoothing; filtering the input too adds lag.
+    currentX=targetX;currentY=targetY;
     const idle=reduced?0:.010*Math.sin(now*.00023),idle2=reduced?0:.007*Math.sin(now*.00017+1.7);
     const desiredOrientation=cameraMode==='free'?orbitOrientation:ScreenTrackball.normalize(ScreenTrackball.multiply(ScreenTrackball.fromYawPitch(baseYaw+.115*currentX+idle,basePitch-.082*currentY+idle2),homeOffset));
     const desiredDistance=cameraMode==='free'?orbitDistance:baseDistance,desiredCenter=cameraMode==='free'?orbitCenter:[baseCenter[0]+.038*currentX,baseCenter[1]-.026*currentY,baseCenter[2]+(reduced?0:.008*Math.sin(now*.00016))],cameraEase=1-Math.exp(-dt*(cameraMode==='free'?12:7));
@@ -770,7 +797,7 @@ function create(canvas,options={}){
     const basis=ScreenTrackball.basis(cameraOrientation),eye=cameraCenter.map((c,i)=>c+cameraDistance*basis.back[i]);
     gl.useProgram(p);gl.bindVertexArray(activeVao);gl.uniformMatrix4fv(U.View,false,lookAt(eye,cameraCenter,basis.up));gl.uniformMatrix4fv(U.Projection,false,perspective(FOV,canvas.width/canvas.height,Math.max(.0005,Math.min(.035,cameraDistance*.025)),40));gl.uniform3fv(U.Camera,new Float32Array(eye));gl.uniform1f(U.Time,now/1000);gl.uniform1f(U.TranslucencyEnabled,depthPeelerFailed?0:1);gl.uniform1f(U.TransNear,0);gl.uniform1f(U.TransFar,2);gl.uniform1f(U.TransMinAlpha,.18);
     const draw=()=>gl.drawElements(gl.TRIANGLES,activeCount,gl.UNSIGNED_INT,0),bounds=Math.max(1.01,activeMeta.positionBound||0),distanceToBounds=Math.hypot(...eye.map(c=>Math.max(0,Math.abs(c)-bounds)));
-    if(!depthPeelerFailed&&distanceToBounds<2){try{if(!depthPeeler)depthPeeler=createDepthPeeler(gl,p);depthPeeler.render(canvas.width,canvas.height,activeVao,draw,6);}catch(error){if(!usable())return;depthPeelerFailed=true;if(depthPeeler)depthPeeler.dispose();depthPeeler=null;status('warning','X-ray is unavailable on this device; showing an opaque surface.',activeMeta);}}
+    if(!depthPeelerFailed&&distanceToBounds<2){try{if(!depthPeeler)depthPeeler=createDepthPeeler(gl,p);depthPeeler.render(canvas.width,canvas.height,activeVao,draw,6,activeMeta.projectionBox===0&&activeMeta.pairId==='contact46006');}catch(error){if(!usable())return;depthPeelerFailed=true;if(depthPeeler)depthPeeler.dispose();depthPeeler=null;status('warning','X-ray is unavailable on this device; showing an opaque surface.',activeMeta);}}
     if(depthPeelerFailed||distanceToBounds>=2){gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);gl.useProgram(p);gl.bindVertexArray(activeVao);gl.uniform1i(U.RenderPass,0);gl.depthMask(true);gl.enable(gl.DEPTH_TEST);gl.disable(gl.BLEND);gl.disable(gl.CULL_FACE);draw();}
     if(!usable())return;
     frameJob=job;fenceStarted=performance.now();frameFence=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);

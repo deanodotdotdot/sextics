@@ -48,7 +48,7 @@
       -0.18893763103621197
     ]
   ],
-  "triangleCount": 2018768,
+  "triangleCount": 406448,
   "camera": {
     "yaw": 0.71,
     "pitch": 0.455,
@@ -59,14 +59,14 @@
       0
     ],
     "orientation": [
-      -0.42528101220350345,
-      -0.5805797068542108,
-      0.1565163288191464,
-      -0.676436178409478
+      -0.3457515492356953,
+      -0.648849719104112,
+      0.041786456405925244,
+      -0.6765380996519467
     ]
   },
   "note": "Whole compact slice for home, technical information, and leaderboard; atlas Contact cone retains its boxed view.",
-  "mesh": "meshes/contact46006-whole-192.json",
+  "mesh": "meshes/contact46006-adaptive-light-ordered.json",
   "samplingMode": "sphere",
   "projectionBox": 0
 }
