@@ -20,7 +20,7 @@ Contribute through a direct GitHub pull request for one fixed instance. Add the 
 4. Add only the solution files listed below. Do not edit or remove existing files.
 5. Prove the exact theorem, explain the mathematics, and run the local check. Inspect the complete diff.
 6. Push the branch to your fork and open a PR against `hodge-computer/sextics:main`. Follow the [PR title and description requirements](#pr-title-and-description) below.
-7. Address verification failures in the same PR. The owner reviews the mathematical explanation; their merge is the final sign-off.
+7. Address verification failures in the same PR. Once `solve/lean` passes, leave the PR ready for the owner to merge. Do not request a separate GitHub approving review; the owner reviews the explanation and their merge is the final sign-off.
 
 ### Files
 
