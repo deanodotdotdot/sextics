@@ -637,7 +637,7 @@ The source identity is
 J_cB=A-X_0^3\cdot Y_0\cdot Y_1^3\cdot Y_2\cdot T^{-2}.
 \]
 
-Its \(X_0\)-derivative gives the normal-source identity, and the inverse-square deck character kills the correction under trace. This yields a checked finite-algebraic certificate for a target outside both binary-cubic density sectors of §2.5. The general monomial criterion above applies to \(F_{\mathrm{eq}}\) as well, because the physical cover and its Jacobian are unchanged. A checked target application, this source-map criterion, and all-target geometric support remain distinct statements; the last is discussed in §4.6.
+Its \(X_0\)-derivative gives the normal-source identity, and the inverse-square deck character kills the correction under trace. This yields a checked finite-algebraic certificate for a target outside both binary-cubic density sectors of §2.5. The general monomial criterion above applies to \(F_{\mathrm{eq}}\) as well, because the physical cover and its Jacobian are unchanged. Geometric existence for every odd target at every positive pole order follows more directly from §3.3: in the coordinates \(U=Y_0+Y_1\), \(V=Y_0-Y_1\), the equation is separately even in \(U,V,Y_2\). The geometric support theorem and the checked target construction have different scopes.
 
 ### Returning to a homogeneous polynomial certificate
 
@@ -723,11 +723,9 @@ e & A/J_\theta\text{ in the quotient coordinates}\\
 \end{array}
 \]
 
-The second identity uses \(Y_1^6=\lambda(p^3+i v^3)\). The \(e=0\) sources are polynomial on the fiber, so the same curve and integration theorem serve them, with their own source identities. There are fifty such monomials, forty-seven in the primitive basis of §4.6. Together with the cover's 149 primitive basis directions, these give a finite-algebraic route to 196 of the 208 basis directions. This is the mathematical scope of the source maps, not a claim of 196 separately accepted Lean submissions.
+The second identity uses \(Y_1^6=\lambda(p^3+i v^3)\). The \(e=0\) sources are polynomial on the fiber, so the same curve and integration theorem serve them, with their own source identities. The \(e=-6\) densities have a fiber denominator and require a different source representative or primitive construction: rational integration can encounter nonzero residues. Geometric existence still follows from the descent criterion of §4.6.
 
-The other twelve primitive basis directions have \(e=-6\). Their displayed densities have a fiber denominator, so the polynomial-source integration theorem does not apply directly. Integrating an arbitrary rational function of \(t\) is not the same as polynomial integration; poles can introduce nonzero residues. A different source representative or primitive construction is needed. Geometric existence for these targets is nevertheless already supplied by §4.6. They test effective extraction and formalization, not an unknown-existence frontier.
-
-These counts concern the two displayed source maps, not their closure under automorphisms. For example, \(F_H\) is unchanged by exchanging \(X_2,Y_2\). That exchange carries \(X_2Y_0^2Y_2^3\) to the cover-served target \(X_2^3Y_0^2Y_2\). It similarly serves \(X_iY_0Y_2^4\) and \(X_iY_0^3Y_2^2\), for \(i=0,1\), by transporting their cover certificates. Thus five of the twelve rational-density directions have another finite-algebraic route immediately, bringing the span of these constructions and their exchanged copies to at least 201 primitive basis directions. A pole in one quotient presentation does not itself obstruct a certificate.
+The displayed source maps need not exhaust their closure under automorphisms. Coordinate transport can supply a different polynomial presentation of a target with a fiber pole. The [holdout explanation](#case/holdout), under “Geometric scope of the Fermat cover,” records the exact character counts and such an exchange. These distinguish the scope of a chosen integration formula from the support of the underlying classes.
 
 Cofactor transport makes fields explicit, algebraic cycle classes prove target spanning, and finite covers can expose symmetries absent on the original variety. Each method must still identify its physical target image. None establishes that a suitable map or supporting family exists for a general \(Y\)-even sextic.
 
@@ -750,6 +748,18 @@ If \(M\) is the coordinate Jacobian, \(N=M^{-1}\), and the new normal derivative
  =\frac gh\det(M)\operatorname{ResDiv}_h(w).
 \]
 Indeed, the identity with density \(h\) follows from §2.1; replacing the vector by \((g/h)\) times itself changes the density to \(g\). Both the normal ratio and the determinant matter. The coordinate calculation includes derivatives of all parameter ratios.
+
+For a balanced numerator there is also a direct normal-chart identity. Let \(p,q\) be two coordinates, put \(f=F_p\), \(g=F_q\), and take \(A=Bpq\) with \(B\) independent of \(p,q\). Define
+\[
+G=pf+qg,\qquad H=p^2F_{pp}+2pqF_{pq}+q^2F_{qq},\qquad
+D=\partial_q-\frac gf\partial_p.
+\]
+When \(f,G\ne0\), the correction \(C=-Bpq^2/G\) satisfies
+\[
+\frac{A_p}{f}-\frac{AF_{pp}}{f^2}
+ =\frac{A(3G-H)}{G^2}+DC-C\frac{Df}{f}.
+\]
+The last two terms are the residue divergence of the vector with \(q\)-component \(C\). Thus passing to the paired normal has a specified correction even when the source involves both coordinates. The identity follows from the product and quotient rules and is formalized over any field in `ResidueTransport.NormalChange`; the application supplies the normal and Hessian identities.
 
 ### First variation of a Weierstrass map
 
@@ -877,7 +887,33 @@ Y&=1+3T^2+4T^4+2T^6
 \]
 Fixing \(r(0)=1\) and \(X(0)=4\) leaves a square system with thirteen coefficients and invertible incidence derivative. The same lifting and source-transport construction serves \(X_0^3\cdot Y_0^3\). The coefficient specialization and seed change, while the transitive covariants and residue mechanism remain the same.
 
-These examples separate reusable identities from application data. The first-variation formula, integration theorem, and six-coefficient transitive covariants are reusable. The particular coefficient functions, nonsingular incidence, nonzero chart denominators, and source binding must still be proved for each new model. A changed coefficient can invalidate an earlier cover without introducing a new obstruction to this broader Jacobian method.
+### Coefficient variations from infinitesimal coordinate changes
+
+For the six-coefficient cubic
+\[
+U=ax^3+by^3+cz^3+dx^2y+ey^2z+fxy^2,
+\]
+the Jacobian invariants in the preceding normalization are
+\[
+\begin{aligned}
+I_4={}&-3acef+cd^2e,\\
+I_6={}&-\tfrac{27}{4}a^2b^2c^2-a^2ce^3
+       +\tfrac92abc^2df-ac^2f^3-bc^2d^3
+       +\tfrac14c^2d^2f^2.
+\end{aligned}
+\]
+The balanced source calls for the coefficient variation \(U+\kappa xyz\). Its first-order covariant identities can be recovered without expanding the full seven-coefficient family. For \(\epsilon^2=0\), substitute
+\[
+(a,d,f,y)\longmapsto
+(a-\epsilon d,\ d-2\epsilon f,\ f-3\epsilon b,\ y+\epsilon x),
+\]
+fixing the other coefficients and coordinates. The resulting cubic is \(U+2\epsilon e\,xyz\). Since the coordinate change is a determinant-one shear, covariance identifies derivatives of the original relations with \(2e\) times their \(xyz\)-variations. Prove the cleared identities over the universal polynomial ring and cancel \(e\) there; specialization then imposes no condition \(e\ne0\). In particular,
+\[
+\left.\frac{\partial I_4}{\partial\kappa}\right|_0
+ =\frac{9abc-cdf}{2},\qquad
+\left.\frac{\partial I_6}{\partial\kappa}\right|_0=acde^2.
+\]
+The [mixed-polar construction](#case/mixed-polar) uses this \(xyz\) variation. Its physical coefficient functions, incidence seed and source binding belong to that application; the shear identities give a general way to derive the required first-order relations for the displayed cubic family.
 
 ### Coefficient and source scope
 
@@ -896,7 +932,7 @@ The classical \(SL_3\)-invariants \(I_4=s_4\) and \(I_6=-s_6/4\) have coefficien
 \[
 r^d I_d(U(v))\big|_{v^6=T/r}
 \]
-is a homogeneous polynomial of degree \(d\) in \((r,T)\). The same polynomial Jacobian form is therefore available throughout this coefficient space, wherever the generic cubic is smooth.
+is a homogeneous polynomial of degree \(d\) in \((r,T)\). The same polynomial Jacobian form is therefore available throughout this coefficient space, wherever the generic cubic is smooth. The determinant-one action on the ternary coordinates preserves the cubic residue differential, so these invariants describe the descended Jacobian over the field of \(v^6\), without a further differential-character twist. The genus-one surface itself can have multiple fibers; its Jacobian need not be birational to it.
 
 There are 22 odd degree-six monomials invariant under the paired signs whose residues are invariant under the diagonal action: six have \(Y\)-degree one, ten have degree three, and six have degree five. Their polynomial-source condition follows from the same weights. Write one such target, divided by \(r^3\), as \(c\,v^j M(u)\), with \(c\) passive, \(j\in\{1,3,5\}\), and cubic monomial \(M\). Let \(k_M\) denote its coefficient in \(U\). Then
 \[
@@ -908,17 +944,14 @@ becomes a polynomial in \((r,T)\). Indeed, an invariant derivative has coefficie
 \frac{c}{144}\bigl(P_{4,M,j}X+P_{6,M,j}\bigr).
 \]
 
-This is a source-polynomiality statement. To obtain certificates one still needs the cubic-to-Jacobian differential and its first variation, a serving curve family with polynomial normal, and full physical transport. A nonsingular incidence persists over a nonempty open of a coefficient family by the lifting argument, but that does not prove that every specialized member has the same nonsingular seed. The calculation explains why many coefficient and numerator changes belong to one method's scope; it does not assert that 22 further Lean submissions have been verified.
+This calculation supplies polynomial sources for an explicit implementation. Chapter 4 proves the stronger geometric statement: when the associated \((3,3)\) surface is smooth over the passive field, the entire \(\Gamma\)-invariant fourth cohomology has divisor support. That hypothesis holds on a nonempty coefficient open. Extracting a certificate through the present Jacobian method still requires the covariant differential, its first variation, a serving curve family with polynomial normal and the physical transport. A nonsingular incidence persists on an open, but a particular seed need not survive every specialization. These are extraction requirements inside the geometric theorem's scope, not additional hypotheses for its cohomological conclusion.
 
 ### Character and geometry beyond this family
 
-The all-polynomial-source statement on \(V\) must not be read as all-target coverage on \(F_C\). The source must reach that model with the correct density and correction terms. One useful screen is the diagonal symmetry
+The all-polynomial-source theorem on an auxiliary Jacobian serves the physical classes which reach it with the specified density and correction terms. For the diagonal action above, with weights \(w=(2,1,0,3,2,1)\), a monomial residue with exponent vector \(e\) has character
 \[
-(X_0,X_1,X_2,Y_0,Y_1,Y_2)
- \longmapsto(\zeta^2X_0,\zeta X_1,X_2,\zeta^3Y_0,\zeta^2Y_1,\zeta Y_2),
-\quad \zeta^6=1.
+\zeta^{\langle w,e\rangle+9}.
 \]
-It preserves \(F_C\). The projective volume contributes character \(\zeta^9\), so the residue for the served numerator has character \(\zeta^{15+9}=1\). The pole-two numerator
-\(X_0^2\cdot X_1^2\cdot X_2^3\cdot Y_0^2\cdot Y_1^2\cdot Y_2\) instead gives \(\zeta^{17+9}=\zeta^2\). Averaging to the same invariant quotient kills that component. Its treatment requires an additional character mechanism as well as the appropriate higher-residue identity.
+The added nine is the determinant character of the projective volume. Averaging to the invariant quotient retains precisely character one, independently of the pole order. The averaging-ideal criterion of §3.1 describes how further serving quotients can enlarge that image.
 
-Changing the sextic is a separate boundary. Paired signs still give plane cubics for several neighboring examples, but their extra cubic monomials or different coefficient functions change the Jacobian family and its source. Universal covariant identities remain useful; the nonsingular incidence, polynomial normal, and source transport must be established for the new model. An elliptic correspondence by itself does not integrate an arbitrary rational differential.
+The resulting invariant sector has primitive Hodge dimensions \((22,74,22)\), compared with \((208,866,208)\) for the global involution. The nontrivial order-three surface eigenspaces retain holomorphic two-forms, as computed in §4.7. Removing the extra diagonal symmetry, or the paired signs themselves, can also change the surface's geometric genus. These are geometric and representation-theoretic hypotheses on the construction; an elliptic correspondence alone does not integrate an arbitrary rational differential.

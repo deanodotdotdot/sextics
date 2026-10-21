@@ -503,6 +503,99 @@ theorem Submission.certificate :
 
 Its proof selects the checked complex seed, applies `conic_target_residue_solution` to the positive `coverQuotientSource`, and invokes `holdout_hasCertificate_of_quotient_divergence`. The verifier supplies the protected definitions, which are matched to (1). Classical choice selects roots and finite field factors only after their existence and properties have been proved. `Submission.certificate` is a closed theorem with no hypotheses or unproved placeholders. Compilation and kernel replay establish its proof using only the permitted axioms `propext`, `Classical.choice`, and `Quot.sound`. The detailed build and submission-check results accompany the proposal.
 
+## Geometric scope of the Fermat cover
+
+The accepted Lean proof above constructs the fixed \(q=1\) certificate in (1). The following geometric consequence of `fqlx`'s cover was prepared for `benediamond` with OpenAI ChatGPT assistance. It uses the book's support theorems, whose general geometric inputs are not formalized by that certificate.
+
+**Fixed-variety theorem.** For the sextic \(F\) in (1), every \(Y\)-odd homogeneous target of degree \(6q\), for every positive \(q\), has a certificate.
+
+### The supported quotient of the cover
+
+On the cover (5), the commuting involutions
+\[
+r:(y,T)\mapsto(-y,-T),\qquad
+\sigma:(y,T)\mapsto(T,y)
+\]
+have quotient (6). Its projective fibers over the Fermat curve are degree-six hypersurfaces in \(\mathbb P(1,1,1,2,2)\).
+
+The generic fiber is quasismooth. Since quasismoothness is open, it suffices to check the fiber \((\alpha,\beta)=(0,1)\). A nonzero common zero of its five affine partials would satisfy
+\[
+X_0=0,\qquad S^2=P^2,\qquad
+X_1^3X_2=6SP,\qquad
+3X_1^2(2X_1^3+PX_2)=0,\qquad
+6X_2^5+PX_1^3=0.
+\]
+If either \(X_1\) or \(X_2\) is zero, all coordinates are zero. Otherwise put \(S=\varepsilon P\), \(\varepsilon^2=1\). The equations give
+\[
+P=-2X_1^3/X_2,\qquad
+X_1^6=3X_2^6,\qquad
+X_2^3=24\varepsilon X_1^3.
+\]
+Squaring the last equality contradicts the preceding one.
+
+The possible ambient quotient singularities lie at \(X_0=X_1=X_2=0\), where the equation is \(S(S^2-3P^2)=0\). These are three distinct points of local type \(\frac12(1,1,1)\). Weighted adjunction gives \(-K=\mathcal O(1)\), so the generic fiber is a normal \(\mathbb Q\)-Fano threefold. The normal-Fano theorem in [Chapter 3, §3.2][support] supplies covering rational curves. Curves in the fibers make the total fourfold uniruled even though its base curve has positive genus. A smooth projective model therefore has divisor-supported fourth cohomology. Quotient transfer, including the boundaries of the rational presentation, supports the \(r,\sigma\)-invariant part on a smooth model of the cover.
+
+### The physical diagonal quotient and descent
+
+Fix a primitive sixth root \(\zeta\). The deck transformation and its exchange conjugate are
+\[
+\begin{aligned}
+d:(y,T,\alpha,\beta)&\mapsto
+   (y,\zeta T,\zeta^{-1}\alpha,\zeta^{-1}\beta),\\
+e=\sigma d\sigma:(y,T,\alpha,\beta)&\mapsto
+   (\zeta y,T,\zeta^{-1}\alpha,\zeta^{-1}\beta).
+\end{aligned}
+\]
+They preserve (4) and (5), commute, have order six, and satisfy \(r=d^3e^3\); \(\sigma\) interchanges \(d,e\). Thus the group they generate with \(\sigma\) is finite, a quotient of \((\mu_6\times\mu_6)\rtimes\mathbb Z/2\).
+
+Take a smooth equivariant projective model \(Z\) resolving the cover and its projection to \(X=V(F)\). The resulting proper generically finite map \(p:Z\to X\) satisfies
+\[
+pd=p,\qquad pe=gp,\qquad pr=\tau p,
+\]
+where the physical diagonal automorphism \(g\) has weights \((0,0,0,5,1,5)\) modulo six. These identities hold in the displayed coordinates and hence on the projective models.
+
+The automorphism \(g\) fixes \(F\). At a fixed point with only \(Y_0,Y_2\) nonzero and \(Y_0^6+Y_2^6=0\), its tangent weights are \((1,1,1,2)/6\), of age \(5/6\). The finite-quotient theorem in [Chapter 3, §3.3][support] therefore supports the \(g\)-invariant fourth cohomology. The two supported quotients now satisfy [the deck/exchange descent criterion](#technical-information/known-locus/46-descent-through-a-deck-action-and-an-exchange). Consequently
+\[
+H^4(X,\mathbb Q)^\tau\subseteq N^1H^4(X,\mathbb Q).
+\]
+The [certificate correspondence][certificates] and the all-pole extraction in [Chapter 3, §3.6][support] give the fixed-variety theorem. This argument reaches the entire invariant fourth cohomology, including its middle Hodge component.
+
+### Target characters and the polynomial-source boundary
+
+For an odd sextic monomial \(A=M(X)Y_0^aY_1^bY_2^c\), put \(m=a+c+1\), \(e=b-m\), and \(C=M(X)Y_0^aY_2^cY_1^m\). On the common coordinate open, the unnormalized invariant sum in [Chapter 2, §2.7][constructions] has density \(A-CT^e\). The deck trace removes the correction if \(e\not\equiv0\pmod6\). Otherwise the physical residue is \(g\)-invariant, since its character is
+\[
+5(a+1)+(b+1)+5(c+1)\equiv b-a-c-1=e\pmod6.
+\]
+The global argument supplies the support conclusion without assuming that an arbitrary rational form on the coordinate open extends to a global class.
+
+There are 226 odd sextic monomials. The cover criterion serves 158, and the diagonal quotient serves the complementary 68. The eighteen odd Jacobian generators \(Z_j\partial_iF\), with \(i,j\) in opposite parity blocks, each have a unique leading monomial \(6Z_i^5Z_j\); their mixed terms have all exponents at most four. Hence the 208 odd sextic monomials with exponents at most four form a basis of the primitive target space. The cover and diagonal quotient account for 149 and 59 basis elements respectively. The complementary basis elements split into 47 with \(e=0\) and twelve with \(e=-6\). These exact counts can be reproduced by:
+
+```python
+from itertools import product
+
+raw = {e for e in product(range(7), repeat=6)
+       if sum(e) == 6 and sum(e[3:]) % 2 == 1}
+basis = {e for e in raw if max(e) <= 4}
+
+def cover(e):
+    return (e[4]-e[3]-e[5]-1) % 6 != 0
+
+assert len(raw) == 226 and len(basis) == 208
+assert sum(map(cover, raw)) == 158
+assert sum(map(cover, basis)) == 149
+assert len(raw) - sum(map(cover, raw)) == 68
+assert len(basis) - sum(map(cover, basis)) == 59
+assert sum(e[4]-e[3]-e[5]-1 == 0 for e in raw) == 50
+assert sum(e[4]-e[3]-e[5]-1 == 0 for e in basis) == 47
+assert sum(e[4]-e[3]-e[5]-1 == -6 for e in basis) == 12
+```
+
+The polynomial-source construction on the complementary quotient in [Chapter 2, §2.8][constructions] serves the \(e=0\) sources, giving a finite-algebraic route to 196 of the 208 primitive basis directions together with the cover. The twelve \(e=-6\) densities have a fiber denominator and lie outside that polynomial-integration theorem. Their geometric support follows from the theorem above.
+
+These counts concern the displayed source maps. Coordinate transport supplies further polynomial presentations: \(F\) is unchanged by exchanging \(X_2,Y_2\), which carries \(X_2Y_0^2Y_2^3\) to the cover-served \(X_2^3Y_0^2Y_2\). The same exchange serves \(X_iY_0Y_2^4\) and \(X_iY_0^3Y_2^2\), for \(i=0,1\). The constructions and their exchanged copies therefore span at least 201 primitive basis directions. A fiber pole in one presentation is not an obstruction to all finite-algebraic constructions.
+
+The [character-separating bundle](#case/holdout-bundle), formalized by `fqlx`, combines the cover source \(X_0^3Y_0^3\) with the complementary polynomial source \(X_0^3Y_0Y_1^2\). These concrete certificates and the geometric all-target theorem have different scopes; neither asserts an expanded common denominator. The theorem is for the fixed sextic (1), and supplies no family dominating the space of all even sextics.
+
 ## 12. Context and attribution
 
 The [motivation](why.md), [provenance](provenance.json), and full [existing holdout discussion][discussion] were read before developing this construction. They explain the oriented-chain difficulty and record substantial earlier work on supports and rational fields. The present route uses an auxiliary cover and a moving conic on its quotient. It neither infers nonexistence from a failed bounded search nor assumes that an algebraic primitive descends without checking trace and derivation compatibility.
