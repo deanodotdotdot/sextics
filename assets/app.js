@@ -138,6 +138,7 @@ function instancesInGroup(key,records=state.records){
 }
 function buildIndex(){
   const query=$('caseSearch').value.toLowerCase().trim();
+  $('clearCaseSearch').disabled=!$('caseSearch').value;
   $('atlasColophon').hidden=!!query||!state.records.length;
   const filtered=state.records.filter(r=>(`${r.id} ${r.title} ${r.category||''} ${r.family||''} ${r.evidenceKind||''}`).toLowerCase().includes(query));
   $('caseIndex').innerHTML=groupOrder.map(key=>{
@@ -335,7 +336,7 @@ function showParticipation(record=null){
   dialog.showModal();dialog.scrollTop=0;
 }
 const modals={
-  about:`<div class="endorsement"><h2>I value responsible, human-centered mathematics.</h2><p>I endorse and affirm the contents of the <a href="https://leidendeclaration.ai/" target="_blank" rel="noopener noreferrer">Leiden</a> and <a href="https://www.mathandai.org/" target="_blank" rel="noopener noreferrer">Math and AI</a> Declarations.</p><p>I am fully committed to establishing, crystallizing, and communicating <em>human understanding</em> of any and all mathematical results that ensue from this project. I am committed to fully determining where and how previous human mathematical results have been used in any advance that might arise during the course of this project, and assigning full credit to the authors of said results during the preparation of any manuscript describing this project's advances.</p><footer class="endorsement-footer"><nav class="endorsement-links" aria-label="Author and community"><a href="https://x.com/hodgecomputer" target="_blank" rel="noopener noreferrer">Twitter ↗</a><a href="https://benediamond.github.io" target="_blank" rel="noopener noreferrer">Personal website ↗</a><a href="https://discord.gg/X6VVp5EZY" target="_blank" rel="noopener noreferrer">Join our Discord ↗</a><a href="mailto:ben@hodge.computer">Contact us ↗</a></nav><p class="endorsement-support">This work was conducted in part during the course of my employment with <a href="https://math.inc/" target="_blank" rel="noopener noreferrer">Math, Inc.</a>, whom I gratefully thank. I am not currently affiliated with Math, Inc.</p></footer></div>`
+  about:`<div class="endorsement"><h2>I value responsible, human-centered mathematics.</h2><p>I endorse and affirm the contents of the <a href="https://leidendeclaration.ai/" target="_blank" rel="noopener noreferrer">Leiden</a> and <a href="https://www.mathandai.org/" target="_blank" rel="noopener noreferrer">Math and AI</a> Declarations.</p><p>I am fully committed to establishing, crystallizing, and communicating <em>human understanding</em> of any and all mathematical results that ensue from this project. I am committed to fully determining where and how previous human mathematical results have been used in any advance that might arise during the course of this project, and assigning full credit to the authors of said results during the preparation of any manuscript describing this project's advances.</p><footer class="endorsement-footer"><nav class="endorsement-links" aria-label="Author and community"><a href="https://x.com/hodgecomputer" target="_blank" rel="noopener noreferrer">Twitter ↗</a><a href="https://benediamond.github.io" target="_blank" rel="noopener noreferrer">Personal website ↗</a><a href="https://discord.gg/X6VVp5EZY" target="_blank" rel="noopener noreferrer">Join our Discord ↗</a><a href="mailto:ben@hodge.computer">Contact us ↗</a></nav></footer></div>`
 };
 function showModal(name){if(!modals[name])return;state.modalId++;const dialog=$('infoDialog');dialog.classList.remove('solution-dialog','participate-dialog','instance-participation','column-dialog');dialog.removeAttribute('aria-labelledby');$('dialogContent').innerHTML=modals[name];dialog.showModal();dialog.scrollTop=0;}
 async function main(){
@@ -346,6 +347,7 @@ async function main(){
   $('exploreToggle').addEventListener('click',()=>setExploring(!state.exploring));
   $('leaderboardRetry').addEventListener('click',()=>renderLeaderboard(state.loadId));
   $('caseSearch').addEventListener('input',()=>{buildIndex();$('caseSearch').scrollIntoView({block:'nearest'});});
+  $('clearCaseSearch').addEventListener('click',()=>{$('caseSearch').value='';buildIndex();$('caseSearch').focus();});
   $('menuButton').addEventListener('click',()=>openDrawer(!document.body.classList.contains('drawer-open')));
   $('drawerBackdrop').addEventListener('click',()=>openDrawer(false));
   $('closeDialog').addEventListener('click',()=>$('infoDialog').close());

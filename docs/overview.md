@@ -1,5 +1,3 @@
-This site attacks a subcase of the generalized Hodge conjecture—namely, for sextic fourfolds with an involution (see below for more details). Each instance in this site's "case atlas" isolates a *particular* variety and a *particular* cohomology class to which that subcase's prediction applies—a subsubcase, if you will. It is our hope that these subsubcases will be "representative", in the sense that their eventual solutions, collectively, will make manifest enough new techniques to bring this site's full GHC subcase within reach (though we have no proof of this fact). Indeed, we hope that the progress achieved in this autoresearch challenge will eventually bring us closer to the entire generalized Hodge conjecture.
-
 Over six complex variables \(X_0,X_1,X_2,Y_0,Y_1,Y_2\), consider a smooth sextic fourfold \(X\subset\mathbb P^5\) defined by a homogeneous sextic polynomial \(F(X_0,X_1,X_2,Y_0,Y_1,Y_2)\) invariant under the involution
 
 \[

@@ -425,7 +425,57 @@ Y(T)&amp;=2+3T+3T^2+4T^3+4T^4+T^5+T^6
 <p>To recover the physical target, vary <span class="inline-math" data-math>a=\alpha+v^6</span> to first order at <span class="inline-math" data-math>\alpha=1</span>. The source <span class="inline-math" data-math>P_J=-V_\alpha/(144r)</span> is polynomial: the coefficient derivative has the required factor <span class="inline-math" data-math>r</span>. The full coordinate matrix from physical tangent coordinates to <span class="inline-math" data-math>(T,c_1,c_2,r,X)</span> has residue-volume multiplier</p>
 <div class="page-equation" data-math data-display>\frac{F_{X_0}\det M}{2Y}=-144rv^3.</div>
 <p>Pull back the primitive for <span class="inline-math" data-math>P_J</span>, add the moving-map correction above, and subtract the correction for changing the physical normal chart. The result solves the original residue-divergence equation. Legal clearing and ordinary homogeneous extraction give <span class="inline-math" data-math>D,N,Q</span> with numerator degree <span class="inline-math" data-math>\deg D+1</span>; no bound on <span class="inline-math" data-math>\deg D</span>, and no expanded witness, is asserted.</p>
-<h3 id="scope-and-character">Scope and character</h3>
+<h3 id="transitive-paired-sign-cubics">Transitive paired-sign cubics</h3>
+<p>The directed cycle is not required for this method. Consider instead</p>
+<div class="page-equation" data-math data-display>U=ax^3+by^3+cz^3+dx^2y+ey^2z+fx^2z.</div>
+<p>Its three mixed monomials form a transitive triangle. In the normalization of the <a href="https://github.com/hodge-computer/sextics/pull/170">mixed-biweight construction of <code>fqlx</code></a>, the invariants are</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+s_4&amp;=-3bcdf+cd^2e-\tfrac13e^2f^2,\\
+s_6&amp;=27a^2b^2c^2+4a^2ce^3+4b^2cf^3+4bc^2d^3
+       -4bcdef^2+\tfrac83cd^2e^2f+\tfrac8{27}e^3f^3.
+\end{aligned}</div>
+<p>The corresponding covariants satisfy the same form of syzygy and invariant-differential identity as above. These are identities for arbitrary coefficients in this transitive family. The shared Lean library <code>TransitiveCubic</code> contains their exact coefficient proofs; the change of cubic family changes the covariants themselves, not the moving-map principle.</p>
+<p>For the mixed-biweight sextic the diagonal coefficients remain
+<span class="inline-math" data-math>(a,b,c)=(1+v^6,1+c_1^6v^6,1+c_2^6v^6)</span>, while</p>
+<div class="page-equation" data-math data-display>d=\tfrac12c_1v^2,\qquad e=\tfrac12c_1c_2v^2,
+\qquad f=\tfrac13c_2v^4.</div>
+<p>The substitution <span class="inline-math" data-math>T=rv^6</span>, <span class="inline-math" data-math>X=r^2\xi</span>, <span class="inline-math" data-math>Y=r^3\eta</span> again makes</p>
+<div class="page-equation" data-math data-display>V=Y^2-X^3-A_4(r,T)X-B_6(r,T),\quad
+A_4=r^4s_4,\quad B_6=-r^6s_6/4</div>
+<p>polynomial, with degrees four and six. At <span class="inline-math" data-math>c_1=c_2=1</span>, its incidence has the exact seed</p>
+<div class="page-equation" data-math data-display>r=1+T^2,\qquad X=3+4T^2+3T^4,\qquad Y=2+3T^6
+\quad\text{over }\mathbb F_5.</div>
+<p>The thirteen-by-thirteen coefficient Jacobian is invertible. Lifting, independent endpoint parameters, and polynomial integration therefore supply primitives on this Jacobian family. Varying <span class="inline-math" data-math>a=\alpha+v^6</span> gives the polynomial source <span class="inline-math" data-math>-V_\alpha/(144r)</span>, and the residue-volume multiplier is again <span class="inline-math" data-math>-144rv^3</span>. The two correction terms recover the physical target <span class="inline-math" data-math>X_0^3\cdot Y_0^3</span>.</p>
+<p>The <a href="#case/holdout-moving-branch">moving-branch sextic</a> gives a second specialization of the same covariants. It has</p>
+<div class="page-equation" data-math data-display>d=c_1v^2,\qquad e=c_1c_2v^2,\qquad f=\tfrac17c_2^2v^4,</div>
+<p>with the same diagonal coefficients. Its integral Jacobian equation uses the scale <span class="inline-math" data-math>111132</span>. A nonsingular seed at <span class="inline-math" data-math>c_1=c_2=1</span> is</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+r&amp;=1+2T^2,\\
+X&amp;=4+4T+T^2+3T^3+T^4,\\
+Y&amp;=1+3T^2+4T^4+2T^6
+\end{aligned}
+\quad\text{over }\mathbb F_5.</div>
+<p>Fixing <span class="inline-math" data-math>r(0)=1</span> and <span class="inline-math" data-math>X(0)=4</span> leaves a square system with thirteen coefficients and invertible incidence derivative. The same lifting and source-transport construction serves <span class="inline-math" data-math>X_0^3\cdot Y_0^3</span>. The coefficient specialization and seed change, while the transitive covariants and residue mechanism remain the same.</p>
+<p>These examples separate reusable identities from application data. The first-variation formula, integration theorem, and six-coefficient transitive covariants are reusable. The particular coefficient functions, nonsingular incidence, nonzero chart denominators, and source binding must still be proved for each new model. A changed coefficient can invalidate an earlier cover without introducing a new obstruction to this broader Jacobian method.</p>
+<h3 id="coefficient-and-source-scope">Coefficient and source scope</h3>
+<p>The degree-four and degree-six Jacobian model is a consequence of symmetry, not a peculiarity of the displayed edge patterns. Impose the three paired signs and the diagonal action with weights <span class="inline-math" data-math>(2,1,0,3,2,1)</span> modulo six, in addition to global <span class="inline-math" data-math>Y</span>-evenness. The equation space then has 26 monomials. In the paired chart its general cubic has the form</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+U={}&amp;\sum_{i=0}^2(a_i+b_i v^6)u_i^3
+ +(g_0+g_1v^6)u_0u_1u_2\\
+ &amp;+v^2(d_0u_0^2u_1+d_1u_1^2u_2+d_2u_2^2u_0)
+ +v^4(e_0u_0u_1^2+e_1u_1u_2^2+e_2u_2u_0^2),
+\end{aligned}</div>
+<p>where the coefficients lie in the passive field. The count is six pure sixth powers, two balanced monomials, and nine monomials for each edge orientation. The induced weights of <span class="inline-math" data-math>(u_0,u_1,u_2)</span> are <span class="inline-math" data-math>(4,2,0)</span>, whose sum is zero modulo six.</p>
+<p>The classical <span class="inline-math" data-math>SL_3</span>-invariants <span class="inline-math" data-math>I_4=s_4</span> and <span class="inline-math" data-math>I_6=-s_6/4</span> have coefficient degrees four and six; see <a href="https://arxiv.org/abs/math/0610318">Fisher, <em>The invariants of a genus one curve</em></a>. Consequently <span class="inline-math" data-math>I_d(U(v))</span> has degree at most <span class="inline-math" data-math>6d</span> in <span class="inline-math" data-math>v</span>, and its powers of <span class="inline-math" data-math>v</span> are divisible by six. Thus</p>
+<div class="page-equation" data-math data-display>r^d I_d(U(v))\big|_{v^6=T/r}</div>
+<p>is a homogeneous polynomial of degree <span class="inline-math" data-math>d</span> in <span class="inline-math" data-math>(r,T)</span>. The same polynomial Jacobian form is therefore available throughout this coefficient space, wherever the generic cubic is smooth.</p>
+<p>There are 22 odd degree-six monomials invariant under the paired signs whose residues are invariant under the diagonal action: six have <span class="inline-math" data-math>Y</span>-degree one, ten have degree three, and six have degree five. Their polynomial-source condition follows from the same weights. Write one such target, divided by <span class="inline-math" data-math>r^3</span>, as <span class="inline-math" data-math>c\,v^j M(u)</span>, with <span class="inline-math" data-math>c</span> passive, <span class="inline-math" data-math>j\in\{1,3,5\}</span>, and cubic monomial <span class="inline-math" data-math>M</span>. Let <span class="inline-math" data-math>k_M</span> denote its coefficient in <span class="inline-math" data-math>U</span>. Then</p>
+<div class="page-equation" data-math data-display>P_{d,M,j}=r^{d-1}v^{j-3}
+ \frac{\partial I_d}{\partial k_M}(U(v)),\qquad d=4,6,</div>
+<p>becomes a polynomial in <span class="inline-math" data-math>(r,T)</span>. Indeed, an invariant derivative has coefficient degree <span class="inline-math" data-math>d-1</span>, hence <span class="inline-math" data-math>v</span>-degree between zero and <span class="inline-math" data-math>6(d-1)</span>. Multiplication by <span class="inline-math" data-math>v^{j-3}</span> gives possible exponents between <span class="inline-math" data-math>-2</span> and <span class="inline-math" data-math>6(d-1)+2</span>; residue invariance forces them to be divisible by six. They therefore lie between zero and <span class="inline-math" data-math>6(d-1)</span>. This also excludes negative powers of <span class="inline-math" data-math>r</span> after the substitution. In the normalization above, the resulting Jacobian source is</p>
+<div class="page-equation" data-math data-display>\frac{c}{144}\bigl(P_{4,M,j}X+P_{6,M,j}\bigr).</div>
+<p>This is a source-polynomiality statement. To obtain certificates one still needs the cubic-to-Jacobian differential and its first variation, a serving curve family with polynomial normal, and full physical transport. A nonsingular incidence persists over a nonempty open of a coefficient family by the lifting argument, but that does not prove that every specialized member has the same nonsingular seed. The calculation explains why many coefficient and numerator changes belong to one method's scope; it does not assert that 22 further Lean submissions have been verified.</p>
+<h3 id="character-and-geometry-beyond-this-family">Character and geometry beyond this family</h3>
 <p>The all-polynomial-source statement on <span class="inline-math" data-math>V</span> must not be read as all-target coverage on <span class="inline-math" data-math>F_C</span>. The source must reach that model with the correct density and correction terms. One useful screen is the diagonal symmetry</p>
 <div class="page-equation" data-math data-display>(X_0,X_1,X_2,Y_0,Y_1,Y_2)
  \longmapsto(\zeta^2X_0,\zeta X_1,X_2,\zeta^3Y_0,\zeta^2Y_1,\zeta Y_2),
