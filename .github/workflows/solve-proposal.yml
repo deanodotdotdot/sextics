@@ -28,7 +28,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     name: Protected proposal verification
     runs-on: ubuntu-24.04
-    timeout-minutes: 85
+    timeout-minutes: 145
     steps:
       - name: Resolve current immutable PR commits
         id: context

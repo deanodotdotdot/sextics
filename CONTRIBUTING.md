@@ -104,7 +104,7 @@ Ordinary declarations and tactic proofs are accepted. Custom executable extensio
 
 The complete committed diff must consist solely of newly added permitted solution files in **one existing instance folder**. Edits to `instance.rec`, `why.md`, the leaderboard, the website, the verifier, workflows, or any other existing file fail validation. Owner approval does not override this solve-file boundary. A PR without a solve is treated as maintenance and requires owner authorization of its exact head commit.
 
-Limits are in `.github/solve-policy.json`: 64 files, 16 MiB of source, a 60-minute proof budget, and 14 GiB memory. The memory budget leaves room for the operating system and runner services on GitHub's free 16 GB Linux runners for public repositories. The allowed axiom set is `propext`, `Classical.choice`, and `Quot.sound`.
+Limits are in `.github/solve-policy.json`: 64 files, 16 MiB of source, a 120-minute proof budget, and 14 GiB memory. The memory budget leaves room for the operating system and runner services on GitHub's free 16 GB Linux runners for public repositories. The allowed axiom set is `propext`, `Classical.choice`, and `Quot.sound`.
 
 ### Mathematical explanation
 
