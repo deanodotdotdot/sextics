@@ -65,6 +65,7 @@ uniform float uDisplayScale;
 uniform float uDivisorStrength;
 uniform float uProjectionBox;
 uniform float uDivisorMode;
+uniform bool uContactProjection;
 uniform vec4 uDivisorPlane[6];
 uniform float uTranslucencyEnabled;
 uniform float uTransNear;
@@ -80,10 +81,36 @@ const float PI = 3.141592653589793;
 const float TAU = 6.283185307179586;
 
 // DIVISOR_EXPRESSION
+// Value and gradient of the contact-cone ternary sextic, in factored form.
+vec4 contactBlock(vec3 u){
+  float x=u.x,y=u.y,z=u.z,h=x*x*x+2.0*z*z*z;
+  float c=y*y*y+5.0*y*y*z-22.0*y*z*z-56.0*z*z*z;
+  float k=y*y*y-10.0*y*y*z+y*z*z+120.0*z*z*z;
+  return vec4(h*h+c*k,6.0*h*x*x,
+    (3.0*y*y+10.0*y*z-22.0*z*z)*k+c*(3.0*y*y-20.0*y*z+z*z),
+    12.0*h*z*z+(5.0*y*y-44.0*y*z-168.0*z*z)*k+c*(-10.0*y*y+2.0*y*z+360.0*z*z));
+}
+vec4 projectContact(vec4 sphere){
+  // Correct flat-triangle interpolation to the curved F=0 slice before
+  // evaluating D. This changes shading only, not the accepted polynomial.
+  for(int step=0;step<3;step++){
+    vec3 a=vec3(dot(uDivisorPlane[0],sphere),dot(uDivisorPlane[1],sphere),dot(uDivisorPlane[2],sphere));
+    vec3 b=vec3(dot(uDivisorPlane[3],sphere),dot(uDivisorPlane[4],sphere),dot(uDivisorPlane[5],sphere));
+    vec4 plus=contactBlock(a+b),minus=contactBlock(a-b);
+    vec3 da=plus.yzw+minus.yzw,db=plus.yzw-minus.yzw;
+    vec4 g=da.x*uDivisorPlane[0]+da.y*uDivisorPlane[1]+da.z*uDivisorPlane[2]+db.x*uDivisorPlane[3]+db.y*uDivisorPlane[4]+db.z*uDivisorPlane[5];
+    g-=sphere*dot(sphere,g);
+    vec4 correction=(plus.x+minus.x)*g/max(dot(g,g),1e-25);
+    correction*=min(1.0,0.025/max(length(correction),1e-20));
+    sphere=normalize(sphere-correction);
+  }
+  return sphere;
+}
 float pixelDivisor() {
   vec3 p=vPosition*uDisplayScale+uOriginalCenter;
   float r2=dot(p,p);
   vec4 sphere=vec4(2.0*p,r2-1.0)/(1.0+r2);
+  if(uContactProjection)sphere=projectContact(sphere);
   vec3 a=vec3(dot(uDivisorPlane[0],sphere),dot(uDivisorPlane[1],sphere),dot(uDivisorPlane[2],sphere));
   vec3 b=vec3(dot(uDivisorPlane[3],sphere),dot(uDivisorPlane[4],sphere),dot(uDivisorPlane[5],sphere));
   return divisorField(a,b);
@@ -146,6 +173,11 @@ float distanceOpacity(float distanceToCamera) {
   return clamp(1.0 - (1.0-uTransMinAlpha)*strength*(1.0-smoothT), 0.0, 1.0);
 }
 void main() {
+  // Derivatives need neighbouring fragments, including those subsequently
+  // discarded by x-ray depth peeling. Evaluate before divergent discards.
+  float field = pixelDivisor();
+  float pixelWidth = max(length(vec2(dFdx(field),dFdy(field))),1e-35);
+  float divisor = 1.0-smoothstep(0.55,1.45,abs(field)/pixelWidth);
   float alpha = distanceOpacity(length(uCamera-vPosition));
   if(uRenderPass == 1 && alpha < 1.0) discard;
   if(uRenderPass == 2) {
@@ -179,14 +211,9 @@ void main() {
   float rim = pow(1.0-max(dot(N,V),0.0),2.4);
   color += albedo*rim*0.52 + vec3(0.32,0.42,0.68)*rim*0.17;
 
-  // Highlight the accepted denominator evaluated on this saved slice.
-  float field = pixelDivisor();
-  float d = abs(field);
-  float w = max(0.85*fwidth(field),1e-35);
-  float divisor = 1.0-smoothstep(0.4*w,2.0*w,d);
-  float halo = 1.0-smoothstep(2.0*w,5.5*w,d);
+  // A crisp, antialiased two-pixel curve, without a surrounding glow.
   vec3 divisorColor = mix(vec3(1.0,0.72,0.92),vec3(0.68,0.90,1.0),0.5+0.5*sin(TAU*phase));
-  color += divisorColor*(0.85*divisor+0.11*halo)*uDivisorStrength;
+  color += divisorColor*(0.96*divisor)*uDivisorStrength;
 
   // The mathematical projection box is [-10,10]^3.  Dissolve the last shell
   // instead of exposing marching-cube cut faces at the finite box boundary.
@@ -477,13 +504,15 @@ async function validateDynamicMesh(buffer,indexBuffer,meta,shouldContinue=()=>tr
   if(!Number.isFinite(meta.displayScale)||meta.displayScale<=0||!Array.isArray(meta.centerOriginal)||meta.centerOriginal.length!==3||!meta.centerOriginal.every(Number.isFinite))throw new Error('Invalid mesh transform.');
   if(!Number.isFinite(meta.edgeBound)||meta.edgeBound<=0)throw new Error('Missing triangle bound.');
   const v=new Float32Array(buffer),ix=new Uint32Array(indexBuffer);
+  // Compact-domain meshes may extend beyond the usual normalized box.
+  const positionBound=meta.samplingMode==='sphere'?Math.min(4,Number(meta.positionBound)||1.01):1.01;
   const yieldUI=()=>new Promise(resolve=>setTimeout(resolve,0));
   for(let start=0;start<meta.vertexCount;start+=8192){
     if(!shouldContinue())throw new Error('Cancelled');
     for(let n=start;n<Math.min(meta.vertexCount,start+8192);n++){
       const o=n*STRIDE;
       for(let j=0;j<STRIDE;j++)if(!Number.isFinite(v[o+j]))throw new Error('Non-finite mesh attribute rejected.');
-      if(Math.max(Math.abs(v[o]),Math.abs(v[o+1]),Math.abs(v[o+2]))>1.01)throw new Error('Corrupt position data rejected.');
+      if(Math.max(Math.abs(v[o]),Math.abs(v[o+1]),Math.abs(v[o+2]))>positionBound)throw new Error('Corrupt position data rejected.');
       if(Math.abs(Math.hypot(v[o+3],v[o+4],v[o+5])-1)>.015)throw new Error('Corrupt normal data rejected.');
     }
     await yieldUI();
@@ -524,7 +553,7 @@ function create(canvas,options={}){
       const next=program(gl,VS,FS.replace('// DIVISOR_EXPRESSION',pixel.source));
       if(depthPeeler){depthPeeler.dispose();depthPeeler=null;}
       if(p)gl.deleteProgram(p);p=next;programSource=pixel.source;
-      for(const name of ['Model','View','Projection','Camera','Time','OriginalCenter','DisplayScale','DivisorStrength','ProjectionBox','DivisorMode','TranslucencyEnabled','TransNear','TransFar','TransMinAlpha','RenderPass'])U[name]=gl.getUniformLocation(p,'u'+name);
+      for(const name of ['Model','View','Projection','Camera','Time','OriginalCenter','DisplayScale','DivisorStrength','ProjectionBox','DivisorMode','ContactProjection','TranslucencyEnabled','TransNear','TransFar','TransMinAlpha','RenderPass'])U[name]=gl.getUniformLocation(p,'u'+name);
       U.DivisorPlane=gl.getUniformLocation(p,'uDivisorPlane[0]');
     }
     gl.useProgram(p);gl.uniformMatrix4fv(U.Model,false,mat4Identity());
@@ -571,10 +600,11 @@ function create(canvas,options={}){
     if(gl.getError()!==gl.NO_ERROR){gl.deleteVertexArray(vao);gl.deleteBuffer(vbo);gl.deleteBuffer(ebo);throw new Error('Surface upload failed.');}
     clearMesh();activeVao=vao;activeBuffers=[vbo,ebo];activeCount=meta.triangleCount*3;
     const hasD=hasCertificate(selected)&&!!(selected.render?.divisorTerms?.length||selected.render?.divisorProgram);
-    activeMeta={...meta,divisorVisible:hasD,projectionBox:10,xray:{enabled:true,reach:2.0,layers:6},cameraDefault:{yaw:baseYaw,pitch:basePitch,distance:baseDistance,center:baseCenter.slice()},sliceDescription:'A real two-dimensional section of X, on a fixed phase-rotated real four-plane; stereographic projection in [−10, 10]³.'};
+    const whole=meta.samplingMode==='sphere'&&meta.projectionBox===0,projectionBox=whole?0:10;
+    activeMeta={...meta,divisorVisible:hasD,projectionBox,xray:{enabled:true,reach:2.0,layers:6},cameraDefault:{yaw:baseYaw,pitch:basePitch,distance:baseDistance,center:baseCenter.slice()},sliceDescription:whole?'The compact real slice, stereographically projected without a box cutoff.':'A real two-dimensional section of X, on a fixed phase-rotated real four-plane; stereographic projection in [−10, 10]³.'};
     const r=selected.render||{},pixel=HodgeDivisor.fragment(hasD?(r.divisorProgram||r.divisorTerms):null,meta.phaseSigns,meta.planeMatrix);
     useDivisorShader(pixel);
-    gl.uniform3fv(U.OriginalCenter,new Float32Array(meta.centerOriginal));gl.uniform1f(U.DisplayScale,meta.displayScale);gl.uniform1f(U.ProjectionBox,10);gl.uniform1f(U.DivisorStrength,hasD?1:0);gl.uniform1f(U.DivisorMode,1);
+    gl.uniform3fv(U.OriginalCenter,new Float32Array(meta.centerOriginal));gl.uniform1f(U.DisplayScale,meta.displayScale);gl.uniform1f(U.ProjectionBox,projectionBox);gl.uniform1f(U.DivisorStrength,hasD?1:0);gl.uniform1f(U.DivisorMode,1);gl.uniform1i(U.ContactProjection,whole&&meta.pairId==='contact46006'?1:0);
     gl.uniform4fv(U.DivisorPlane,new Float32Array(meta.planeMatrix.flat()));
     activeMeta.divisorEvaluation='per-pixel polynomial';activeMeta.divisorOperations=pixel.operations;
     options.onLabel?.((selected.title||'Sextic fourfold')+' — real slice of F = 0'+(hasD?', with certificate divisor highlighted':''));
@@ -603,6 +633,40 @@ function create(canvas,options={}){
     })();
     return bakedPromise;
   }
+  // Retain the most recently decoded saved mesh while moving among front pages.
+  // The HTTP cache still handles subsequent visits after this worker is released.
+  let savedMeshURL=null,savedMeshPromise=null;
+  function savedMesh(path){
+    const url=new URL(path,assetBase).href;
+    if(url!==savedMeshURL){
+      savedMeshURL=url;
+      savedMeshPromise=(async()=>{
+        const response=await fetch(url);if(!response.ok)throw new Error('Missing saved slice.');
+        const manifest=await response.json(),root=new URL('.',url);
+        let buffer,indexBuffer;
+        if(manifest.encoding==='quantized-p3-n3-phase2-v1'){
+          const parts=await Promise.all(['position','normal','complex','indices'].map(k=>ungzip(new URL(manifest[k],root))));
+          const pos=new Uint16Array(parts[0]),normal=new Int16Array(parts[1]),phase=new Int16Array(parts[2]),n=manifest.meta.vertexCount;
+          if(!Number.isInteger(n)||n<3||n>2000000||pos.length!==3*n||normal.length!==3*n||phase.length!==2*n)throw new Error('Invalid packed mesh.');
+          const data=new Float32Array(n*9);
+          for(let i=0;i<n;i++){
+            for(let j=0;j<3;j++){
+              data[9*i+j]=manifest.positionMin[j]+(manifest.positionMax[j]-manifest.positionMin[j])*pos[3*i+j]/65535;
+              data[9*i+3+j]=normal[3*i+j]/32767;
+            }
+            data[9*i+6]=phase[2*i]/32767*manifest.complexScale;data[9*i+7]=phase[2*i+1]/32767*manifest.complexScale;
+          }
+          buffer=data.buffer;indexBuffer=parts[3];
+        }else{
+          [buffer,indexBuffer]=await Promise.all([ungzip(new URL(manifest.vertices,root)),ungzip(new URL(manifest.indices,root))]);
+        }
+        await validateDynamicMesh(buffer,indexBuffer,manifest.meta,usable);
+        return {buffer,indexBuffer,meta:manifest.meta};
+      })();
+      savedMeshPromise.catch(()=>{if(savedMeshURL===url){savedMeshURL=null;savedMeshPromise=null;}});
+    }
+    return savedMeshPromise;
+  }
   async function setCase(selected){
     if(!usable())return;
     cancel();const id=job;record=selected;busy=true;activeCount=0;needsDraw=true;
@@ -623,10 +687,7 @@ function create(canvas,options={}){
         busy=false;upload(mesh,selected);return;
       }
       if(r.mesh){
-        const response=await fetch(new URL(r.mesh,assetBase));if(!response.ok)throw new Error('Missing saved slice.');
-        const manifest=await response.json(),root=new URL('.',new URL(r.mesh,assetBase));
-        const [buffer,indexBuffer]=await Promise.all([ungzip(new URL(manifest.vertices,root)),ungzip(new URL(manifest.indices,root))]);
-        const mesh={buffer,indexBuffer,meta:manifest.meta};await validateDynamicMesh(buffer,indexBuffer,mesh.meta,()=>id===job&&usable());
+        const mesh=await savedMesh(r.mesh);
         if(id!==job||!usable())return;
         busy=false;upload(mesh,selected);return;
       }
@@ -648,6 +709,7 @@ function create(canvas,options={}){
   function beginDrag(pointerId,action,x,y){freezeVisibleCamera();return {pointerId,action,x,y,orientation:orbitOrientation.slice(),center:clone3(orbitCenter),distance:orbitDistance};}
   function pannedCenter(center,dx,dy,orientation,distance){return ScreenTrackball.pan(center,dx,dy,orientation,distance,FOV,canvas.clientHeight);}
   listen(window,'pointermove',e=>{if(cameraMode==='parallax'&&!reduced){targetX=2*e.clientX/window.innerWidth-1;targetY=2*e.clientY/window.innerHeight-1;}},{passive:true});
+  listen(window,'parallax',e=>{if(cameraMode==='parallax'&&!reduced&&Number.isFinite(e.x)&&Number.isFinite(e.y)){targetX=clamp(e.x,-1,1);targetY=clamp(e.y,-1,1);needsDraw=true;}},{passive:true});
   listen(window,'pointerleave',()=>{targetX=targetY=0;},{passive:true});
   listen(window,'blur',()=>{targetX=targetY=0;drag=null;touches.clear();touchGesture=null;},{passive:true});
   listen(canvas,'contextmenu',e=>{if(cameraMode==='free')e.preventDefault();});
@@ -707,7 +769,7 @@ function create(canvas,options={}){
     cameraOrientation=ScreenTrackball.slerp(cameraOrientation,desiredOrientation,cameraEase);cameraDistance+=(desiredDistance-cameraDistance)*cameraEase;for(let i=0;i<3;i++)cameraCenter[i]+=(desiredCenter[i]-cameraCenter[i])*cameraEase;
     const basis=ScreenTrackball.basis(cameraOrientation),eye=cameraCenter.map((c,i)=>c+cameraDistance*basis.back[i]);
     gl.useProgram(p);gl.bindVertexArray(activeVao);gl.uniformMatrix4fv(U.View,false,lookAt(eye,cameraCenter,basis.up));gl.uniformMatrix4fv(U.Projection,false,perspective(FOV,canvas.width/canvas.height,Math.max(.0005,Math.min(.035,cameraDistance*.025)),40));gl.uniform3fv(U.Camera,new Float32Array(eye));gl.uniform1f(U.Time,now/1000);gl.uniform1f(U.TranslucencyEnabled,depthPeelerFailed?0:1);gl.uniform1f(U.TransNear,0);gl.uniform1f(U.TransFar,2);gl.uniform1f(U.TransMinAlpha,.18);
-    const draw=()=>gl.drawElements(gl.TRIANGLES,activeCount,gl.UNSIGNED_INT,0),distanceToBounds=Math.hypot(...eye.map(c=>Math.max(0,Math.abs(c)-1.01)));
+    const draw=()=>gl.drawElements(gl.TRIANGLES,activeCount,gl.UNSIGNED_INT,0),bounds=Math.max(1.01,activeMeta.positionBound||0),distanceToBounds=Math.hypot(...eye.map(c=>Math.max(0,Math.abs(c)-bounds)));
     if(!depthPeelerFailed&&distanceToBounds<2){try{if(!depthPeeler)depthPeeler=createDepthPeeler(gl,p);depthPeeler.render(canvas.width,canvas.height,activeVao,draw,6);}catch(error){if(!usable())return;depthPeelerFailed=true;if(depthPeeler)depthPeeler.dispose();depthPeeler=null;status('warning','X-ray is unavailable on this device; showing an opaque surface.',activeMeta);}}
     if(depthPeelerFailed||distanceToBounds>=2){gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);gl.useProgram(p);gl.bindVertexArray(activeVao);gl.uniform1i(U.RenderPass,0);gl.depthMask(true);gl.enable(gl.DEPTH_TEST);gl.disable(gl.BLEND);gl.disable(gl.CULL_FACE);draw();}
     if(!usable())return;

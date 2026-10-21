@@ -125,3 +125,24 @@ altered_phase = copy.deepcopy(render)
 altered_phase['phaseSigns'][4] *= -1
 must_reject(program, denominator, altered_phase)
 print('Off-block tie display root squares exactly to accepted D on Y1=X0; changed relative phase is rejected.')
+
+# Contact cone's six linear factors equal the full accepted denominator,
+# independently of the selected real slice or camera.
+folder = ROOT / 'data/contact46006'
+program = validate_program(json.loads((folder/'display-divisor.json').read_text()), folder)
+denominator = yaml.safe_load((folder/'solution.rec').read_text())['witness']['D']
+render = yaml.safe_load((folder/'instance.rec').read_text())['render']
+calculated = []
+for op, *args in program['nodes']:
+    if op == 'variable': v = x[args[0]]
+    elif op == 'rational': v = sp.Rational(args[0])
+    elif op == 'add': v = calculated[args[0]] + calculated[args[1]]
+    elif op == 'mul': v = calculated[args[0]] * calculated[args[1]]
+    calculated.append(v)
+expected = sp.sympify(denominator['expression'], locals=dict(zip(map(str, x), x)))
+assert sp.expand(calculated[program['output']] - expected) == 0
+validate_slice_identity(program, denominator, render, folder)
+altered = copy.deepcopy(program)
+altered['nodes'][5] = ['rational', '-3']
+must_reject(altered, denominator, render)
+print('Contact cone factors equal accepted D exactly in all six variables; altered factors are rejected.')

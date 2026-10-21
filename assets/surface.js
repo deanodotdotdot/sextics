@@ -7,12 +7,18 @@
     let worker = null, failed = false, destroyed = false, mode = 'parallax', meta = null, camera = null, record = null;
     let lastPulse = performance.now(), lastTick = lastPulse, watchdog;
     let wasHidden = document.hidden, recoveryAllowed = false, recoveryPending = false, resumeUntil = 0;
+    const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+    let tiltCenter = null, tiltAngle = null, lastTilt = -Infinity, usingTilt = false;
     const listeners = [], canvasListeners = [];
     const listen = (target, name, callback, options, removers = listeners) => {
       target.addEventListener(name, callback, options);
       removers.push(() => target.removeEventListener(name, callback, options));
     };
     const send = message => { if (!destroyed && worker) worker.postMessage(message); };
+    function resetTilt() {
+      tiltCenter = null; lastTilt = -Infinity;
+      if (usingTilt) send({type:'input', target:'view', name:'parallax', properties:{x:0, y:0}});
+    }
     const size = () => ({width:canvas.clientWidth, height:canvas.clientHeight,
       innerWidth, innerHeight, devicePixelRatio:devicePixelRatio || 1});
     function release() {
@@ -43,6 +49,7 @@
     }
     function setMode(value) {
       mode = value === 'free' ? 'free' : 'parallax';
+      resetTilt();
       if (!failed && !destroyed && worker) {
         canvas.classList.toggle('free-camera', mode === 'free');
         canvas.style.touchAction = mode === 'free' ? 'none' : 'auto';
@@ -53,6 +60,7 @@
     const api = {
       async setCase(selected) {
         if (failed || destroyed) return;
+        resetTilt();
         // Only presentation data crosses the worker boundary, not the proof/text.
         record = {id:selected.id, title:selected.title, render:selected.render,
           certificateAvailable:selected.certificateAvailable, evidenceKind:selected.evidenceKind, status:selected.status};
@@ -71,6 +79,8 @@
     }
     const keys = ['pointerId','pointerType','clientX','clientY','button','deltaY','key','shiftKey','altKey','ctrlKey','metaKey'];
     function input(target, name, event) {
+      // Scrolling must not replace the sensor's parallax with a finger position.
+      if (usingTilt && target === 'view' && event.pointerType === 'touch') return;
       const properties = {};
       for (const key of keys) if (event[key] !== undefined) properties[key] = event[key];
       if (name === 'keydown') properties.textInput = !!event.target?.closest?.('input,textarea,select,[contenteditable="true"]');
@@ -91,6 +101,7 @@
             onStatus(data.value);
           } else if (data.type === 'mode' && mode !== data.value) {
             mode = data.value;
+            resetTilt();
             canvas.classList.toggle('free-camera', mode === 'free');
             canvas.style.touchAction = mode === 'free' ? 'none' : 'auto';
             onModeChange(mode);
@@ -101,7 +112,7 @@
         current.onmessageerror = () => { if (worker === current) stop('The 3D view could not communicate with the page.'); };
         const offscreen = canvas.transferControlToOffscreen();
         current.postMessage({type:'init', canvas:offscreen, size:size(), hidden:document.hidden,
-          reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches}, [offscreen]);
+          reducedMotion:motionPreference.matches}, [offscreen]);
         if (record) send({type:'case', record});
         canvas.classList.toggle('free-camera', mode === 'free');
         canvas.style.touchAction = mode === 'free' ? 'none' : 'auto';
@@ -130,6 +141,7 @@
     }
     listen(window, 'resize', () => send({type:'size', size:size()}), {passive:true});
     listen(document, 'visibilitychange', () => {
+      resetTilt();
       const hidden = document.hidden, returning = wasHidden && !hidden;
       if (hidden && !wasHidden && !failed) recoveryAllowed = true;
       // Include the watchdog's next tick after the five-second deadline.
@@ -141,6 +153,49 @@
     });
     for (const name of ['pointermove','pointerleave','blur','keydown'])
       listen(window, name, event => input('view', name, event), {passive:true});
+    // Never request sensor permission. Browsers requiring it silently retain
+    // the ordinary background view; already-granted access is usable as-is.
+    const orientation = window.DeviceOrientationEvent;
+    function startTilt() {
+      if (destroyed || failed || motionPreference.matches) return;
+      listen(window, 'deviceorientation', event => {
+        if (destroyed || failed || !worker || document.hidden || mode !== 'parallax' || motionPreference.matches) return;
+        if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return;
+        const now = performance.now();
+        if (now - lastTilt < 32) return;
+        lastTilt = now;
+        const angle = window.screen?.orientation?.angle ?? window.orientation ?? 0;
+        if (angle !== tiltAngle) { tiltCenter = null; tiltAngle = angle; }
+        // Relative quaternions avoid beta/gamma's angle jumps when a phone is
+        // held upright. No compass heading or geographic position is needed.
+        const half = Math.PI / 360, a = (Number.isFinite(event.alpha) ? event.alpha : 0) * half;
+        const b = event.beta * half, g = event.gamma * half;
+        const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b), cg = Math.cos(g), sg = Math.sin(g);
+        const q = [ca*sb*cg-sa*cb*sg, ca*cb*sg+sa*sb*cg, sa*cb*cg+ca*sb*sg, ca*cb*cg-sa*sb*sg];
+        if (!tiltCenter) tiltCenter = q;
+        const [x,y,z,w] = tiltCenter, [u,v,t,s] = q;
+        const rw = w*s+x*u+y*v+z*t, direction = rw < 0 ? -1 : 1;
+        const pitch = 2*Math.atan2(direction*(w*u-x*s-y*t+z*v), Math.abs(rw));
+        const roll = 2*Math.atan2(direction*(w*v+x*t-y*s-z*u), Math.abs(rw));
+        const rotation = angle * Math.PI / 180, c = Math.cos(rotation), sn = Math.sin(rotation);
+        const limit = 18 * Math.PI / 180;
+        const bounded = v => Math.abs(v) < .015 ? 0 : Math.max(-1, Math.min(1, v));
+        usingTilt = true;
+        send({type:'input', target:'view', name:'parallax', properties:{
+          x:bounded((roll*c+pitch*sn)/limit), y:bounded((pitch*c-roll*sn)/limit)
+        }});
+      }, {passive:true});
+      listen(window, 'orientationchange', resetTilt, {passive:true});
+      listen(window, 'blur', resetTilt, {passive:true});
+    }
+    if (window.isSecureContext && matchMedia('(pointer: coarse)').matches && !motionPreference.matches && orientation) {
+      if (typeof orientation.requestPermission !== 'function') startTilt();
+      else if (window.navigator?.permissions) {
+        Promise.all(['accelerometer','gyroscope'].map(async name => window.navigator.permissions.query({name})))
+          .then(states => {if (states.every(s => s.state === 'granted')) startTilt();})
+          .catch(() => {}); // Unsupported permission queries are a silent fallback.
+      }
+    }
     // An initially backgrounded tab need not allocate GPU resources yet.
     if (document.hidden) recoveryPending = true;
     else start();

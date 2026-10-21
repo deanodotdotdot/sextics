@@ -47,7 +47,8 @@ function core() {
   };
 }
 
-function controller({supported = true, transferThrows = false, hidden = false} = {}) {
+function controller({supported = true, transferThrows = false, hidden = false,
+  mobile = false, permissionRequired = false, permissionState, reducedMotion = false, secure = true} = {}) {
   let now = 0, timer, replacement = 0;
   const workers = [], states = [], canvases = [];
   function makeCanvas() {
@@ -60,6 +61,14 @@ function controller({supported = true, transferThrows = false, hidden = false} =
   const canvas = makeCanvas();
   const window = new EventTarget(), document = Object.assign(new EventTarget(), {
     hidden, currentScript:{src:'http://localhost/assets/surface.js'}});
+  window.isSecureContext = secure;
+  window.screen = {orientation:{angle:0}};
+  if (mobile) window.DeviceOrientationEvent = function() {};
+  if (permissionRequired) window.DeviceOrientationEvent.requestPermission = () => {throw Error('Must never request sensor permission');};
+  if (permissionState) window.navigator = {permissions:{query() {
+    if (permissionState === 'unsupported') throw new TypeError('Unknown permission');
+    return Promise.resolve({state:permissionState});
+  }}};
   class Worker {
     constructor() {this.messages=[]; workers.push(this);}
     postMessage(message) {this.messages.push(message);}
@@ -67,7 +76,8 @@ function controller({supported = true, transferThrows = false, hidden = false} =
     emit(type, value) {this.onmessage({data:{type,value}});}
   }
   const context = {window, document, Worker, URL, console:{warn(){}},
-    innerWidth:800, innerHeight:600, devicePixelRatio:1, matchMedia:() => ({matches:false}),
+    innerWidth:800, innerHeight:600, devicePixelRatio:1,
+    matchMedia:q => ({matches:q.includes('prefers-reduced-motion') ? reducedMotion : q.includes('pointer: coarse') && mobile}),
     performance:{now:() => now}, setInterval:fn => (timer = fn, 1), clearInterval:() => {timer=null;}};
   vm.runInNewContext(source('surface.js'), context);
   const api = window.HodgeRenderer.create(canvas, {onStatus:s => states.push(s)});
@@ -77,6 +87,38 @@ function controller({supported = true, transferThrows = false, hidden = false} =
 }
 
 (async () => {
+  // Tilt is relative to the initial pose, bounded, screen-oriented, and silent
+  // on platforms that require permission. Finger scrolling cannot override it.
+  const tilt = controller({mobile:true});
+  const readings = () => tilt.workers[0].messages.filter(m => m.name === 'parallax');
+  const orient = (time, props = {}) => {tilt.time(time);event(tilt.window,'deviceorientation',{alpha:0,beta:60,gamma:0,...props});};
+  orient(0);assert.equal(readings().at(-1).properties.x,0);
+  orient(40,{gamma:9});assert.ok(Math.abs(readings().at(-1).properties.x-.5)<1e-9);
+  const readingCount = readings().length;orient(41,{gamma:15});assert.equal(readings().length,readingCount);
+  orient(80,{beta:null});assert.equal(readings().length,readingCount);
+  orient(120,{gamma:60});assert.equal(readings().at(-1).properties.x,1);
+  const inputs = tilt.workers[0].messages.length;
+  event(tilt.window,'pointermove',{pointerType:'touch',clientX:20,clientY:20});
+  assert.equal(tilt.workers[0].messages.length,inputs);
+  tilt.window.screen.orientation.angle=90;orient(160);
+  orient(200,{beta:69});assert.ok(Math.abs(readings().at(-1).properties.x-.5)<1e-9);
+  assert.ok(Math.abs(readings().at(-1).properties.y)<1e-9);
+  tilt.api.setMode('free');const freeCount=readings().length;orient(240,{gamma:20});assert.equal(readings().length,freeCount);
+  tilt.api.setMode('parallax');orient(280,{gamma:20});assert.equal(readings().at(-1).properties.x,0);
+  tilt.hidden(true);const hiddenCount=readings().length;orient(320,{gamma:40});assert.equal(readings().length,hiddenCount);
+  tilt.hidden(false);orient(360,{gamma:40});assert.equal(readings().at(-1).properties.x,0);
+  tilt.api.destroy();const destroyedCount=readings().length;orient(400);assert.equal(readings().length,destroyedCount);
+  for(const options of [{mobile:true,permissionRequired:true},{mobile:true,reducedMotion:true},{mobile:true,secure:false},{}]){
+    const c=controller(options);event(c.window,'deviceorientation',{alpha:0,beta:60,gamma:20});
+    assert.equal(c.workers[0].messages.filter(m=>m.name==='parallax').length,0);c.api.destroy();
+  }
+  for(const permissionState of ['granted','prompt','denied','unsupported']){
+    const c=controller({mobile:true,permissionRequired:true,permissionState});
+    await new Promise(resolve=>setImmediate(resolve));
+    event(c.window,'deviceorientation',{alpha:0,beta:60,gamma:20});
+    assert.equal(c.workers[0].messages.filter(m=>m.name==='parallax').length,permissionState==='granted'?1:0);c.api.destroy();
+  }
+  console.log('Tilt parallax: calibration, bounds, throttling, portrait/landscape, scroll, free mode, visibility, cleanup, reduced motion and silent permission fallback passed.');
   // Saved poses can include roll. It survives reset and returning to the
   // background view; selecting an older yaw/pitch-only record clears it.
   const pose = core(), quaternion = [.7848410404195184,.12778571965730126,.5102919966531698,-.32756286309133836];
