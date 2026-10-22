@@ -117,7 +117,7 @@
       dateLink.classList.add('discussion-comment-date');if(!Number.isNaN(+date))dateLink.title=date.toLocaleString();header.append(identity,dateLink);
       if(comment.updatedAt!==comment.createdAt)header.append(element('span','discussion-edited','edited'));
       const content=element('div','discussion-comment-content');content.id='discussion-comment-content-'+(++commentSequence);
-      const toggle=button('',()=>{expandedComments.set(comment.id,content.hidden);updateExpansion();});toggle.classList.add('discussion-comment-toggle');toggle.setAttribute('aria-controls',content.id);
+      const toggle=button('',()=>{expandedComments.set(comment.id,content.hidden);updateExpansion();if(number)history.replaceState(history.state,'',`#case/${encodeURIComponent(id)}/discussion/${number}`);});toggle.classList.add('discussion-comment-toggle');toggle.setAttribute('aria-controls',content.id);
       toggle.insertAdjacentHTML('beforeend','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>');
       const replyCount=comment.replies?.totalCount||0;
       if(replyCount)header.append(element('span','discussion-reply-count',`${replyCount} ${replyCount===1?'reply':'replies'}`));

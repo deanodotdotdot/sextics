@@ -80,12 +80,12 @@
         <article id="chapterView" class="information-view chapter-view" aria-labelledby="chapterTitle" hidden><header class="information-heading"><a class="chapter-back" href="#technical-information">← Technical information</a><h1 id="chapterTitle"></h1></header><div id="chapterBody" class="reading-sheet mathematical-prose"></div></article>
         <section id="leaderboardView" class="information-view" aria-labelledby="leaderboardTitle" hidden>
           <header class="information-heading"><p class="hero-eyebrow"><span class="tiny-star" aria-hidden="true">✳</span> A SHARED EFFORT</p><h1 id="leaderboardTitle">Leaderboard</h1><p class="information-deck">Contributors to the challenge, ranked by number of solves.</p></header>
-          <div class="leaderboard-panel">
-            <table class="leaderboard-table" aria-label="GitHub accounts ranked by known constructions"><thead><tr><th scope="col">Rank</th><th scope="col">GitHub account</th><th scope="col">Solves</th></tr></thead><tbody id="leaderboardRows"></tbody></table>
+          <div class="leaderboard-switch" role="group" aria-label="Rank contributors by"><button id="rankSolves" aria-pressed="true">Solves</button><button id="rankComments" aria-pressed="false">Comments</button></div><div class="leaderboard-panel">
+            <table class="leaderboard-table" aria-label="GitHub accounts ranked by known constructions"><thead><tr><th scope="col">Rank</th><th scope="col">GitHub account</th><th scope="col" id="rankingColumn">Solves</th></tr></thead><tbody id="leaderboardRows"></tbody></table>
             <div id="leaderboardMessage" class="leaderboard-message" role="status" aria-live="polite"><p>Loading the leaderboard…</p></div>
             <button id="leaderboardRetry" class="copy-instance-button" hidden>Try again</button>
           </div>
-          <section id="contributorDetails" class="contributor-details" hidden></section><p class="leaderboard-scoring">One point for each distinct solved instance.</p>
+          <section id="contributorDetails" class="contributor-details" hidden></section>
           <a class="page-next" href="#home" data-open-instance>Find an instance to work on <span aria-hidden="true">→</span></a>
         </section>
         <article id="caseView" class="case-view" hidden></article>
