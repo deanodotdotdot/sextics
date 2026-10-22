@@ -13,12 +13,12 @@ The intended reader knows basic algebraic geometry, differential forms and Hodge
 | [1. From invariant cohomology to rational certificates](#technical-information/certificates) | The geometric target, key equation, Euler normalization, support, pole multiplicity and coefficient descent |
 | [2. Explicit constructions](#technical-information/explicit-constructions) | Cofactor transport, cubic-surface target spanning, finite-cover integration, and moving cubic maps |
 | [2a. Binary blocks](#technical-information/binary-blocks) | Universal binary contact, target spanning and assembly for arbitrary same-parity binary blocks |
-| [3. Geometric support](#technical-information/geometric-support) | Gysin maps, finite transfer, bounded covering curves, reflection quotients and weighted Fano maps |
+| [3. Geometric support](#technical-information/geometric-support) | Gysin maps, finite-group projectors, rational curves, surface fibrations and weighted Fano maps |
 | [3a. Split sextics and K3 surfaces](#technical-information/split-and-k3) | Elliptic companions, quotient resolutions, polarized splitting and the Clifford/Kuga–Satake support argument |
-| [4. The known locus and the open frontier](#technical-information/known-locus) | Coverage dimensions, all-target support on the chain example, and the generic-target frontier |
+| [4. The known locus and the open frontier](#technical-information/known-locus) | Family and representation dimensions, paired-sign surface quotients, all-target chain support and the generic frontier |
 | [5. Computing and checking certificates](#technical-information/computation) | Complete coefficient systems, numerical discovery, exact identities and Lean acceptance |
 
-Chapters 2 and 3 approach the same question from opposite starting points. An explicit field supplies a residue and a supporting correspondence; a geometric support supplies a finite numerator problem. Chapter 4 explains where these mechanisms apply and what a general theorem still needs.
+Chapters 2 and 3 approach the same question from opposite starting points. An explicit field supplies a primitive off a divisor; a geometric support supplies a numerator problem. Finite-group projectors identify the cohomology reached by each quotient or cover. Chapter 4 separates the resulting coefficient families and representations from the transcendental parts a general theorem must still serve.
 
 ## Notation
 

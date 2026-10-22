@@ -346,6 +346,66 @@ H_p=h^p,\qquad U_p=(h-D)^p.</div>
     HodgeComputer.HasCertificate HodgeSubmission.F HodgeSubmission.A HodgeSubmission.q
 </code></pre>
 <p>Its proof selects the checked complex seed, applies <code>conic_target_residue_solution</code> to the positive <code>coverQuotientSource</code>, and invokes <code>holdout_hasCertificate_of_quotient_divergence</code>. The verifier supplies the protected definitions, which are matched to (1). Classical choice selects roots and finite field factors only after their existence and properties have been proved. <code>Submission.certificate</code> is a closed theorem with no hypotheses or unproved placeholders. Compilation and kernel replay establish its proof using only the permitted axioms <code>propext</code>, <code>Classical.choice</code>, and <code>Quot.sound</code>. The detailed build and submission-check results accompany the proposal.</p>
+<h2 id="geometric-scope-of-the-fermat-cover">Geometric scope of the Fermat cover</h2>
+<p>The accepted Lean proof above constructs the fixed <span class="inline-math" data-math>q=1</span> certificate in (1). The following geometric consequence of <code>fqlx</code>'s cover was prepared for <code>benediamond</code> with OpenAI ChatGPT assistance. It uses the book's support theorems, whose general geometric inputs are not formalized by that certificate.</p>
+<p><strong>Fixed-variety theorem.</strong> For the sextic <span class="inline-math" data-math>F</span> in (1), every <span class="inline-math" data-math>Y</span>-odd homogeneous target of degree <span class="inline-math" data-math>6q</span>, for every positive <span class="inline-math" data-math>q</span>, has a certificate.</p>
+<h3 id="the-supported-quotient-of-the-cover">The supported quotient of the cover</h3>
+<p>On the cover (5), the commuting involutions</p>
+<div class="page-equation" data-math data-display>r:(y,T)\mapsto(-y,-T),\qquad
+\sigma:(y,T)\mapsto(T,y)</div>
+<p>have quotient (6). Its projective fibers over the Fermat curve are degree-six hypersurfaces in <span class="inline-math" data-math>\mathbb P(1,1,1,2,2)</span>.</p>
+<p>The generic fiber is quasismooth. Since quasismoothness is open, it suffices to check the fiber <span class="inline-math" data-math>(\alpha,\beta)=(0,1)</span>. A nonzero common zero of its five affine partials would satisfy</p>
+<div class="page-equation" data-math data-display>X_0=0,\qquad S^2=P^2,\qquad
+X_1^3X_2=6SP,\qquad
+3X_1^2(2X_1^3+PX_2)=0,\qquad
+6X_2^5+PX_1^3=0.</div>
+<p>If either <span class="inline-math" data-math>X_1</span> or <span class="inline-math" data-math>X_2</span> is zero, all coordinates are zero. Otherwise put <span class="inline-math" data-math>S=\varepsilon P</span>, <span class="inline-math" data-math>\varepsilon^2=1</span>. The equations give</p>
+<div class="page-equation" data-math data-display>P=-2X_1^3/X_2,\qquad
+X_1^6=3X_2^6,\qquad
+X_2^3=24\varepsilon X_1^3.</div>
+<p>Squaring the last equality contradicts the preceding one.</p>
+<p>The possible ambient quotient singularities lie at <span class="inline-math" data-math>X_0=X_1=X_2=0</span>, where the equation is <span class="inline-math" data-math>S(S^2-3P^2)=0</span>. These are three distinct points of local type <span class="inline-math" data-math>\frac12(1,1,1)</span>. Weighted adjunction gives <span class="inline-math" data-math>-K=\mathcal O(1)</span>, so the generic fiber is a normal <span class="inline-math" data-math>\mathbb Q</span>-Fano threefold. The normal-Fano theorem in <a href="https://github.com/hodge-computer/sextics/blob/main/docs/03-geometric-support.md">Chapter 3, §3.2</a> supplies covering rational curves. Curves in the fibers make the total fourfold uniruled even though its base curve has positive genus. A smooth projective model therefore has divisor-supported fourth cohomology. Quotient transfer, including the boundaries of the rational presentation, supports the <span class="inline-math" data-math>r,\sigma</span>-invariant part on a smooth model of the cover.</p>
+<h3 id="the-physical-diagonal-quotient-and-descent">The physical diagonal quotient and descent</h3>
+<p>Fix a primitive sixth root <span class="inline-math" data-math>\zeta</span>. The deck transformation and its exchange conjugate are</p>
+<div class="page-equation" data-math data-display>\begin{aligned}
+d:(y,T,\alpha,\beta)&amp;\mapsto
+   (y,\zeta T,\zeta^{-1}\alpha,\zeta^{-1}\beta),\\
+e=\sigma d\sigma:(y,T,\alpha,\beta)&amp;\mapsto
+   (\zeta y,T,\zeta^{-1}\alpha,\zeta^{-1}\beta).
+\end{aligned}</div>
+<p>They preserve (4) and (5), commute, have order six, and satisfy <span class="inline-math" data-math>r=d^3e^3</span>; <span class="inline-math" data-math>\sigma</span> interchanges <span class="inline-math" data-math>d,e</span>. Thus the group they generate with <span class="inline-math" data-math>\sigma</span> is finite, a quotient of <span class="inline-math" data-math>(\mu_6\times\mu_6)\rtimes\mathbb Z/2</span>.</p>
+<p>Take a smooth equivariant projective model <span class="inline-math" data-math>Z</span> resolving the cover and its projection to <span class="inline-math" data-math>X=V(F)</span>. The resulting proper generically finite map <span class="inline-math" data-math>p:Z\to X</span> satisfies</p>
+<div class="page-equation" data-math data-display>pd=p,\qquad pe=gp,\qquad pr=\tau p,</div>
+<p>where the physical diagonal automorphism <span class="inline-math" data-math>g</span> has weights <span class="inline-math" data-math>(0,0,0,5,1,5)</span> modulo six. These identities hold in the displayed coordinates and hence on the projective models.</p>
+<p>The automorphism <span class="inline-math" data-math>g</span> fixes <span class="inline-math" data-math>F</span>. At a fixed point with only <span class="inline-math" data-math>Y_0,Y_2</span> nonzero and <span class="inline-math" data-math>Y_0^6+Y_2^6=0</span>, its tangent weights are <span class="inline-math" data-math>(1,1,1,2)/6</span>, of age <span class="inline-math" data-math>5/6</span>. The finite-quotient theorem in <a href="https://github.com/hodge-computer/sextics/blob/main/docs/03-geometric-support.md">Chapter 3, §3.3</a> therefore supports the <span class="inline-math" data-math>g</span>-invariant fourth cohomology. The two supported quotients now satisfy <a href="#technical-information/known-locus/46-descent-through-a-deck-action-and-an-exchange">the deck/exchange descent criterion</a>. Consequently</p>
+<div class="page-equation" data-math data-display>H^4(X,\mathbb Q)^\tau\subseteq N^1H^4(X,\mathbb Q).</div>
+<p>The <a href="https://github.com/hodge-computer/sextics/blob/main/docs/01-certificates.md">certificate correspondence</a> and the all-pole extraction in <a href="https://github.com/hodge-computer/sextics/blob/main/docs/03-geometric-support.md">Chapter 3, §3.6</a> give the fixed-variety theorem. This argument reaches the entire invariant fourth cohomology, including its middle Hodge component.</p>
+<h3 id="target-characters-and-the-polynomial-source-boundary">Target characters and the polynomial-source boundary</h3>
+<p>For an odd sextic monomial <span class="inline-math" data-math>A=M(X)Y_0^aY_1^bY_2^c</span>, put <span class="inline-math" data-math>m=a+c+1</span>, <span class="inline-math" data-math>e=b-m</span>, and <span class="inline-math" data-math>C=M(X)Y_0^aY_2^cY_1^m</span>. On the common coordinate open, the unnormalized invariant sum in <a href="https://github.com/hodge-computer/sextics/blob/main/docs/02-explicit-constructions.md">Chapter 2, §2.7</a> has density <span class="inline-math" data-math>A-CT^e</span>. The deck trace removes the correction if <span class="inline-math" data-math>e\not\equiv0\pmod6</span>. Otherwise the physical residue is <span class="inline-math" data-math>g</span>-invariant, since its character is</p>
+<div class="page-equation" data-math data-display>5(a+1)+(b+1)+5(c+1)\equiv b-a-c-1=e\pmod6.</div>
+<p>The global argument supplies the support conclusion without assuming that an arbitrary rational form on the coordinate open extends to a global class.</p>
+<p>There are 226 odd sextic monomials. The cover criterion serves 158, and the diagonal quotient serves the complementary 68. The eighteen odd Jacobian generators <span class="inline-math" data-math>Z_j\partial_iF</span>, with <span class="inline-math" data-math>i,j</span> in opposite parity blocks, each have a unique leading monomial <span class="inline-math" data-math>6Z_i^5Z_j</span>; their mixed terms have all exponents at most four. Hence the 208 odd sextic monomials with exponents at most four form a basis of the primitive target space. The cover and diagonal quotient account for 149 and 59 basis elements respectively. The complementary basis elements split into 47 with <span class="inline-math" data-math>e=0</span> and twelve with <span class="inline-math" data-math>e=-6</span>. These exact counts can be reproduced by:</p>
+<pre><code class="language-python">from itertools import product
+
+raw = {e for e in product(range(7), repeat=6)
+       if sum(e) == 6 and sum(e[3:]) % 2 == 1}
+basis = {e for e in raw if max(e) &lt;= 4}
+
+def cover(e):
+    return (e[4]-e[3]-e[5]-1) % 6 != 0
+
+assert len(raw) == 226 and len(basis) == 208
+assert sum(map(cover, raw)) == 158
+assert sum(map(cover, basis)) == 149
+assert len(raw) - sum(map(cover, raw)) == 68
+assert len(basis) - sum(map(cover, basis)) == 59
+assert sum(e[4]-e[3]-e[5]-1 == 0 for e in raw) == 50
+assert sum(e[4]-e[3]-e[5]-1 == 0 for e in basis) == 47
+assert sum(e[4]-e[3]-e[5]-1 == -6 for e in basis) == 12
+</code></pre>
+<p>The polynomial-source construction on the complementary quotient in <a href="https://github.com/hodge-computer/sextics/blob/main/docs/02-explicit-constructions.md">Chapter 2, §2.8</a> serves the <span class="inline-math" data-math>e=0</span> sources, giving a finite-algebraic route to 196 of the 208 primitive basis directions together with the cover. The twelve <span class="inline-math" data-math>e=-6</span> densities have a fiber denominator and lie outside that polynomial-integration theorem. Their geometric support follows from the theorem above.</p>
+<p>These counts concern the displayed source maps. Coordinate transport supplies further polynomial presentations: <span class="inline-math" data-math>F</span> is unchanged by exchanging <span class="inline-math" data-math>X_2,Y_2</span>, which carries <span class="inline-math" data-math>X_2Y_0^2Y_2^3</span> to the cover-served <span class="inline-math" data-math>X_2^3Y_0^2Y_2</span>. The same exchange serves <span class="inline-math" data-math>X_iY_0Y_2^4</span> and <span class="inline-math" data-math>X_iY_0^3Y_2^2</span>, for <span class="inline-math" data-math>i=0,1</span>. The constructions and their exchanged copies therefore span at least 201 primitive basis directions. A fiber pole in one presentation is not an obstruction to all finite-algebraic constructions.</p>
+<p>The <a href="#case/holdout-bundle">character-separating bundle</a>, formalized by <code>fqlx</code>, combines the cover source <span class="inline-math" data-math>X_0^3Y_0^3</span> with the complementary polynomial source <span class="inline-math" data-math>X_0^3Y_0Y_1^2</span>. These concrete certificates and the geometric all-target theorem have different scopes; neither asserts an expanded common denominator. The theorem is for the fixed sextic (1), and supplies no family dominating the space of all even sextics.</p>
 <h2 id="12-context-and-attribution">12. Context and attribution</h2>
 <p>The <a href="#case/holdout">motivation</a>, <a href="https://github.com/hodge-computer/sextics/blob/main/data/holdout/provenance.json">provenance</a>, and full <a href="https://github.com/hodge-computer/sextics/discussions/44">existing holdout discussion</a> were read before developing this construction. They explain the oriented-chain difficulty and record substantial earlier work on supports and rational fields. The present route uses an auxiliary cover and a moving conic on its quotient. It neither infers nonexistence from a failed bounded search nor assumes that an algebraic primitive descends without checking trace and derivation compatibility.</p>
 <p>Earlier holdout work by <code>fringewidth</code>, <code>rbajaj5</code>, and <code>fqlx</code> in the <a href="https://github.com/hodge-computer/sextics/discussions/44">discussion</a> clarified the residual symmetry sector and established bounded-support obstructions. That work supplies context for the auxiliary-cover construction. The Jacobian and deck trace in Sections 2 and 7 recover the original <span class="inline-math" data-math>q=1</span> source explicitly.</p>

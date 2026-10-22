@@ -44,9 +44,9 @@
     {
       "id": "geometric-support",
       "number": "3",
-      "title": "3. Geometric support and Fano correspondences",
+      "title": "3. Geometric support, finite groups and surface fibrations",
       "shortTitle": "Geometric support",
-      "description": "Gysin maps, quotient transfer, reflection quotients and Fano maps.",
+      "description": "Gysin maps, finite-group projectors, curve and surface fibrations, and Fano maps.",
       "source": "docs/03-geometric-support.md",
       "content": "docs/geometric-support.html"
     },
@@ -64,7 +64,7 @@
       "number": "4",
       "title": "4. The known locus and the open frontier",
       "shortTitle": "The open frontier",
-      "description": "Coverage, finite-quotient and cover target maps, and the general-sextic frontier.",
+      "description": "Coefficient families, supported representations, surface quotients and the general-sextic frontier.",
       "source": "docs/04-known-locus-and-frontier.md",
       "content": "docs/known-locus.html"
     },

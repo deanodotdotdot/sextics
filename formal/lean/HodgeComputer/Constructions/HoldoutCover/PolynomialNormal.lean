@@ -5,9 +5,10 @@ import Mathlib.Tactic
 /- Source component: PolynomialNormal -/
 section
 /-!
-A polynomial normal vector from an invertible matrix of positive
-coefficients. This is a generic linear-algebra construction; the exact
-weighted-conic incidence supplies its coefficient and degree hypotheses.
+Polynomial normal vectors from invertible coefficient matrices. The
+positive-coefficient version preserves a separately normalized constant
+direction; the full-coefficient version includes the constant term in the
+linear system. Applications supply the incidence and degree hypotheses.
 -/
 
 noncomputable section
@@ -69,6 +70,37 @@ theorem polynomial_linear_combination_one
         (lt_of_le_of_lt (bound_Q j) (Nat.lt_of_not_ge hb))
       simp [hB, hQ, coeff_one, hn]
 
+/-- An invertible matrix of all coefficients through degree `n - 1`
+expresses the constant polynomial one as a linear combination of the
+available variations. Unlike the positive-coefficient version, this
+requires no separately normalized constant direction. -/
+theorem full_polynomial_combination_one {n : ℕ} (hn : 0 < n)
+    (Q : Fin n → Polynomial R) (bound : ∀ j, (Q j).natDegree < n)
+    (hunit : IsUnit (Matrix.det (fun i j : Fin n => (Q j).coeff i.val))) :
+    ∃ u : Fin n → R, ∑ j, C (u j)*Q j = 1 := by
+  let J : Matrix (Fin n) (Fin n) R := fun i j => (Q j).coeff i.val
+  let e : Fin n → R := Pi.single ⟨0, hn⟩ 1
+  let u := J⁻¹.mulVec e
+  have hu : J.mulVec u = e := by
+    dsimp [u]
+    rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv J hunit, Matrix.one_mulVec]
+  refine ⟨u, ?_⟩
+  apply Polynomial.ext
+  intro k
+  by_cases hk : k < n
+  · have h := congrFun hu ⟨k, hk⟩
+    simp only [Matrix.mulVec, dotProduct, J, e, Pi.single_apply] at h
+    rw [show (∑ j, (Q j).coeff k*u j) = ∑ j, u j*(Q j).coeff k by
+      apply Finset.sum_congr rfl
+      intro j _
+      ring] at h
+    simpa [Polynomial.finsetSum_coeff, Polynomial.coeff_C_mul, Polynomial.coeff_one,
+      Fin.ext_iff] using h
+  · have hQ (j : Fin n) : (Q j).coeff k = 0 :=
+      coeff_eq_zero_of_natDegree_lt (lt_of_lt_of_le (bound j) (Nat.le_of_not_gt hk))
+    have hk0 : k ≠ 0 := by omega
+    simp [Polynomial.finsetSum_coeff, Polynomial.coeff_C_mul, hQ, Polynomial.coeff_one, hk0]
+
 section Vectors
 
 variable [Fintype κ]
@@ -114,6 +146,7 @@ end Vectors
 end HoldoutConstruction
 
 #print axioms HoldoutConstruction.polynomial_linear_combination_one
+#print axioms HoldoutConstruction.full_polynomial_combination_one
 #print axioms HoldoutConstruction.polynomial_normal_from_coefficients
 end
 end

@@ -1,3 +1,5 @@
 import HodgeComputer.Constructions.ResidueTransport.Density
+import HodgeComputer.Constructions.ResidueTransport.NormalChange
 import HodgeComputer.Constructions.ResidueTransport.MovingMap
+import HodgeComputer.Constructions.ResidueTransport.FirstJets
 import HodgeComputer.Constructions.ResidueTransport.CoordinateIndependence
