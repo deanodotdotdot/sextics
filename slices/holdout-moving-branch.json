@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/holdout-moving-branch-visible-1525099090.json",
+  "mesh": "meshes/adaptive176-holdout-moving-branch.json",
   "seed": 1525099090,
-  "resolution": 144,
+  "resolution": 176,
   "terms": [
     [
       1,
@@ -149,7 +149,7 @@
       0.9586652565296142
     ]
   ],
-  "triangleCount": 277488,
+  "triangleCount": 66142,
   "validated": true,
   "camera": {
     "yaw": -0.21640454942544218,
@@ -160,5 +160,6 @@
       0,
       0
     ]
-  }
+  },
+  "bakedHome": false
 }

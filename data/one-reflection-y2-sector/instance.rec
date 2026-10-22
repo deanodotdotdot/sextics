@@ -6,7 +6,7 @@ F: X0**6 + X0**3*X1*Y0*Y1 + X1**6 + X1**3*X2*Y0*Y1 + X2**6 + Y0**6 + Y1**6 + Y2*
 A: X0**3*Y0*Y1*Y2
 render:
   seed: 100084
-  resolution: 128
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -71,7 +71,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-one-reflection-y2-sector-100084-rrriii.json
+  mesh: meshes/adaptive176-one-reflection-y2-sector.json
   planeMatrix:
   - - -0.592310218200353
     - -0.2927286792763184
@@ -97,7 +97,7 @@ render:
     - 0.623326992079273
     - -0.45336075147013494
     - -0.03274760403630823
-  triangleCount: 207996
+  triangleCount: 63440
   validated: true
   camera:
     yaw: 0.6265496523487679
@@ -112,6 +112,7 @@ render:
     - 0
     - 0
     distance: 3.45
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

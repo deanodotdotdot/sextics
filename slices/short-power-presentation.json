@@ -1,6 +1,6 @@
 {
   "seed": 2953005828,
-  "resolution": 96,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -47,8 +47,8 @@
       0.11901060495776837
     ]
   ],
-  "mesh": "meshes/slice-short-power-presentation-c23b112287cd.json",
-  "triangleCount": 116204,
+  "mesh": "meshes/adaptive176-short-power-presentation.json",
+  "triangleCount": 71742,
   "validated": true,
   "camera": {
     "yaw": 40.799374905387104,
@@ -65,5 +65,6 @@
       0.20168585514016016,
       0.3681237490892901
     ]
-  }
+  },
+  "bakedHome": false
 }

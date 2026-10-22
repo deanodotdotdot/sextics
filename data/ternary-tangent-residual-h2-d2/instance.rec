@@ -7,7 +7,7 @@ F: X0**6 + X0**4*X1**2 + X0**4*Y0**2 + X0**2*X1**4 + X0**2*X1**2*Y0**2 + X0**2*Y
 A: X0**5*Y0 - X0*X1**4*Y0/25 - 293*X0*X1**2*Y0**3/25 + 699*X0*Y0**5/25
 render:
   seed: 4078648930
-  resolution: 112
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -107,7 +107,7 @@ render:
   - 1
   - -1
   - -1
-  mesh: meshes/divisor-view-4078648930.json
+  mesh: meshes/adaptive176-ternary-tangent-residual-h2-d2.json
   planeMatrix:
   - - 0.35894330282155296
     - 0.39006676860737927
@@ -133,7 +133,7 @@ render:
     - -0.6029529551210359
     - 0.11581495207479406
     - -0.3372864303868006
-  triangleCount: 271308
+  triangleCount: 65050
   validated: true
   camera:
     yaw: -0.566554465715909
@@ -143,6 +143,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

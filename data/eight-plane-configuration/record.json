@@ -5233,7 +5233,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-eight-plane-configuration-211035.json",
+    "mesh": "meshes/adaptive176-eight-plane-configuration.json",
     "planeMatrix": [
       [
         -0.08148721045835078,
@@ -5273,7 +5273,7 @@
       ]
     ],
     "seed": 211035,
-    "resolution": 128,
+    "resolution": 176,
     "camera": {
       "yaw": 19.199705837829224,
       "pitch": -0.4297754313045278,
@@ -5290,8 +5290,9 @@
         -0.6287838244090849
       ]
     },
-    "triangleCount": 213872,
-    "validated": true
+    "triangleCount": 72476,
+    "validated": true,
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

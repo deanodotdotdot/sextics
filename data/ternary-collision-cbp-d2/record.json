@@ -207,7 +207,7 @@
   },
   "render": {
     "seed": 1371197535,
-    "resolution": 88,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -361,7 +361,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-a0ffcbe668fe81c9.json",
+    "mesh": "meshes/adaptive176-ternary-collision-cbp-d2.json",
     "planeMatrix": [
       [
         0.08264260987609275,
@@ -400,7 +400,7 @@
         0.45325857634984323
       ]
     ],
-    "triangleCount": 126040,
+    "triangleCount": 55264,
     "validated": true,
     "camera": {
       "yaw": -1.133108931431818,
@@ -412,6 +412,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         -1.0,

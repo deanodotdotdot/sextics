@@ -163,7 +163,7 @@
   },
   "render": {
     "seed": 2897855580,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       1,
       1,
@@ -173,7 +173,7 @@
       1
     ],
     "pairId": "family-sylvester-norm",
-    "mesh": "meshes/slice-9ed6beba47185f9e.json",
+    "mesh": "meshes/adaptive176-family-sylvester-norm.json",
     "planeMatrix": [
       [
         0.07590603183655453,
@@ -212,7 +212,7 @@
         0.4582282568993149
       ]
     ],
-    "triangleCount": 85612,
+    "triangleCount": 52232,
     "validated": true,
     "camera": {
       "yaw": -0.8656181977017687,
@@ -224,6 +224,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         0.012614794631143405,

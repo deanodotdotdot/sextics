@@ -625,7 +625,7 @@
   },
   "render": {
     "seed": 170033111,
-    "resolution": 104,
+    "resolution": 176,
     "terms": [
       [
         1,
@@ -1268,8 +1268,8 @@
         0.1805789350228625
       ]
     ],
-    "mesh": "meshes/slice-rank-one-biquartic.json",
-    "triangleCount": 200252,
+    "mesh": "meshes/adaptive176-rank-one-biquartic.json",
+    "triangleCount": 75622,
     "validated": true,
     "camera": {
       "yaw": -1.7823225797081623,
@@ -1280,7 +1280,8 @@
         0,
         0
       ]
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

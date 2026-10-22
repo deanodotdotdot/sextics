@@ -146,3 +146,20 @@ altered = copy.deepcopy(program)
 altered['nodes'][5] = ['rational', '-3']
 must_reject(altered, denominator, render)
 print('Contact cone factors equal accepted D exactly in all six variables; altered factors are rejected.')
+
+# M3's compact conic determinant is the same accepted degree-ten polynomial,
+# before restricting to any slice. Avoid expanding it in the GPU shader.
+folder = ROOT / 'data/m3-coupled'
+program = validate_program(json.loads((folder/'display-divisor.json').read_text()), folder)
+calculated = []
+for op, *args in program['nodes']:
+    if op == 'variable': v = x[args[0]]
+    elif op == 'rational': v = sp.Rational(args[0])
+    elif op == 'add': v = calculated[args[0]] + calculated[args[1]]
+    elif op == 'mul': v = calculated[args[0]] * calculated[args[1]]
+    elif op == 'pow': v = calculated[args[0]] ** args[1]
+    else: raise AssertionError(op)
+    calculated.append(v)
+expected = sp.sympify(json.loads((folder/'witness.json').read_text())['D'], locals=dict(zip(map(str,x),x)))
+assert sp.expand(calculated[program['output']] - expected) == 0
+print('M3 compact conic determinant equals the accepted denominator in all six variables.')

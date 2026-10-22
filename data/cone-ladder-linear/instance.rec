@@ -6,7 +6,7 @@ F: X0**6 + X1**6 - X1**5*X2 + X1*X2**5 - X2**6 + Y0**6 + Y1**6 - Y1**5*Y2 + Y1*Y
 A: -10*X0*X1**4*Y0 - 10*X0*X2**4*Y0
 render:
   seed: 2049837345
-  resolution: 88
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -85,7 +85,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-d2452a930fdaa395.json
+  mesh: meshes/adaptive176-cone-ladder-linear.json
   planeMatrix:
   - - -0.02229775099938198
     - 0.3901327716820146
@@ -111,7 +111,7 @@ render:
     - 0.429005164273876
     - 0.753053954804121
     - 0.2986296103419528
-  triangleCount: 129896
+  triangleCount: 58080
   validated: true
   camera:
     yaw: -0.6492136482763409
@@ -121,6 +121,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

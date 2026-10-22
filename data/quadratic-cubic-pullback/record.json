@@ -1141,7 +1141,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-quadratic-cubic-pullback-213075.json",
+    "mesh": "meshes/adaptive176-quadratic-cubic-pullback.json",
     "planeMatrix": [
       [
         0.15753629355595583,
@@ -1181,7 +1181,7 @@
       ]
     ],
     "seed": 213075,
-    "resolution": 128,
+    "resolution": 176,
     "camera": {
       "yaw": 45.5993013648444,
       "pitch": -0.6751315329370317,
@@ -1198,8 +1198,9 @@
         0.08400229065001463
       ]
     },
-    "triangleCount": 251664,
-    "validated": true
+    "triangleCount": 71292,
+    "validated": true,
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

@@ -251,7 +251,7 @@
   },
   "render": {
     "seed": 1383291179,
-    "resolution": 88,
+    "resolution": 176,
     "terms": [
       [
         14.0,
@@ -483,7 +483,7 @@
       -1
     ],
     "divisorExpression": "36*(HP**3*DeltaQ*Q**2-HQ**3*DeltaP*P**2)",
-    "mesh": "meshes/slice-9bbab9373d359bc0.json",
+    "mesh": "meshes/adaptive176-two-ternary-dense-two-odd-hessian-d48-detailed.json",
     "planeMatrix": [
       [
         0.16558258230435505,
@@ -522,7 +522,7 @@
         -0.15789109957891742
       ]
     ],
-    "triangleCount": 147484,
+    "triangleCount": 215682,
     "validated": true,
     "camera": {
       "yaw": -2.482622412289071,
@@ -534,6 +534,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorProgram": {
       "schemaVersion": 1,
       "kind": "polynomial-program",

@@ -108,7 +108,7 @@
   },
   "render": {
     "seed": 216025,
-    "resolution": 128,
+    "resolution": 176,
     "phaseSigns": [
       1,
       -1,
@@ -118,7 +118,7 @@
       1
     ],
     "pairId": "family-hesse-web",
-    "mesh": "meshes/slice-family-hesse-web-216025.json",
+    "mesh": "meshes/adaptive176-family-hesse-web.json",
     "planeMatrix": [
       [
         0.5919931757242132,
@@ -157,7 +157,7 @@
         -0.1432844948309879
       ]
     ],
-    "triangleCount": 172668,
+    "triangleCount": 67146,
     "validated": true,
     "terms": [
       [
@@ -254,6 +254,7 @@
         0.24392152898838584
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

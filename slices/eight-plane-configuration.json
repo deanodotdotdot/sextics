@@ -1,6 +1,6 @@
 {
   "seed": 211035,
-  "resolution": 128,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -47,8 +47,8 @@
       -0.1404716678687872
     ]
   ],
-  "mesh": "meshes/slice-eight-plane-configuration-211035.json",
-  "triangleCount": 213872,
+  "mesh": "meshes/adaptive176-eight-plane-configuration.json",
+  "triangleCount": 72476,
   "validated": true,
   "camera": {
     "yaw": 19.199705837829224,
@@ -65,5 +65,6 @@
       0.2710571860722968,
       -0.6287838244090849
     ]
-  }
+  },
+  "bakedHome": false
 }

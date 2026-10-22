@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/slice-f871d9f8716fd9fc.json",
+  "mesh": "meshes/adaptive176-xtype-sparse-rational-1m142.json",
   "seed": 151748401,
-  "resolution": 88,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -48,7 +48,7 @@
       -0.03814839027445234
     ]
   ],
-  "triangleCount": 177668,
+  "triangleCount": 64094,
   "validated": true,
   "camera": {
     "yaw": 1.0504497488713915,
@@ -59,5 +59,6 @@
       0,
       0
     ]
-  }
+  },
+  "bakedHome": false
 }

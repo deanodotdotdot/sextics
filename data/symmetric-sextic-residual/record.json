@@ -493,7 +493,7 @@
   },
   "render": {
     "seed": 170032333,
-    "resolution": 104,
+    "resolution": 176,
     "terms": [
       [
         1,
@@ -1004,8 +1004,8 @@
         -0.42285173861806363
       ]
     ],
-    "mesh": "meshes/slice-symmetric-sextic-residual.json",
-    "triangleCount": 206956,
+    "mesh": "meshes/adaptive176-symmetric-sextic-residual.json",
+    "triangleCount": 67124,
     "validated": true,
     "camera": {
       "yaw": 0.6176406500205072,
@@ -1016,7 +1016,8 @@
         0,
         0
       ]
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

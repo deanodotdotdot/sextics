@@ -1198,7 +1198,7 @@
   "render": {
     "pairId": "contact46006",
     "seed": 2004218871,
-    "resolution": 192,
+    "resolution": 176,
     "phaseSigns": [
       1,
       1,
@@ -1245,7 +1245,7 @@
         0.4169801688868592
       ]
     ],
-    "triangleCount": 440844,
+    "triangleCount": 76644,
     "bakedHome": false,
     "camera": {
       "yaw": 0.71,
@@ -1263,7 +1263,7 @@
         0
       ]
     },
-    "mesh": "meshes/contact46006-d0a0d26cb762.json",
+    "mesh": "meshes/adaptive176-contact46006.json",
     "validated": true,
     "divisorTerms": [
       [

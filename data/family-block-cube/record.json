@@ -129,9 +129,9 @@
     "expression": "X0**3*Y0**3"
   },
   "render": {
-    "mesh": "meshes/slice-family-block-cube-217057.json",
+    "mesh": "meshes/adaptive176-family-block-cube.json",
     "seed": 217057,
-    "resolution": 192,
+    "resolution": 176,
     "phaseSigns": [
       1,
       -1,
@@ -178,7 +178,7 @@
         -0.05759390327754452
       ]
     ],
-    "triangleCount": 378284,
+    "triangleCount": 56122,
     "validated": true,
     "pairId": "family-block-cube",
     "terms": [
@@ -298,6 +298,7 @@
         -0.5828868489532208
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         0.03292181069958848,

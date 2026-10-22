@@ -33,7 +33,7 @@ A: -48*X0**5*Y0 - 40*X0**5*Y1 - 200*X0**4*X1*Y0 - 264*X0**4*X1*Y1 - 528*X0**3*X1
   + 1212003636*X2*Y0**2*Y1**3 + 1616004848*X2*Y0*Y1**4 + 1212003636*X2*Y1**5
 render:
   seed: 691639697
-  resolution: 112
+  resolution: 176
   terms:
   - - 1000005.0
     - - 6
@@ -784,7 +784,7 @@ render:
   - 1
   - 1
   - 1
-  mesh: meshes/slice-cb53d61ff6cca94d.json
+  mesh: meshes/adaptive176-polarized-contact-deformation-d2.json
   planeMatrix:
   - - 0.33135562316960127
     - -0.15979440733092315
@@ -810,7 +810,7 @@ render:
     - 0.5203990390576896
     - -0.7258929326248226
     - -0.3873668298911581
-  triangleCount: 187388
+  triangleCount: 72768
   validated: true
   camera:
     yaw: -2.0498133134381904
@@ -820,6 +820,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

@@ -7,7 +7,7 @@ F: X0**6 + 5*X0**4*Y0**2 + 5*X0**2*X1**2*Y1**2 + 5*X0**2*X1*X2*Y1*Y2 + 5*X0**2*X
 A: X0**3*X1**2*Y0 - X0*X1**2*Y0**3
 render:
   seed: 3352728673
-  resolution: 112
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -114,7 +114,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-two-reflections-3352728673.json
+  mesh: meshes/adaptive176-two-reflection-cubic-surface-d2.json
   planeMatrix:
   - - 0.19406412868797174
     - -0.6529875056168413
@@ -140,7 +140,7 @@ render:
     - 0.3069569272496742
     - 0.46629810091170365
     - 0.5133608939729597
-  triangleCount: 328780
+  triangleCount: 85756
   validated: true
   camera:
     yaw: -2.91543151113997
@@ -150,6 +150,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

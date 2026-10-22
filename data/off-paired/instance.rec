@@ -6,7 +6,7 @@ F: X0**6 + X0**3*X1*Y0*Y1/2 + X0**2*X1*X2*Y0*Y2/3 + X1**6 + X1**3*X2*Y1*Y2/2 + X
 A: X0**3*Y0**3
 render:
   seed: 3489927719
-  resolution: 96
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -78,7 +78,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/off-paired-bae956fe59a9.json
+  mesh: meshes/adaptive176-off-paired.json
   planeMatrix:
   - - 0.6824936920023241
     - -0.1321001343210451
@@ -104,7 +104,7 @@ render:
     - 0.19778634918360014
     - -0.11102690674929827
     - 0.031140929161635092
-  triangleCount: 123732
+  triangleCount: 59120
   validated: true
   camera:
     yaw: 0.71

@@ -6,7 +6,7 @@ F: X0**5*X1 + 10*X0**3*X2*Y1*Y2/7 + 5*X0*X1**3*Y0*Y1/7 + X0*X2**5 + X1**5*X2 + 1
 A: X0**3*Y0**3
 render:
   seed: 170031111
-  resolution: 104
+  resolution: 176
   terms:
   - - 1
     - - 5
@@ -103,8 +103,8 @@ render:
     - -0.5392473765295451
     - 0.10663006699521443
     - -0.1933454202664008
-  mesh: meshes/slice-klein-coupled-character.json
-  triangleCount: 209720
+  mesh: meshes/adaptive176-klein-coupled-character.json
+  triangleCount: 58718
   validated: true
   camera:
     yaw: 0.350149916290465
@@ -114,6 +114,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

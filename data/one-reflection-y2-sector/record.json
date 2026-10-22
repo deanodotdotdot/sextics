@@ -119,7 +119,7 @@
   },
   "render": {
     "seed": 100084,
-    "resolution": 128,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -218,7 +218,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-one-reflection-y2-sector-100084-rrriii.json",
+    "mesh": "meshes/adaptive176-one-reflection-y2-sector.json",
     "planeMatrix": [
       [
         -0.592310218200353,
@@ -257,7 +257,7 @@
         -0.03274760403630823
       ]
     ],
-    "triangleCount": 207996,
+    "triangleCount": 63440,
     "validated": true,
     "camera": {
       "yaw": 0.6265496523487679,
@@ -274,7 +274,8 @@
         0
       ],
       "distance": 3.45
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

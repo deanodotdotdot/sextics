@@ -5,9 +5,9 @@ q: 1
 F: X0**6 + X0**3*X1*Y0*Y1 + X0**2*Y0**2*Y2**2/7 + X1**6 + X1**3*X2*Y1*Y2 + X2**6 + Y0**6 + Y1**6 + Y2**6
 A: X0**3*Y0**3
 render:
-  mesh: meshes/holdout-moving-branch-visible-1525099090.json
+  mesh: meshes/adaptive176-holdout-moving-branch.json
   seed: 1525099090
-  resolution: 144
+  resolution: 176
   terms:
   - - 1
     - - 6
@@ -104,7 +104,7 @@ render:
     - 0.019453636610930143
     - -0.04947701488067828
     - 0.9586652565296142
-  triangleCount: 277488
+  triangleCount: 66142
   validated: true
   camera:
     yaw: -0.21640454942544218
@@ -114,6 +114,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

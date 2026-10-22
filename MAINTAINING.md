@@ -148,3 +148,22 @@ All displayed denominators use per-pixel evaluation. Literal polynomials are com
 When a literal denominator becomes an exact power on a special slice, a display program may declare `sliceIdentity: {"power": n}`. The content builder checks the polynomial identity `D(Bu) = g(Bu)^n` exactly, with the saved coordinate phases, before displaying `g = 0`. It rejects an incorrect identity or a denominator that vanishes on the entire slice. This removes interpolation artifacts from repeated factors without changing the divisor's support or the accepted witness. Hesse · radial quartic uses `X2 = X0`, where `D = (X0^2 + Y2^2/3)^2`; its displayed square root is only valid on this section.
 
 Off-block tie · quartic similarly uses `Y1 = X0`, where `D = 2*(3*X0^2 + X1^2)^2`. Here `X0` and `Y1` are real and `X1` is imaginary, making the divisor visible as curves. Its display program uses `sqrt(2)*(3*X0^2 + X1^2)`, with the same exact restriction check.
+
+For an offline adaptive candidate, `node scripts/simplify-surface.cjs INPUT_MANIFEST OUTPUT_MANIFEST [TOLERANCE]`
+reduces an existing interleaved mesh using endpoint edge collapses. It retains
+sampled vertex attributes, checks local link and face-orientation conditions, and
+bounds each collapse against incident planes. This requires Node.js and a C++17
+compiler. Keep the dense source mesh for comparison: the local tolerance is not a
+global error bound, and sharp color or divisor features require visual inspection.
+The optional tolerance is an incident-plane distance in display coordinates
+(default 0.00018). Reduce it for sensitive divisor overlays. The command writes a
+candidate mesh only; it does not change atlas selections.
+
+`python3 scripts/refine-surface.py INPUT_MANIFEST RECORD_JSON OUTPUT_MANIFEST`
+adds samples near curved edges after simplification. It uses the record's exact
+polynomial coefficients, bounded Newton projection, and conforming edge splits;
+splits that reverse a face are rejected. It requires NumPy and supports the
+quadratic stereographic color observable, checking that observable against the
+source before changing geometry. M₃ uses this additional refinement at its
+narrow joins. As with simplification, compare the candidate visually before
+selecting it. Neither operation changes the stored slice or camera.

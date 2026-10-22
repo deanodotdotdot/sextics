@@ -185,7 +185,7 @@
   },
   "render": {
     "seed": 170028222,
-    "resolution": 104,
+    "resolution": 176,
     "terms": [
       [
         1,
@@ -388,8 +388,8 @@
         -0.759308556287164
       ]
     ],
-    "mesh": "meshes/slice-split-ternary-q2.json",
-    "triangleCount": 233324,
+    "mesh": "meshes/adaptive176-split-ternary-q2.json",
+    "triangleCount": 70822,
     "validated": true,
     "camera": {
       "yaw": 0,
@@ -400,7 +400,8 @@
         0,
         0
       ]
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

@@ -9,7 +9,7 @@ F: -116*X0**6 + 132*X0**4*X1**2 - 171*X0**4*Y0**2 + 14*X0**2*X1**4 - 52*X0**2*X1
 A: 4*X0**3*X1*X2*Y1 + 5*X0*X1**3*X2*Y1 - 5*X0*X1*X2*Y0**2*Y1
 render:
   seed: 2487342529
-  resolution: 192
+  resolution: 176
   phaseSigns:
   - 1
   - 1
@@ -18,7 +18,7 @@ render:
   - 1
   - 1
   pairId: m3-coupled
-  mesh: meshes/m3-coupled-17823c663cd4.json
+  mesh: meshes/adaptive176-m3-coupled-refined.json
   planeMatrix:
   - - -0.24119775470666754
     - 0.05163557616053411
@@ -44,7 +44,7 @@ render:
     - 0.4405400271153707
     - 0.26924603896823124
     - 0.33109757411644375
-  triangleCount: 544880
+  triangleCount: 105896
   validated: true
   camera:
     yaw: 0.71

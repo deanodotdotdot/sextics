@@ -1,6 +1,5 @@
 /* The optional WebGL view lives off the page's UI thread. */
 'use strict';
-importScripts('divisor.js', 'renderer.js');
 
 const view = new EventTarget(), page = new EventTarget();
 let renderer, canvas, stopped = false;
@@ -22,7 +21,7 @@ function resize(size) {
 setInterval(() => send('pulse', renderer?.getCamera()), 500);
 onerror = event => { event.preventDefault(); fatal(event.message || 'Surface worker failed.'); };
 onunhandledrejection = event => { event.preventDefault(); fatal(event.reason?.message || 'Surface worker failed.'); };
-onmessage = ({data}) => {
+function handleMessage({data}) {
   if (stopped) return;
   try {
     switch (data.type) {
@@ -54,3 +53,18 @@ onmessage = ({data}) => {
     }
   } catch (error) { fatal(error.message || String(error)); }
 };
+
+// Fetch dependencies asynchronously: the heartbeat must remain live while the
+// network is slow. Queue controls until the renderer is available.
+const pending = [];
+onmessage = event => pending.push(event);
+send('booting');
+import('./divisor.js').then(() => import('./renderer.js')).then(() => {
+  if (stopped) return;
+  onmessage = handleMessage;
+  for (const event of pending) {
+    if (stopped) break;
+    handleMessage(event);
+  }
+  pending.length = 0;
+}).catch(error => fatal(error.message || 'The renderer could not be downloaded.'));

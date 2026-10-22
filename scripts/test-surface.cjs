@@ -191,12 +191,24 @@ function controller({supported = true, transferThrows = false, hidden = false,
 
   // A blocked worker cannot block this watchdog; subsequent navigation sends
   // nothing to it and cannot overwrite the error with an eternal spinner.
-  let h = controller(); await h.api.setCase({id:'a'});
+  let h = controller(); h.workers[0].emit('booting'); await h.api.setCase({id:'a'});
   for (let time=500; time<=5500; time+=500) h.tick(time);
   assert.equal(h.workers[0].terminated, true); assert.equal(h.replacement(), 1);
   const sent = h.workers[0].messages.length;
   await h.api.setCase({id:'b'}); h.api.setMode('free'); h.api.destroy();
   assert.equal(h.workers[0].messages.length, sent); assert.equal(h.states.at(-1).state,'error');
+
+  // Allow the worker script itself to download before its heartbeat starts.
+  h = controller();
+  for (let time=500; time<=10000; time+=500) h.tick(time);
+  assert.equal(h.workers[0].terminated, undefined);
+  h.workers[0].emit('booting');
+  for (let time=10500; time<=15500; time+=500) h.tick(time);
+  assert.equal(h.workers[0].terminated, true);
+  h = controller();
+  for (let time=500; time<=30500; time+=500) h.tick(time);
+  assert.equal(h.workers[0].terminated, true);
+  assert.match(h.states.at(-1).message, /downloading/);
 
   // Slow network while the worker remains responsive is not a graphics hang.
   h = controller(); for (let time=1000; time<15000; time+=1000) {h.pulse(); h.tick(time);}
@@ -233,21 +245,22 @@ function controller({supported = true, transferThrows = false, hidden = false,
   assert.equal(h.states.at(-1).state,'error'); assert.equal(h.workers.length,2);
 
   // Browsers may deliver context loss just after visibility changes back.
-  h = controller(); h.hidden(true); h.time(30000); h.hidden(false);
+  h = controller(); h.workers[0].emit('booting'); h.hidden(true); h.time(30000); h.hidden(false);
   h.workers[0].emit('fatal','Late context loss');
   assert.equal(h.workers.length,2); assert.equal(h.workers[0].terminated,true);
 
   // A worker that never resumes is also retried once; the fresh worker still
   // has its own bounded timeout if graphics remain unresponsive.
-  h = controller(); h.hidden(true); h.time(30000); h.hidden(false);
+  h = controller(); h.workers[0].emit('booting'); h.hidden(true); h.time(30000); h.hidden(false);
   for (let time=30500; time<=35500; time+=500) h.tick(time);
   assert.equal(h.workers.length,2);
+  h.workers[1].emit('booting');
   for (let time=36000; time<=41000; time+=500) h.tick(time);
   assert.equal(h.workers.length,2); assert.equal(h.states.at(-1).state,'error');
 
   // A delayed main-page timer must not mistake whole-page suspension for a
   // worker hang. Subsequent regular ticks still enforce the five-second limit.
-  h = controller(); h.tick(30000);
+  h = controller(); h.workers[0].emit('booting'); h.tick(30000);
   assert.equal(h.workers[0].terminated,undefined);
   for (let time=30500; time<=35500; time+=500) h.tick(time);
   assert.equal(h.workers[0].terminated,true);

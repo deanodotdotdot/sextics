@@ -93,7 +93,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/divisor-view-3212711229-r176.json
+  mesh: meshes/adaptive176-fixed-witness-hesse-cofactor-d4-rational.json
   planeMatrix:
   - - 0.2145586774528627
     - -0.36145923257432966
@@ -119,7 +119,7 @@ render:
     - -0.8869890413635014
     - -0.33561818341645294
     - -0.12904691571866483
-  triangleCount: 729240
+  triangleCount: 77364
   validated: true
   camera:
     yaw: -1.7823225797081623
@@ -129,6 +129,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

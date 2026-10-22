@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const workerURL = new URL('surface-worker.js', document.currentScript.src);
-  const TIMEOUT = 5000;
+  const TIMEOUT = 5000, BOOT_TIMEOUT = 30000;
   function create(canvas, {onStatus = () => {}, onModeChange = () => {}} = {}) {
     let worker = null, failed = false, destroyed = false, mode = 'parallax', meta = null, camera = null, record = null;
     let lastPulse = performance.now(), lastTick = lastPulse, watchdog;
@@ -92,9 +92,10 @@
       lastPulse = lastTick = performance.now();
       try {
         const current = new Worker(workerURL); worker = current;
+        let booted = false;
         current.onmessage = ({data}) => {
           if (worker !== current || destroyed) return;
-          lastPulse = performance.now();
+          lastPulse = performance.now(); booted = true;
           if (data.type === 'fatal') { stop(data.value); return; }
           if (data.type === 'status') {
             if (data.value.meta) meta = data.value.meta;
@@ -124,8 +125,8 @@
           // A suspended page may run a queued timer before visibilitychange.
           // Give it a fresh deadline; a continuously blocked worker still times out.
           if (delayed) { lastPulse = now; send({type:'visibility', hidden:false}); return; }
-          if (now - lastPulse > TIMEOUT)
-            stop('The 3D view stopped responding and has been paused to keep the page usable.');
+          if (now - lastPulse > (booted ? TIMEOUT : BOOT_TIMEOUT))
+            stop(booted ? 'The 3D view stopped responding and has been paused to keep the page usable.' : 'The 3D renderer could not finish downloading. Reload the page to try again.');
         }, 500);
         for (const name of ['contextmenu','dblclick','wheel','pointerdown','pointermove','pointerup','pointercancel','lostpointercapture'])
           listen(canvas, name, event => {

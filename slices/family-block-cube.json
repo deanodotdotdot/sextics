@@ -1,6 +1,6 @@
 {
   "seed": 217057,
-  "resolution": 192,
+  "resolution": 176,
   "phaseSigns": [
     1,
     -1,
@@ -47,8 +47,8 @@
       -0.05759390327754452
     ]
   ],
-  "mesh": "meshes/slice-family-block-cube-217057.json",
-  "triangleCount": 378284,
+  "mesh": "meshes/adaptive176-family-block-cube.json",
+  "triangleCount": 56122,
   "validated": true,
   "camera": {
     "yaw": 43.19933813511575,
@@ -65,5 +65,6 @@
       -0.2385900305165343,
       -0.5828868489532208
     ]
-  }
+  },
+  "bakedHome": false
 }

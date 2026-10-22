@@ -7,7 +7,7 @@ F: X0**6 + 13*X0**2*X1**2*Y0**2/17 + 5*X0**2*X1**2*Y0*Y2/9 + 7*X0**2*X1**2*Y2**2
 A: X0**3*X1*X2*Y1
 render:
   seed: 3115376626
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - -1
   - 1
@@ -16,7 +16,7 @@ render:
   - -1
   - 1
   pairId: family-passive-contact
-  mesh: meshes/slice-13060abf516a7b24.json
+  mesh: meshes/adaptive176-family-passive-contact.json
   planeMatrix:
   - - 0.25816155950364017
     - 0.00763374298070915
@@ -42,7 +42,7 @@ render:
     - -0.24947941598885348
     - -0.2660878769264841
     - 0.6456448089097662
-  triangleCount: 127828
+  triangleCount: 57462
   validated: true
   camera:
     yaw: -2.3488770454240733
@@ -52,6 +52,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

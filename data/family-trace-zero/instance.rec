@@ -8,7 +8,7 @@ F: 2*X0**6 + 2*X0**4*Y0**2 + 10201*X0**2*X1**4/10609 + 20402*X0**2*X1**2*Y1**2/1
 A: 8*X0**3*X1**2*Y0 - 8*X0*X1**2*Y0**3
 render:
   seed: 3753345354
-  resolution: 192
+  resolution: 176
   phaseSigns:
   - -1
   - -1
@@ -17,7 +17,7 @@ render:
   - -1
   - 1
   pairId: family-trace-zero
-  mesh: meshes/trace-zero-perturb-3753345354-192.json
+  mesh: meshes/adaptive176-family-trace-zero.json
   planeMatrix:
   - - -0.03286140582060591
     - 0.3026282328692479
@@ -43,7 +43,7 @@ render:
     - 0.5902654836964774
     - -0.3926361468448805
     - 0.22702109969084885
-  triangleCount: 632936
+  triangleCount: 59578
   validated: true
   camera:
     yaw: -0.43280909885088437
@@ -53,6 +53,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions: []

@@ -207,7 +207,7 @@
   },
   "render": {
     "seed": 4078648930,
-    "resolution": 112,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -361,7 +361,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/divisor-view-4078648930.json",
+    "mesh": "meshes/adaptive176-ternary-tangent-residual-h2-d2.json",
     "planeMatrix": [
       [
         0.35894330282155296,
@@ -400,7 +400,7 @@
         -0.3372864303868006
       ]
     ],
-    "triangleCount": 271308,
+    "triangleCount": 65050,
     "validated": true,
     "camera": {
       "yaw": -0.566554465715909,
@@ -412,6 +412,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

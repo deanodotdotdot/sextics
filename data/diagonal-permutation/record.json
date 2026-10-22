@@ -580,7 +580,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-diagonal-permutation-4c1bea96465c.json",
+    "mesh": "meshes/adaptive176-diagonal-permutation.json",
     "planeMatrix": [
       [
         0.024016019900054884,
@@ -620,7 +620,7 @@
       ]
     ],
     "seed": 4017115667,
-    "resolution": 96,
+    "resolution": 176,
     "camera": {
       "yaw": 26.39959552701518,
       "pitch": 0.04167873242257783,
@@ -637,8 +637,9 @@
         0.4682463505236035
       ]
     },
-    "triangleCount": 129880,
-    "validated": true
+    "triangleCount": 62097,
+    "validated": true,
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

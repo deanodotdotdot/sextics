@@ -108,7 +108,7 @@
   },
   "render": {
     "seed": 3016142008,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       -1,
       1,
@@ -118,7 +118,7 @@
       1
     ],
     "pairId": "hesse-triangle",
-    "mesh": "meshes/slice-17c6768635b2164a.json",
+    "mesh": "meshes/adaptive176-hesse-triangle.json",
     "planeMatrix": [
       [
         0.19592242021902626,
@@ -157,7 +157,7 @@
         0.1897473443434409
       ]
     ],
-    "triangleCount": 174784,
+    "triangleCount": 62922,
     "validated": true,
     "camera": {
       "yaw": -2.1324724959986168,
@@ -169,6 +169,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

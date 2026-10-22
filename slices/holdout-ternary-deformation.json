@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/holdout-ternary-deformation-visible-1822989059.json",
+  "mesh": "meshes/adaptive176-holdout-ternary-deformation.json",
   "seed": 1822989059,
-  "resolution": 144,
+  "resolution": 176,
   "terms": [
     [
       1,
@@ -171,7 +171,7 @@
       0.34002846073172716
     ]
   ],
-  "triangleCount": 343812,
+  "triangleCount": 69074,
   "validated": true,
   "camera": {
     "yaw": 2.183558680303206,
@@ -182,5 +182,6 @@
       0,
       0
     ]
-  }
+  },
+  "bakedHome": false
 }

@@ -7,7 +7,7 @@ F: X0**6 + 5*X0**5*X1/7 + 5*X0**3*X1*Y0**2/7 + 10*X0*X1**5/7 + 5*X0*X1*Y0**4/7 +
 A: X0**4*X1*Y1
 render:
   seed: 100130
-  resolution: 128
+  resolution: 176
   terms:
   - - 1
     - - 6
@@ -139,8 +139,8 @@ render:
     - 0.23000332701749582
     - -0.74356396806051
     - 0.18849381327010284
-  mesh: meshes/slice-crossed-ternary-asymmetric-100130-rrriii.json
-  triangleCount: 228788
+  mesh: meshes/adaptive176-crossed-ternary-asymmetric.json
+  triangleCount: 77478
   validated: true
   camera:
     yaw: 1.2392188913864794
@@ -155,6 +155,7 @@ render:
     - 0
     - 0
     distance: 3.45
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

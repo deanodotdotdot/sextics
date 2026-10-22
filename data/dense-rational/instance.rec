@@ -52,7 +52,7 @@ F: X0**6 + 15*X0**5*X1/9973 + X0**5*X2/9973 + 2*X0**4*X1**2/9973 + 14*X0**4*X1*X
 A: X0**3*Y0**3
 render:
   seed: 2038919402
-  resolution: 96
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -1713,7 +1713,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/dense-rational-3e24f55c5292.json
+  mesh: meshes/adaptive176-dense-rational.json
   planeMatrix:
   - - -0.6035012442978086
     - -0.4377766065438106
@@ -1739,7 +1739,7 @@ render:
     - -0.0019829363718517823
     - 0.23867193984653612
     - 0.4519970000821844
-  triangleCount: 123008
+  triangleCount: 45180
   validated: true
   camera:
     yaw: 0.71

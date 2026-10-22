@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/off-paired-bae956fe59a9.json",
+  "mesh": "meshes/adaptive176-off-paired.json",
   "seed": 3489927719,
-  "resolution": 96,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -48,7 +48,7 @@
       0.031140929161635092
     ]
   ],
-  "triangleCount": 123732,
+  "triangleCount": 59120,
   "validated": true,
   "camera": {
     "yaw": 0.71,

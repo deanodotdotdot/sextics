@@ -119,7 +119,7 @@
   },
   "render": {
     "seed": 1449880684,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       1,
       -1,
@@ -129,7 +129,7 @@
       1
     ],
     "pairId": "family-shear",
-    "mesh": "meshes/slice-0e287101acb4ebea.json",
+    "mesh": "meshes/adaptive176-family-shear.json",
     "planeMatrix": [
       [
         0.4463633804366038,
@@ -168,7 +168,7 @@
         -0.07475124215180996
       ]
     ],
-    "triangleCount": 105180,
+    "triangleCount": 53106,
     "validated": true,
     "camera": {
       "yaw": -2.6163677791540976,
@@ -180,6 +180,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

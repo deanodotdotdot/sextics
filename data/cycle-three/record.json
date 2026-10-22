@@ -130,7 +130,7 @@
   },
   "render": {
     "seed": 1387442936,
-    "resolution": 96,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -240,7 +240,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/cycle-q2-3f1c9281e799.json",
+    "mesh": "meshes/adaptive176-cycle-three.json",
     "planeMatrix": [
       [
         -0.2290854307024154,
@@ -279,7 +279,7 @@
         0.3036481843958279
       ]
     ],
-    "triangleCount": 78820,
+    "triangleCount": 48230,
     "validated": true,
     "camera": {
       "yaw": 0.71,

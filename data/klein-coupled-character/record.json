@@ -130,7 +130,7 @@
   },
   "render": {
     "seed": 170031111,
-    "resolution": 104,
+    "resolution": 176,
     "terms": [
       [
         1,
@@ -278,8 +278,8 @@
         -0.1933454202664008
       ]
     ],
-    "mesh": "meshes/slice-klein-coupled-character.json",
-    "triangleCount": 209720,
+    "mesh": "meshes/adaptive176-klein-coupled-character.json",
+    "triangleCount": 58718,
     "validated": true,
     "camera": {
       "yaw": 0.350149916290465,
@@ -290,7 +290,8 @@
         0,
         0
       ]
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

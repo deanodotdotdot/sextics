@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/slice-a0ffcbe668fe81c9.json",
+  "mesh": "meshes/adaptive176-ternary-collision-cbp-d2.json",
   "seed": 1371197535,
-  "resolution": 88,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -48,7 +48,7 @@
       0.45325857634984323
     ]
   ],
-  "triangleCount": 126040,
+  "triangleCount": 55264,
   "validated": true,
   "camera": {
     "yaw": -1.133108931431818,
@@ -59,5 +59,6 @@
       0,
       0
     ]
-  }
+  },
+  "bakedHome": false
 }

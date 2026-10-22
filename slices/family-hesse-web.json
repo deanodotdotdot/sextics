@@ -1,6 +1,6 @@
 {
   "seed": 216025,
-  "resolution": 128,
+  "resolution": 176,
   "phaseSigns": [
     1,
     -1,
@@ -47,8 +47,8 @@
       -0.1432844948309879
     ]
   ],
-  "mesh": "meshes/slice-family-hesse-web-216025.json",
-  "triangleCount": 172668,
+  "mesh": "meshes/adaptive176-family-hesse-web.json",
+  "triangleCount": 67146,
   "validated": true,
   "camera": {
     "yaw": 40.799374905387104,
@@ -65,5 +65,6 @@
       0.17441846510401837,
       0.24392152898838584
     ]
-  }
+  },
+  "bakedHome": false
 }

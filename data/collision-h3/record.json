@@ -229,7 +229,7 @@
   },
   "render": {
     "seed": 2294399669,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       1,
       1,
@@ -239,7 +239,7 @@
       1
     ],
     "pairId": "collision-h3",
-    "mesh": "meshes/slice-244c052b2ad439b2.json",
+    "mesh": "meshes/adaptive176-collision-h3.json",
     "planeMatrix": [
       [
         -0.1145205345911316,
@@ -278,7 +278,7 @@
         -0.679003030647818
       ]
     ],
-    "triangleCount": 51000,
+    "triangleCount": 43518,
     "validated": true,
     "camera": {
       "yaw": 0.8340451994459495,
@@ -290,6 +290,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

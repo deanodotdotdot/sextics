@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/dense-rational-3e24f55c5292.json",
+  "mesh": "meshes/adaptive176-dense-rational.json",
   "seed": 2038919402,
-  "resolution": 96,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -48,7 +48,7 @@
       0.4519970000821844
     ]
   ],
-  "triangleCount": 123008,
+  "triangleCount": 45180,
   "validated": true,
   "camera": {
     "yaw": 0.71,

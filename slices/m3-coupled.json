@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/m3-coupled-17823c663cd4.json",
+  "mesh": "meshes/adaptive176-m3-coupled-refined.json",
   "seed": 2487342529,
-  "resolution": 192,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -48,7 +48,7 @@
       0.33109757411644375
     ]
   ],
-  "triangleCount": 544880,
+  "triangleCount": 105896,
   "validated": true,
   "camera": {
     "yaw": 0.71,

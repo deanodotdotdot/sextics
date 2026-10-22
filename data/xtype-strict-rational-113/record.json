@@ -119,7 +119,7 @@
   },
   "render": {
     "seed": 2028315607,
-    "resolution": 96,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -218,7 +218,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/xtype-strict-rational-113-504a8129db8a.json",
+    "mesh": "meshes/adaptive176-xtype-strict-rational-113.json",
     "planeMatrix": [
       [
         0.35551046947291465,
@@ -257,7 +257,7 @@
         -0.25391583967335796
       ]
     ],
-    "triangleCount": 128816,
+    "triangleCount": 65814,
     "validated": true,
     "camera": {
       "yaw": 0.71,

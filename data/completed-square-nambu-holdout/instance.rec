@@ -7,7 +7,7 @@ F: X0**6 + X1**6 + 5*X2**6 + 49*X2**4*Y2**2/4 + X2**2*Y1**3*Y2 + 43*X2**2*Y2**4 
 A: X1**2*X2*Y1**2*Y2
 render:
   seed: 3537889969
-  resolution: 88
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -86,7 +86,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-712f8fbab80d2bb0.json
+  mesh: meshes/adaptive176-completed-square-nambu-holdout.json
   planeMatrix:
   - - 0.6039767000173978
     - -0.592607102365837
@@ -112,7 +112,7 @@ render:
     - 0.1606303069148701
     - 0.08866346155657015
     - -0.29784865206766237
-  triangleCount: 113884
+  triangleCount: 61526
   validated: true
   camera:
     yaw: -2.0498133134381904
@@ -122,6 +122,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

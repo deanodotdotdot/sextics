@@ -7,7 +7,7 @@ F: X0**6 + 5*X0**3*X1*Y0*Y1/7 + 5*X0*X1*Y0**3*Y1/7 + 5*X0*X1*Y0**2*Y2**2/7 + 10*
 A: X0**3*Y0**3
 render:
   seed: 100053
-  resolution: 128
+  resolution: 176
   terms:
   - - 1
     - - 6
@@ -132,8 +132,8 @@ render:
     - -0.27930125329932326
     - 0.4479695225026663
     - -0.05350388336073024
-  mesh: meshes/slice-reflection-coupled-fano-100053-rrriii.json
-  triangleCount: 202836
+  mesh: meshes/adaptive176-reflection-coupled-fano.json
+  triangleCount: 70562
   validated: true
   camera:
     yaw: 0.4965373534339972
@@ -148,6 +148,7 @@ render:
     - 0
     - 0
     distance: 3.45
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

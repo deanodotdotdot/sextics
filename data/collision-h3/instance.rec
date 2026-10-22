@@ -7,7 +7,7 @@ F: 3*X0**6 + 9*X0**4*X1**2 - 7*X0**4*Y0**2 + 20*X0**2*X1**4 + X0**2*X1**2*Y0**2 
 A: -36*X0**5*Y0 - 50*X0**3*X1**2*Y0 + 56*X0**3*Y0**3 - 28*X0*X1**4*Y0 + 28*X0*X1**2*Y0**3 - 44*X0*Y0**5
 render:
   seed: 2294399669
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - 1
   - 1
@@ -16,7 +16,7 @@ render:
   - 1
   - 1
   pairId: collision-h3
-  mesh: meshes/slice-244c052b2ad439b2.json
+  mesh: meshes/adaptive176-collision-h3.json
   planeMatrix:
   - - -0.1145205345911316
     - 0.39119465545581417
@@ -42,7 +42,7 @@ render:
     - 0.0601988383271639
     - 0.5837224405419316
     - -0.679003030647818
-  triangleCount: 51000
+  triangleCount: 43518
   validated: true
   camera:
     yaw: 0.8340451994459495
@@ -52,6 +52,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

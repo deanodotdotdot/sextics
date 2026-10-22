@@ -119,7 +119,7 @@
   },
   "render": {
     "seed": 2825414312,
-    "resolution": 112,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -207,7 +207,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/divisor-view-2825414312.json",
+    "mesh": "meshes/adaptive176-f3-block-x0-quartic-strict.json",
     "planeMatrix": [
       [
         0.3337823395876428,
@@ -246,7 +246,7 @@
         -0.2790633916667438
       ]
     ],
-    "triangleCount": 303976,
+    "triangleCount": 63026,
     "validated": true,
     "camera": {
       "yaw": -1.4832588477222803,
@@ -258,6 +258,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

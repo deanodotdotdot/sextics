@@ -1604,7 +1604,7 @@
   },
   "render": {
     "seed": 1471822048,
-    "resolution": 112,
+    "resolution": 176,
     "terms": [
       [
         1000005.0,
@@ -2759,7 +2759,7 @@
       1,
       1
     ],
-    "mesh": "meshes/slice-030546d2fa6292cb.json",
+    "mesh": "meshes/adaptive176-polarized-contact-coupled-d2.json",
     "planeMatrix": [
       [
         -0.3442014112319423,
@@ -2798,7 +2798,7 @@
         0.12353290268639976
       ]
     ],
-    "triangleCount": 201764,
+    "triangleCount": 68208,
     "validated": true,
     "camera": {
       "yaw": 0.6176406500205072,
@@ -2810,6 +2810,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

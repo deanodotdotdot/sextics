@@ -119,7 +119,7 @@
   },
   "render": {
     "seed": 541985820,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       1,
       1,
@@ -129,7 +129,7 @@
       1
     ],
     "pairId": "klein-hesse",
-    "mesh": "meshes/slice-41cf55bca972bce4.json",
+    "mesh": "meshes/adaptive176-klein-hesse.json",
     "planeMatrix": [
       [
         0.10946006536501014,
@@ -168,7 +168,7 @@
         0.12626511269933183
       ]
     ],
-    "triangleCount": 83656,
+    "triangleCount": 60826,
     "validated": true,
     "camera": {
       "yaw": -1.5659180302827058,
@@ -180,6 +180,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         -1.0,

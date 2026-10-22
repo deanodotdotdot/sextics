@@ -6,7 +6,7 @@ F: X0**6 + X0**2*X1**2*Y1**2 + X1**6 + X2**6 + Y0**6 + Y1**6 + Y2**6
 A: X0**3*Y0**2*Y1
 render:
   seed: 2585013920
-  resolution: 112
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -64,7 +64,7 @@ render:
   - -1
   - 1
   - -1
-  mesh: meshes/offblock-quartic-2585013920.json
+  mesh: meshes/adaptive176-tie-offblock-ytype-d4-strict-rational.json
   planeMatrix:
   - - -0.24333164760014045
     - 0.3782807738775836
@@ -90,7 +90,7 @@ render:
     - 0.26867057865756805
     - 0.1587720537522994
     - 0.4860649718915316
-  triangleCount: 185796
+  triangleCount: 53438
   validated: true
   camera:
     yaw: 0.7002998325809301
@@ -100,6 +100,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

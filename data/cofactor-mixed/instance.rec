@@ -13,7 +13,7 @@ A: 2*X0**3*X2**2*Y1 + 3*X0**2*X1*X2**2*Y1 + 3*X0*X1**2*X2**2*Y1 - X0*X2**2*Y0**2
   + X1**3*X2**2*Y1 - X1*X2**2*Y0**2*Y1/2 + X1*X2**2*Y1**3 + X1*X2**2*Y1*Y2**2
 render:
   seed: 418475675
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - -1
   - -1
@@ -22,7 +22,7 @@ render:
   - 1
   - 1
   pairId: cofactor-mixed
-  mesh: meshes/slice-39858e899ea74f93.json
+  mesh: meshes/adaptive176-cofactor-mixed.json
   planeMatrix:
   - - -0.15776669109623995
     - -0.39173853985154666
@@ -48,7 +48,7 @@ render:
     - -0.28318568323273724
     - -0.2659580435245618
     - 0.13286306090140793
-  triangleCount: 134328
+  triangleCount: 61596
   validated: true
   camera:
     yaw: 1.184195115736418
@@ -58,6 +58,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions: []
