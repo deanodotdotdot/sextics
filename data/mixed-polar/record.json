@@ -300,13 +300,37 @@
   "slice": "slices/mixed-polar.json",
   "rationale": "why.md",
   "provenanceFile": "provenance.json",
-  "formalStatus": "unproved",
-  "status": "open",
-  "evidenceKind": "none",
-  "certificateAvailable": false,
+  "formalStatus": "proved",
+  "status": "solved",
+  "evidenceKind": "existence-proof",
+  "certificateAvailable": true,
   "content": {
-    "why": "data/mixed-polar/why.html"
+    "why": "data/mixed-polar/why.html",
+    "solution": "data/mixed-polar/solution.html"
   },
-  "witnessAvailability": "missing",
-  "draftDisplayStatus": "open"
+  "pullRequest": {
+    "number": 182,
+    "url": "https://github.com/hodge-computer/sextics/pull/182",
+    "headCommit": "02796bf16efe274ffac4dc29aba3805793ce7a29",
+    "baseCommit": "a6b4cc49452abe31ead0be71d04e8146639896d9",
+    "mergeCommit": "bc29abbedb88e9222d329220580bbfdaf04bed55"
+  },
+  "certificate": {
+    "proofSource": "data/mixed-polar/Solution.lean"
+  },
+  "witnessAvailability": "lean-source",
+  "leanVerification": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/mixed-polar/Solution.lean",
+    "receipt": "data/mixed-polar/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  },
+  "credit": {
+    "githubLogin": "benediamond",
+    "origin": "contribution",
+    "awardedAt": "2026-10-21T22:46:01Z"
+  },
+  "draftDisplayStatus": "solved"
 }

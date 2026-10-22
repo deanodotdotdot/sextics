@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "instanceId": "mixed-polar",
+  "solver": {
+    "githubLogin": "benediamond"
+  },
+  "evidenceStatus": "lean-accepted",
+  "creditOrigin": "contribution",
+  "submittedAt": "2026-10-21T22:46:01Z",
+  "acceptedAt": "2026-10-22T00:03:34Z",
+  "witnessAvailability": "lean-source",
+  "witness": {
+    "proofSource": "data/mixed-polar/Solution.lean"
+  },
+  "explanation": "solution.md",
+  "pullRequest": {
+    "number": 182,
+    "url": "https://github.com/hodge-computer/sextics/pull/182",
+    "headCommit": "02796bf16efe274ffac4dc29aba3805793ce7a29",
+    "baseCommit": "a6b4cc49452abe31ead0be71d04e8146639896d9",
+    "mergeCommit": "bc29abbedb88e9222d329220580bbfdaf04bed55"
+  },
+  "proof": {
+    "formalStatus": "proved",
+    "status": "accepted",
+    "proofFile": "data/mixed-polar/Solution.lean",
+    "receipt": "data/mixed-polar/acceptance.json",
+    "theorem": "Submission.certificate",
+    "checker": "Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)"
+  }
+}
