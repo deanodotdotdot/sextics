@@ -110,6 +110,28 @@ A lifted curve is still not a certificate. The application must prove that its f
 
 An existence proof through finite field factors and trace can avoid expanding enormous coefficients. Extracting a practical denominator is a separate computational task. A curve degree or incidence dimension is not, by itself, the degree of the final cleared and homogenized denominator.
 
+### Nonvanishing at algebraic roots
+
+A specialization can certify nonvanishing at every root of an auxiliary polynomial without selecting or specializing a particular root. Let \(R\) be a commutative ring, let \(K,L\) be fields, and let \(\phi,\psi\) be ring homomorphisms with
+\[
+\phi:R\to K,\qquad \psi:R\to L,
+\qquad \ker\phi\subseteq\ker\psi.
+\]
+For \(q,P\in R[t]\), suppose \(m>0\), \(\deg q\le m\), and
+\[
+\psi(q)=u(t-r)^m,\qquad u\ne0,\qquad \psi(P)(r)\ne0.
+\]
+Then \(\phi(P)(k)\ne0\) for every \(k\in K\) satisfying \(\phi(q)(k)=0\).
+
+**Proof.** Set \(n=\deg P\) and form the resultant with fixed degree bounds \(m,n\). Its Bézout identity shows that a common root of \(\phi(q),\phi(P)\) would force \(\phi(\operatorname{Res}_{m,n}(q,P))=0\), and kernel inclusion would then force its specialization to vanish. But the coefficient-polynomial formula for this same resultant gives
+\[
+\psi(\operatorname{Res}_{m,n}(q,P))
+ =u^n\psi(P)(r)^m\ne0.
+\]
+Keeping the matrix sizes fixed makes this identity valid when \(P\)'s degree drops at the specialization. ∎
+
+All evaluations take place on the specified ring \(R\), which can be a localization on which \(\psi\) is defined. The test may use a degenerate point where other coordinate formulas have poles: it evaluates polynomial covariants and their resultant, while those rational formulas are formed only after their own denominators have been proved nonzero. Neither irreducibility of \(q\) nor injectivity of the coefficient maps is required. The shared `AlgebraicSpecialization` module formalizes the criterion. Its quadratic application to the cubic shears of §2.9 follows `fqlx`'s construction; its hypotheses preserve the distinction between specializing polynomial identities and evaluating rational maps.
+
 ## 5.5 Exact verification and Lean acceptance
 
 For any proposed field \(v=N/D\), normalized or otherwise, form the polynomial

@@ -887,33 +887,45 @@ Y&=1+3T^2+4T^4+2T^6
 \]
 Fixing \(r(0)=1\) and \(X(0)=4\) leaves a square system with thirteen coefficients and invertible incidence derivative. The same lifting and source-transport construction serves \(X_0^3\cdot Y_0^3\). The coefficient specialization and seed change, while the transitive covariants and residue mechanism remain the same.
 
-### Coefficient variations from infinitesimal coordinate changes
+### Reducing equations and source variations
 
-For the six-coefficient cubic
+A coordinate change can reduce both an equation and its required deformation to a coefficient family with known covariant identities. Let \(U\) be homogeneous over a characteristic-zero field, let \(Q\) be a variation of the same degree, and let \(v(x)=Mx\) with \(\operatorname{tr}M=0\). For \(\epsilon^2=0\),
 \[
-U=ax^3+by^3+cz^3+dx^2y+ey^2z+fxy^2,
+(U+\epsilon Q)(x+\epsilon v(x))
+ =U+\epsilon\left(Q+\sum_i v_iU_{x_i}\right),
+\qquad \det(1+\epsilon M)=1.
 \]
-the Jacobian invariants in the preceding normalization are
+Thus the variation may be reduced modulo the Jacobian directions arising from trace-zero linear vector fields. When the resulting variation lies in a known coefficient family, evaluate that family's polynomial identities over the dual numbers to obtain its first-order relations. The coordinate change and its normal-source correction remain part of the construction.
+
+The scalar correction has a useful general form. For any field derivation \(\delta\) and \(g\ne0\),
 \[
-\begin{aligned}
-I_4={}&-3acef+cd^2e,\\
-I_6={}&-\tfrac{27}{4}a^2b^2c^2-a^2ce^3
-       +\tfrac92abc^2df-ac^2f^3-bc^2d^3
-       +\tfrac14c^2d^2f^2.
-\end{aligned}
+\delta\!\left(\frac{h-cg}{g}\right)
+ =\delta\!\left(\frac h g\right)-\delta c.
 \]
-The balanced source calls for the coefficient variation \(U+\kappa xyz\). Its first-order covariant identities can be recovered without expanding the full seven-coefficient family. For \(\epsilon^2=0\), substitute
+If \(\delta c=0\), replacing \(h\) by \(h-cg\) preserves the complete normal expression \((\delta h)/g-h\delta g/g^2\). Otherwise the displayed correction must be retained. This identity is formalized in `ResidueTransport.NormalChange`; it includes the derivative of the denominator.
+
+For example, consider
 \[
-(a,d,f,y)\longmapsto
-(a-\epsilon d,\ d-2\epsilon f,\ f-3\epsilon b,\ y+\epsilon x),
+U=ax^3+by^3+cz^3+dx^2y+ey^2z+fxy^2.
 \]
-fixing the other coefficients and coordinates. The resulting cubic is \(U+2\epsilon e\,xyz\). Since the coordinate change is a determinant-one shear, covariance identifies derivatives of the original relations with \(2e\) times their \(xyz\)-variations. Prove the cleared identities over the universal polynomial ring and cancel \(e\) there; specialization then imposes no condition \(e\ne0\). In particular,
+Assume \(a\ne0\) and \(d^2-3af\ne0\). Over a finite extension choose \(k\) with \(3ak^2+2dk+f=0\). The determinant-one shear \(x=X+ky\) gives
 \[
-\left.\frac{\partial I_4}{\partial\kappa}\right|_0
- =\frac{9abc-cdf}{2},\qquad
-\left.\frac{\partial I_6}{\partial\kappa}\right|_0=acde^2.
+U=aX^3+b'y^3+cz^3+d'X^2y+ey^2z,
+\quad b'=b+ak^3+dk^2+fk,\quad d'=d+3ak,
 \]
-The [mixed-polar construction](#case/mixed-polar) uses this \(xyz\) variation. Its physical coefficient functions, incidence seed and source binding belong to that application; the shear identities give a general way to derive the required first-order relations for the displayed cubic family.
+with \((d')^2=d^2-3af\). This is the transitive family with its last coefficient zero. The source \(xyz\) becomes \((X+ky)yz\). The further infinitesimal shear \(X\mapsto X-\epsilon z/(2d')\) replaces it by
+\[
+(X+ky)yz-\frac{zU_X}{2d'}
+ =ky^2z-\frac{3a}{2d'}X^2z,
+\]
+two coefficient directions already present in that family. On \(z=1\), the normal derivative \(\partial_X\), taken before restriction to \(U=0\), fixes the correction coefficient \(1/(2d')\). The normal-source identity above therefore applies. The transitive invariant formulas give, for the original \(xyz\) variation,
+\[
+\dot I_4=\frac{9abc-cdf}{2},\qquad \dot I_6=acde^2,
+\quad I_4=s_4,\quad I_6=-s_6/4.
+\]
+The family identities are maintained in `TransitiveCubic.Shear`. This cubic reduction and source calculation are due to `fqlx`'s [shear construction](https://github.com/hodge-computer/sextics/discussions/58#discussioncomment-19111681), prepared with OpenAI Codex assistance.
+
+The algebraic extension also carries the derivations and trace used in transport. A derivation fixing \(a,d,f\) fixes \(k\); parameter derivations may move it and must be included in the physical coordinate matrix. Required covariant denominators can be proved nonzero by the [specialization criterion in §5.4](#technical-information/computation). Once a primitive for the original-field source is established over the finite separable extension, normalized trace descends it as in Chapter 1. These steps change the presentation of a source; they do not enlarge the supported representations of the quotient.
 
 ### Coefficient and source scope
 

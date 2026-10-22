@@ -3,7 +3,11 @@ import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.Ring
 
 /-!
-# Changing a coordinate normal to a paired normal
+# Changes of normal source and coordinate normal
+
+Replacing a source `h` by `h - c * g`, where `g` is the nonzero normal,
+changes the derivative of its normal ratio by `-D c`. In particular a
+constant coefficient leaves the complete ratio derivative unchanged.
 
 The source with numerator `B * p * q` can be expressed using the paired
 normal `p * f + q * g`, with an explicit residue-divergence correction.
@@ -16,6 +20,9 @@ Hodge Computer collaborators' residue framework. This balanced-source
 identity was prepared for `benediamond` with OpenAI ChatGPT and Codex
 assistance for the mixed-polar construction. Applications supply their
 normal and Hessian values, tangent identities and nonvanishing proofs.
+The source-ratio identities isolate the elementary normal-source adjustment
+used in `fqlx`'s quadratic-shear construction, prepared with OpenAI Codex
+assistance.
 -/
 
 set_option maxHeartbeats 2000000
@@ -23,6 +30,20 @@ set_option maxHeartbeats 2000000
 namespace ResidueNormalChange
 
 variable {K : Type*} [Field K]
+
+/-- Subtracting a multiple of the normal changes the complete source-ratio
+derivative by the derivative of that multiple. No constant-coefficient
+hypothesis is needed for this identity. -/
+lemma normal_source_gauge (D : Derivation ℤ K K) (h c g : K) (hg : g ≠ 0) :
+    D ((h - c * g) / g) = D (h / g) - D c := by
+  rw [sub_div, mul_div_cancel_right₀ c hg, map_sub]
+
+/-- A coefficient constant for the normal derivation does not change the
+complete normal source, including its differentiated denominator. -/
+lemma normal_source_gauge_of_constant (D : Derivation ℤ K K) (h c g : K)
+    (hg : g ≠ 0) (hc : D c = 0) :
+    D ((h - c * g) / g) = D (h / g) := by
+  rw [normal_source_gauge D h c g hg, hc, sub_zero]
 
 /-- Change the coordinate normal `f` to the paired normal `p * f + q * g`.
 The final summand is `D C - C * D f / f` for
