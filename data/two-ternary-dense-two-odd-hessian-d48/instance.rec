@@ -8,7 +8,7 @@ F: 14*X0**6 + 7*X0**4*X1**2 + 21*X0**4*Y0**2 + 23*X0**2*X1**4 + 12*X0**2*X1**2*Y
 A: X0**5*Y1
 render:
   seed: 1383291179
-  resolution: 88
+  resolution: 176
   terms:
   - - 14.0
     - - 6
@@ -158,7 +158,7 @@ render:
   - -1
   - -1
   divisorExpression: 36*(HP**3*DeltaQ*Q**2-HQ**3*DeltaP*P**2)
-  mesh: meshes/slice-9bbab9373d359bc0.json
+  mesh: meshes/adaptive176-two-ternary-dense-two-odd-hessian-d48-detailed.json
   planeMatrix:
   - - 0.16558258230435505
     - -0.738574430303701
@@ -184,7 +184,7 @@ render:
     - -0.16117983811518485
     - -0.04788111298306325
     - -0.15789109957891742
-  triangleCount: 147484
+  triangleCount: 215682
   validated: true
   camera:
     yaw: -2.482622412289071
@@ -194,6 +194,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

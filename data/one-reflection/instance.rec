@@ -6,7 +6,7 @@ F: X0**6 + X0**3*X1*Y0*Y1 + X1**6 + X1**3*X2*Y0*Y1 + X2**6 + Y0**6 + Y1**6 + Y2*
 A: X0**3*Y0**3
 render:
   seed: 561751697
-  resolution: 144
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -71,7 +71,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/holdout-review-one-reflection-561751697.json
+  mesh: meshes/adaptive176-one-reflection.json
   planeMatrix:
   - - -0.10765081749494139
     - -0.41911018208671935
@@ -97,7 +97,7 @@ render:
     - -0.32052209979349333
     - 0.48835560068711387
     - -0.4064576485362736
-  triangleCount: 369428
+  triangleCount: 55482
   validated: true
   camera:
     yaw: -2.1324724959986168
@@ -107,6 +107,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

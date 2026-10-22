@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/slice-cb53d61ff6cca94d.json",
+  "mesh": "meshes/adaptive176-polarized-contact-deformation-d2.json",
   "seed": 691639697,
-  "resolution": 112,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -48,7 +48,7 @@
       -0.3873668298911581
     ]
   ],
-  "triangleCount": 187388,
+  "triangleCount": 72768,
   "validated": true,
   "camera": {
     "yaw": -2.0498133134381904,
@@ -59,5 +59,6 @@
       0,
       0
     ]
-  }
+  },
+  "bakedHome": false
 }

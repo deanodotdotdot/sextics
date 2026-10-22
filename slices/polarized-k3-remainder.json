@@ -1,6 +1,6 @@
 {
   "seed": 170030481,
-  "resolution": 104,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -47,8 +47,8 @@
       0.42936794972186476
     ]
   ],
-  "mesh": "meshes/slice-polarized-k3-remainder.json",
-  "triangleCount": 381332,
+  "mesh": "meshes/adaptive176-polarized-k3-remainder.json",
+  "triangleCount": 116672,
   "validated": true,
   "camera": {
     "yaw": 2.399963229728653,
@@ -58,6 +58,13 @@
       0,
       0,
       0
+    ],
+    "orientation": [
+      -0.07993027113162661,
+      0.8137964450488846,
+      -0.22165117336215276,
+      -0.5312412400499452
     ]
-  }
+  },
+  "bakedHome": false
 }

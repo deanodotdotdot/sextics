@@ -6,7 +6,7 @@ F: X0**6 + X0**4*Y1**2 - X0**2*Y0**2*Y1**2 + X1**6 + X2**6 + Y0**6 + Y0**4*Y1**2
 A: X0**3*X1*X2*Y0 + X0*X1*X2*Y0*Y1**2/3
 render:
   seed: 3064774704
-  resolution: 112
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -78,7 +78,7 @@ render:
   - 1
   - -1
   - -1
-  mesh: meshes/divisor-view-3064774704.json
+  mesh: meshes/adaptive176-coupled-pair-rational-d4-strict.json
   planeMatrix:
   - - -0.11752212061711333
     - -0.5176888145078664
@@ -104,7 +104,7 @@ render:
     - 0.1568806377427008
     - -0.30936374858872334
     - -0.2436316687185493
-  triangleCount: 179148
+  triangleCount: 55984
   validated: true
   camera:
     yaw: 1.7507495814523146
@@ -114,6 +114,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

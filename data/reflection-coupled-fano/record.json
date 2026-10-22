@@ -174,7 +174,7 @@
   },
   "render": {
     "seed": 100053,
-    "resolution": 128,
+    "resolution": 176,
     "terms": [
       [
         1,
@@ -366,8 +366,8 @@
         -0.05350388336073024
       ]
     ],
-    "mesh": "meshes/slice-reflection-coupled-fano-100053-rrriii.json",
-    "triangleCount": 202836,
+    "mesh": "meshes/adaptive176-reflection-coupled-fano.json",
+    "triangleCount": 70562,
     "validated": true,
     "camera": {
       "yaw": 0.4965373534339972,
@@ -384,7 +384,8 @@
         0
       ],
       "distance": 3.45
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

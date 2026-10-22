@@ -130,7 +130,7 @@
   },
   "render": {
     "seed": 100129,
-    "resolution": 128,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -229,7 +229,7 @@
       -1,
       1
     ],
-    "mesh": "meshes/slice-holdout-100129-rriiir.json",
+    "mesh": "meshes/adaptive176-holdout.json",
     "planeMatrix": [
       [
         0.026717036045415365,
@@ -268,7 +268,7 @@
         0.11184499165347755
       ]
     ],
-    "triangleCount": 256900,
+    "triangleCount": 70516,
     "validated": true,
     "camera": {
       "yaw": 0.7320699042529515,
@@ -285,7 +285,8 @@
         0
       ],
       "distance": 3.45
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

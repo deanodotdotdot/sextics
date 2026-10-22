@@ -5233,7 +5233,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-short-power-presentation-c23b112287cd.json",
+    "mesh": "meshes/adaptive176-short-power-presentation.json",
     "planeMatrix": [
       [
         0.6738256556815165,
@@ -5273,7 +5273,7 @@
       ]
     ],
     "seed": 2953005828,
-    "resolution": 96,
+    "resolution": 176,
     "camera": {
       "yaw": 40.799374905387104,
       "pitch": -0.4761190609117963,
@@ -5290,8 +5290,9 @@
         0.3681237490892901
       ]
     },
-    "triangleCount": 116204,
-    "validated": true
+    "triangleCount": 71742,
+    "validated": true,
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

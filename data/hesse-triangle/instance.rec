@@ -6,7 +6,7 @@ F: X0**6 + X1**6 + X2**6 + Y0**6 - 3*Y0**2*Y1**2*Y2**2 + Y1**6 + 3*Y2**6
 A: X0*Y0*Y1**3*Y2
 render:
   seed: 3016142008
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - -1
   - 1
@@ -15,7 +15,7 @@ render:
   - -1
   - 1
   pairId: hesse-triangle
-  mesh: meshes/slice-17c6768635b2164a.json
+  mesh: meshes/adaptive176-hesse-triangle.json
   planeMatrix:
   - - 0.19592242021902626
     - -0.602401204792246
@@ -41,7 +41,7 @@ render:
     - -0.5599201264759154
     - -0.1489482023127764
     - 0.1897473443434409
-  triangleCount: 174784
+  triangleCount: 62922
   validated: true
   camera:
     yaw: -2.1324724959986168
@@ -51,6 +51,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

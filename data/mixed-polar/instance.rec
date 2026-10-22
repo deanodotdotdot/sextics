@@ -6,7 +6,7 @@ F: X0**6 + X0**3*X1*Y0*Y1/2 + X0*X1*Y0*Y1**3/3 + X1**6 + X1**3*X2*Y1*Y2/2 + X2**
 A: X0*X1*X2*Y0*Y1*Y2
 render:
   seed: 1329253007
-  resolution: 112
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -78,7 +78,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-mixed-polar-1329253007.json
+  mesh: meshes/adaptive176-mixed-polar.json
   planeMatrix:
   - - -0.053129587174334636
     - 0.42352595454271746
@@ -104,7 +104,7 @@ render:
     - -0.6433771215867907
     - -0.19329114045451795
     - 0.25062383428752283
-  triangleCount: 238744
+  triangleCount: 75252
   validated: true
   camera:
     yaw: -1.2984272965526815
@@ -114,6 +114,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

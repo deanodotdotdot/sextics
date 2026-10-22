@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/divisor-view-2198817003.json",
+  "mesh": "meshes/adaptive176-passive-quadratic-d4-strict-rational.json",
   "seed": 2198817003,
-  "resolution": 112,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -48,7 +48,7 @@
       -0.4450405328604137
     ]
   ],
-  "triangleCount": 236452,
+  "triangleCount": 57610,
   "validated": true,
   "camera": {
     "yaw": -1.4832588477222803,
@@ -59,5 +59,6 @@
       0,
       0
     ]
-  }
+  },
+  "bakedHome": false
 }

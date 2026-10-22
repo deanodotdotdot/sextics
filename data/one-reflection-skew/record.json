@@ -141,7 +141,7 @@
   },
   "render": {
     "seed": 32494081,
-    "resolution": 144,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -262,7 +262,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/cubic-frontier-skew-trial2-32494081.json",
+    "mesh": "meshes/adaptive176-one-reflection-skew.json",
     "planeMatrix": [
       [
         -0.33201497817552356,
@@ -301,7 +301,7 @@
         -0.1261721234897236
       ]
     ],
-    "triangleCount": 342628,
+    "triangleCount": 67956,
     "validated": true,
     "camera": {
       "yaw": 2.399963229728653,
@@ -312,7 +312,8 @@
         0,
         0
       ]
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

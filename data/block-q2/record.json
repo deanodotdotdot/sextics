@@ -130,7 +130,7 @@
   },
   "render": {
     "seed": 1702073034,
-    "resolution": 88,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -229,7 +229,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-2cadf92ed8b8264c.json",
+    "mesh": "meshes/adaptive176-block-q2.json",
     "planeMatrix": [
       [
         -0.3188047917949646,
@@ -268,7 +268,7 @@
         0.4817697868770069
       ]
     ],
-    "triangleCount": 116140,
+    "triangleCount": 62780,
     "validated": true,
     "camera": {
       "yaw": -2.6990269617145275,
@@ -280,6 +280,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

@@ -6,7 +6,7 @@ F: X0**6 + X0**2*X2**2*Y2**2 + 5*X1**6 + 21*X1**4*Y1**2 + 30*X1**2*Y1**4 + X2**6
 A: X0*X1*X2**3*Y1
 render:
   seed: 556205468
-  resolution: 112
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -78,7 +78,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/hesse-radial-556205468.json
+  mesh: meshes/adaptive176-hesse-radial-hesse-cofactor-d4-rational.json
   planeMatrix:
   - - 0.37304492458033334
     - 0.38268132040127517
@@ -104,7 +104,7 @@ render:
     - -0.37775300076795304
     - 0.5470513017917762
     - 0.4260931676756384
-  triangleCount: 148064
+  triangleCount: 60188
   validated: true
   camera:
     yaw: 2.100899497742783
@@ -114,6 +114,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

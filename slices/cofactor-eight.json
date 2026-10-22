@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/slice-5259f753a7e7445c.json",
+  "mesh": "meshes/adaptive176-cofactor-eight.json",
   "seed": 1136848188,
-  "resolution": 112,
+  "resolution": 176,
   "phaseSigns": [
     -1,
     -1,
@@ -48,7 +48,7 @@
       0.30122428347904195
     ]
   ],
-  "triangleCount": 120888,
+  "triangleCount": 39428,
   "validated": true,
   "camera": {
     "yaw": 3.0176038797491485,
@@ -59,5 +59,6 @@
       0,
       0
     ]
-  }
+  },
+  "bakedHome": false
 }

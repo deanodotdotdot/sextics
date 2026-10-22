@@ -12,7 +12,7 @@ F: X0**6 + 5*X0**5*X1/7 + 15*X0**4*Y0**2 + 25*X0**4*Y0*Y1/7 + 50*X0**3*X1*Y0**2/
 A: X0*X1*X2*Y0*Y1*Y2
 render:
   seed: 170030481
-  resolution: 104
+  resolution: 176
   terms:
   - - 1
     - - 6
@@ -340,8 +340,8 @@ render:
     - 0.5809509756056169
     - 0.36787313306526603
     - 0.42936794972186476
-  mesh: meshes/slice-polarized-k3-remainder.json
-  triangleCount: 381332
+  mesh: meshes/adaptive176-polarized-k3-remainder.json
+  triangleCount: 116672
   validated: true
   camera:
     yaw: 2.399963229728653
@@ -351,6 +351,12 @@ render:
     - 0
     - 0
     - 0
+    orientation:
+    - -0.07993027113162661
+    - 0.8137964450488846
+    - -0.22165117336215276
+    - -0.5312412400499452
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

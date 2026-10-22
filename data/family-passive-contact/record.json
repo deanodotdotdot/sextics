@@ -141,7 +141,7 @@
   },
   "render": {
     "seed": 3115376626,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       -1,
       1,
@@ -151,7 +151,7 @@
       1
     ],
     "pairId": "family-passive-contact",
-    "mesh": "meshes/slice-13060abf516a7b24.json",
+    "mesh": "meshes/adaptive176-family-passive-contact.json",
     "planeMatrix": [
       [
         0.25816155950364017,
@@ -190,7 +190,7 @@
         0.6456448089097662
       ]
     ],
-    "triangleCount": 127828,
+    "triangleCount": 57462,
     "validated": true,
     "camera": {
       "yaw": -2.3488770454240733,
@@ -202,6 +202,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

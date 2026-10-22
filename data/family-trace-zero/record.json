@@ -196,7 +196,7 @@
   },
   "render": {
     "seed": 3753345354,
-    "resolution": 192,
+    "resolution": 176,
     "phaseSigns": [
       -1,
       -1,
@@ -206,7 +206,7 @@
       1
     ],
     "pairId": "family-trace-zero",
-    "mesh": "meshes/trace-zero-perturb-3753345354-192.json",
+    "mesh": "meshes/adaptive176-family-trace-zero.json",
     "planeMatrix": [
       [
         -0.03286140582060591,
@@ -245,7 +245,7 @@
         0.22702109969084885
       ]
     ],
-    "triangleCount": 632936,
+    "triangleCount": 59578,
     "validated": true,
     "camera": {
       "yaw": -0.43280909885088437,
@@ -257,6 +257,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         2.0,

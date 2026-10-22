@@ -7,7 +7,7 @@ F: X0**6 + X0**3*X1*Y0*Y1 + X0*X1*Y0**3*Y1/7 - X0*X1*Y0*Y1**3/7 + X1**6 + X1**3*
 A: X0**3*Y0**3
 render:
   seed: 32494081
-  resolution: 144
+  resolution: 176
   terms:
   - - 1.0
     - - 6
@@ -86,7 +86,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/cubic-frontier-skew-trial2-32494081.json
+  mesh: meshes/adaptive176-one-reflection-skew.json
   planeMatrix:
   - - -0.33201497817552356
     - -0.6374945087465659
@@ -112,7 +112,7 @@ render:
     - 0.14945258697623795
     - -0.7179181368620582
     - -0.1261721234897236
-  triangleCount: 342628
+  triangleCount: 67956
   validated: true
   camera:
     yaw: 2.399963229728653
@@ -122,6 +122,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

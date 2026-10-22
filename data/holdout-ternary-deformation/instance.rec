@@ -5,9 +5,9 @@ q: 1
 F: X0**6 + X0**5*X1/14 + X0**3*X1*Y0*Y1 + X0*X2**5/14 + X1**6 + X1**5*X2/7 + X1**3*X2*Y1*Y2 + X2**6 + Y0**6 + Y1**6 + Y2**6
 A: X0**3*Y0**3
 render:
-  mesh: meshes/holdout-ternary-deformation-visible-1822989059.json
+  mesh: meshes/adaptive176-holdout-ternary-deformation.json
   seed: 1822989059
-  resolution: 144
+  resolution: 176
   terms:
   - - 1
     - - 6
@@ -118,7 +118,7 @@ render:
     - -0.1230449865250739
     - 0.11333926348937384
     - 0.34002846073172716
-  triangleCount: 343812
+  triangleCount: 69074
   validated: true
   camera:
     yaw: 2.183558680303206
@@ -128,6 +128,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

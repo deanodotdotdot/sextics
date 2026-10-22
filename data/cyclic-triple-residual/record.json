@@ -163,7 +163,7 @@
   },
   "render": {
     "seed": 100103,
-    "resolution": 128,
+    "resolution": 176,
     "terms": [
       [
         1,
@@ -344,8 +344,8 @@
         -0.24759967564774507
       ]
     ],
-    "mesh": "meshes/slice-cyclic-triple-fano-100103-rrriii.json",
-    "triangleCount": 217280,
+    "mesh": "meshes/adaptive176-cyclic-triple-fano.json",
+    "triangleCount": 61650,
     "validated": true,
     "camera": {
       "yaw": -1.324094408281987,
@@ -362,7 +362,8 @@
         0
       ],
       "distance": 3.45
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

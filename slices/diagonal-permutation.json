@@ -1,6 +1,6 @@
 {
   "seed": 4017115667,
-  "resolution": 96,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -47,8 +47,8 @@
       0.08930386177627485
     ]
   ],
-  "mesh": "meshes/slice-diagonal-permutation-4c1bea96465c.json",
-  "triangleCount": 129880,
+  "mesh": "meshes/adaptive176-diagonal-permutation.json",
+  "triangleCount": 62097,
   "validated": true,
   "camera": {
     "yaw": 26.39959552701518,
@@ -65,5 +65,6 @@
       0.4424697465449344,
       0.4682463505236035
     ]
-  }
+  },
+  "bakedHome": false
 }

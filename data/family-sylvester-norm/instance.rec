@@ -7,7 +7,7 @@ F: X0**6 + 2*X0**4*Y0**2 + 3*X0**2*Y0**4 + 2*X1**6 + 3*X1**4*Y1**2 + 5*X1**2*Y1*
 A: X0*X1**2*X2**2*Y0
 render:
   seed: 2897855580
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - 1
   - 1
@@ -16,7 +16,7 @@ render:
   - -1
   - 1
   pairId: family-sylvester-norm
-  mesh: meshes/slice-9ed6beba47185f9e.json
+  mesh: meshes/adaptive176-family-sylvester-norm.json
   planeMatrix:
   - - 0.07590603183655453
     - 0.5173843759818483
@@ -42,7 +42,7 @@ render:
     - -0.22449189930803934
     - 0.07338317009183033
     - 0.4582282568993149
-  triangleCount: 85612
+  triangleCount: 52232
   validated: true
   camera:
     yaw: -0.8656181977017687
@@ -52,6 +52,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

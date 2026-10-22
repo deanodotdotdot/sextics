@@ -10,7 +10,7 @@ F: 5*X0**6 + 303*X0**4*X2**2/103 - 7*X0**4*Y0**2 + 303*X0**4*Y2**2/103 + 101*X0*
 A: X0*X1*X2**3*Y0
 render:
   seed: 499323135
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - 1
   - 1
@@ -19,7 +19,7 @@ render:
   - 1
   - 1
   pairId: family-root-cube
-  mesh: meshes/slice-d3e19cca4ec62e4f.json
+  mesh: meshes/adaptive176-family-root-cube.json
   planeMatrix:
   - - -0.42415453964992883
     - 0.47055862470950516
@@ -45,7 +45,7 @@ render:
     - 0.45846164132432266
     - 0.34395955574013043
     - 0.18397473387986432
-  triangleCount: 72356
+  triangleCount: 39030
   validated: true
   camera:
     yaw: 1.7507495814523146
@@ -55,6 +55,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions: []

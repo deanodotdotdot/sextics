@@ -108,7 +108,7 @@
   },
   "render": {
     "seed": 1352807149,
-    "resolution": 88,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -196,7 +196,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-255e88a1526c5751.json",
+    "mesh": "meshes/adaptive176-tie-singleton-3odd-strict.json",
     "planeMatrix": [
       [
         0.5661480753298227,
@@ -235,7 +235,7 @@
         -0.4955547134526759
       ]
     ],
-    "triangleCount": 117964,
+    "triangleCount": 54570,
     "validated": true,
     "camera": {
       "yaw": 1.5343450320268723,
@@ -247,6 +247,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         0.875,

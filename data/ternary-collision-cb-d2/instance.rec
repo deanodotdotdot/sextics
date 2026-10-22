@@ -7,7 +7,7 @@ F: -3*X0**6 + X0**4*X1**2 + 4*X0**4*Y0**2 + X0**2*X1**4 + X0**2*X1**2*Y0**2 - 2*
 A: -X0**5*Y0 + 7*X0*X1**4*Y0/5 + 21*X0*X1**2*Y0**3/5 + 4*X0*Y0**5
 render:
   seed: 3174571967
-  resolution: 88
+  resolution: 176
   terms:
   - - -3.0
     - - 6
@@ -107,7 +107,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-4419f4604f930df1.json
+  mesh: meshes/adaptive176-ternary-collision-cb-d2.json
   planeMatrix:
   - - -0.6852112843544912
     - -0.12802281567917667
@@ -133,7 +133,7 @@ render:
     - -0.2234949116334698
     - 0.17327154161625863
     - -0.8230749772835156
-  triangleCount: 47684
+  triangleCount: 34350
   validated: true
   camera:
     yaw: 2.5337085965936677
@@ -143,6 +143,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

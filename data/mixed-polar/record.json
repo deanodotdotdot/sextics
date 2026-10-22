@@ -130,7 +130,7 @@
   },
   "render": {
     "seed": 1329253007,
-    "resolution": 112,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -240,7 +240,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/slice-mixed-polar-1329253007.json",
+    "mesh": "meshes/adaptive176-mixed-polar.json",
     "planeMatrix": [
       [
         -0.053129587174334636,
@@ -279,7 +279,7 @@
         0.25062383428752283
       ]
     ],
-    "triangleCount": 238744,
+    "triangleCount": 75252,
     "validated": true,
     "camera": {
       "yaw": -1.2984272965526815,
@@ -290,7 +290,8 @@
         0,
         0
       ]
-    }
+    },
+    "bakedHome": false
   },
   "visibility": "navigation",
   "category": "Challenge instances",

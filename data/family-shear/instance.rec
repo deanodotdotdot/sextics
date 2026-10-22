@@ -6,7 +6,7 @@ F: X0**6 + 2*X0**4*Y0**2 + 3*X0**2*Y0**4 + X0*X2**5 + X1**6 + Y0**6 + Y1**6 + Y2
 A: -10*X1*X2**4*Y1
 render:
   seed: 1449880684
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - 1
   - -1
@@ -15,7 +15,7 @@ render:
   - 1
   - 1
   pairId: family-shear
-  mesh: meshes/slice-0e287101acb4ebea.json
+  mesh: meshes/adaptive176-family-shear.json
   planeMatrix:
   - - 0.4463633804366038
     - 0.2688912169755017
@@ -41,7 +41,7 @@ render:
     - 0.7551801374897463
     - 0.27050066114874666
     - -0.07475124215180996
-  triangleCount: 105180
+  triangleCount: 53106
   validated: true
   camera:
     yaw: -2.6163677791540976
@@ -51,6 +51,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

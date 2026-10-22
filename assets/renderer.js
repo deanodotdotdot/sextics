@@ -639,7 +639,7 @@ function create(canvas,options={}){
     activeMeta={...meta,divisorVisible:hasD,projectionBox,xray:{enabled:true,reach:2.0,layers:6},cameraDefault:{yaw:baseYaw,pitch:basePitch,distance:baseDistance,center:baseCenter.slice()},sliceDescription:whole?'The compact real slice, stereographically projected without a box cutoff.':'A real two-dimensional section of X, on a fixed phase-rotated real four-plane; stereographic projection in [−10, 10]³.'};
     const r=selected.render||{},pixel=HodgeDivisor.fragment(hasD?(r.divisorProgram||r.divisorTerms):null,meta.phaseSigns,meta.planeMatrix);
     useDivisorShader(pixel);
-    gl.uniform3fv(U.OriginalCenter,new Float32Array(meta.centerOriginal));gl.uniform1f(U.DisplayScale,meta.displayScale);gl.uniform1f(U.ComplexScale,Math.max(1e-20,meta.complexScale||1));gl.uniform1f(U.ProjectionBox,projectionBox);gl.uniform1f(U.DivisorStrength,hasD?1:0);gl.uniform1f(U.DivisorMode,1);gl.uniform1i(U.ContactProjection,whole&&meta.pairId==='contact46006'?1:0);
+    gl.uniform3fv(U.OriginalCenter,new Float32Array(meta.centerOriginal));gl.uniform1f(U.DisplayScale,meta.displayScale);gl.uniform1f(U.ComplexScale,Math.max(1e-20,meta.complexScale||1));gl.uniform1f(U.ProjectionBox,projectionBox);gl.uniform1f(U.DivisorStrength,hasD?1:0);gl.uniform1f(U.DivisorMode,1);gl.uniform1i(U.ContactProjection,meta.pairId==='contact46006'?1:0);
     gl.uniform4fv(U.DivisorPlane,new Float32Array(meta.planeMatrix.flat()));
     activeMeta.divisorEvaluation='per-pixel polynomial';activeMeta.divisorOperations=pixel.operations;
     options.onLabel?.((selected.title||'Sextic fourfold')+' — real slice of F = 0'+(hasD?', with certificate divisor highlighted':''));

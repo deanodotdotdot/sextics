@@ -4,9 +4,9 @@ q: 1
 F: X0**6 + X0**4*Y0**2 + 2*X0**2*Y0**4 + X1**6 + X1**3*X2**3 + 2*X2**6 + 3*Y0**6 + Y1**6 + Y2**6
 A: X0**3*Y0**3
 render:
-  mesh: meshes/slice-family-block-cube-217057.json
+  mesh: meshes/adaptive176-family-block-cube.json
   seed: 217057
-  resolution: 192
+  resolution: 176
   phaseSigns:
   - 1
   - -1
@@ -39,7 +39,7 @@ render:
     - -0.5597554561242191
     - -0.2698948410594736
     - -0.05759390327754452
-  triangleCount: 378284
+  triangleCount: 56122
   validated: true
   pairId: family-block-cube
   terms:
@@ -119,6 +119,7 @@ render:
     - -0.30166859932135637
     - -0.2385900305165343
     - -0.5828868489532208
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

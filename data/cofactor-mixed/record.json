@@ -647,7 +647,7 @@
   },
   "render": {
     "seed": 418475675,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       -1,
       -1,
@@ -657,7 +657,7 @@
       1
     ],
     "pairId": "cofactor-mixed",
-    "mesh": "meshes/slice-39858e899ea74f93.json",
+    "mesh": "meshes/adaptive176-cofactor-mixed.json",
     "planeMatrix": [
       [
         -0.15776669109623995,
@@ -696,7 +696,7 @@
         0.13286306090140793
       ]
     ],
-    "triangleCount": 134328,
+    "triangleCount": 61596,
     "validated": true,
     "camera": {
       "yaw": 1.184195115736418,
@@ -708,6 +708,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         4.0,

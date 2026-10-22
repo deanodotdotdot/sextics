@@ -5,7 +5,7 @@ F: X0**6 - 2*X0**2*X1**2*Y0**2 + X1**6 + 2*X2**6 + Y0**6 + 3*Y1**6 + 5*Y2**6
 A: X0**3*Y0**3
 render:
   seed: 216025
-  resolution: 128
+  resolution: 176
   phaseSigns:
   - 1
   - -1
@@ -14,7 +14,7 @@ render:
   - -1
   - 1
   pairId: family-hesse-web
-  mesh: meshes/slice-family-hesse-web-216025.json
+  mesh: meshes/adaptive176-family-hesse-web.json
   planeMatrix:
   - - 0.5919931757242132
     - -0.6273077868173627
@@ -40,7 +40,7 @@ render:
     - 0.3515043128789483
     - 0.4012496577321624
     - -0.1432844948309879
-  triangleCount: 172668
+  triangleCount: 67146
   validated: true
   terms:
   - - '1'
@@ -105,6 +105,7 @@ render:
     - -0.22045320719829115
     - 0.17441846510401837
     - 0.24392152898838584
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

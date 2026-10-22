@@ -1718,7 +1718,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-short-power-presentation-c23b112287cd.json
+  mesh: meshes/adaptive176-short-power-presentation.json
   planeMatrix:
   - - 0.6738256556815165
     - -0.0931962909398341
@@ -1745,7 +1745,7 @@ render:
     - 0.30128024197114656
     - 0.11901060495776837
   seed: 2953005828
-  resolution: 96
+  resolution: 176
   camera:
     yaw: 40.799374905387104
     pitch: -0.4761190609117963
@@ -1759,8 +1759,9 @@ render:
     - -0.6512735064432025
     - 0.20168585514016016
     - 0.3681237490892901
-  triangleCount: 116204
+  triangleCount: 71742
   validated: true
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

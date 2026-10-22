@@ -141,7 +141,7 @@
   },
   "render": {
     "seed": 3092227259,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       -1,
       1,
@@ -151,7 +151,7 @@
       1
     ],
     "pairId": "twoblock-cubic",
-    "mesh": "meshes/slice-7113b1f1a313f36b.json",
+    "mesh": "meshes/adaptive176-twoblock-cubic.json",
     "planeMatrix": [
       [
         0.3652639753649554,
@@ -190,7 +190,7 @@
         0.23877593181221435
       ]
     ],
-    "triangleCount": 160764,
+    "triangleCount": 76044,
     "validated": true,
     "camera": {
       "yaw": 1.2668542982968338,
@@ -202,6 +202,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

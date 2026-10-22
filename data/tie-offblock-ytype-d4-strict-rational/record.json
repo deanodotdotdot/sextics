@@ -108,7 +108,7 @@
   },
   "render": {
     "seed": 2585013920,
-    "resolution": 112,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -196,7 +196,7 @@
       1,
       -1
     ],
-    "mesh": "meshes/offblock-quartic-2585013920.json",
+    "mesh": "meshes/adaptive176-tie-offblock-ytype-d4-strict-rational.json",
     "planeMatrix": [
       [
         -0.24333164760014045,
@@ -235,7 +235,7 @@
         0.4860649718915316
       ]
     ],
-    "triangleCount": 185796,
+    "triangleCount": 53438,
     "validated": true,
     "camera": {
       "yaw": 0.7002998325809301,
@@ -247,6 +247,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         18.0,

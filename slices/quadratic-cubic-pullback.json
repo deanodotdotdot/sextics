@@ -1,6 +1,6 @@
 {
   "seed": 213075,
-  "resolution": 128,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -47,8 +47,8 @@
       0.9200465623430978
     ]
   ],
-  "mesh": "meshes/slice-quadratic-cubic-pullback-213075.json",
-  "triangleCount": 251664,
+  "mesh": "meshes/adaptive176-quadratic-cubic-pullback.json",
+  "triangleCount": 71292,
   "validated": true,
   "camera": {
     "yaw": 45.5993013648444,
@@ -65,5 +65,6 @@
       -0.5230684714981881,
       0.08400229065001463
     ]
-  }
+  },
+  "bakedHome": false
 }

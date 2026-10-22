@@ -14,7 +14,7 @@ F: X0**6 + 5*X0**5*X1/7 + 5*X0**4*Y0**2/7 + 5*X0**4*Y0*Y1/7 + 10*X0**4*Y1*Y2/7 +
 A: X0**3*Y0**3
 render:
   seed: 170033111
-  resolution: 104
+  resolution: 176
   terms:
   - - 1
     - - 6
@@ -426,8 +426,8 @@ render:
     - -0.5336294851492948
     - 0.5009851289987002
     - 0.1805789350228625
-  mesh: meshes/slice-rank-one-biquartic.json
-  triangleCount: 200252
+  mesh: meshes/adaptive176-rank-one-biquartic.json
+  triangleCount: 75622
   validated: true
   camera:
     yaw: -1.7823225797081623
@@ -437,6 +437,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

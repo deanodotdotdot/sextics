@@ -317,7 +317,7 @@
   },
   "render": {
     "seed": 499323135,
-    "resolution": 88,
+    "resolution": 176,
     "phaseSigns": [
       1,
       1,
@@ -327,7 +327,7 @@
       1
     ],
     "pairId": "family-root-cube",
-    "mesh": "meshes/slice-d3e19cca4ec62e4f.json",
+    "mesh": "meshes/adaptive176-family-root-cube.json",
     "planeMatrix": [
       [
         -0.42415453964992883,
@@ -366,7 +366,7 @@
         0.18397473387986432
       ]
     ],
-    "triangleCount": 72356,
+    "triangleCount": 39030,
     "validated": true,
     "camera": {
       "yaw": 1.7507495814523146,
@@ -378,6 +378,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         3.0,

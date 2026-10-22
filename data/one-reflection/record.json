@@ -119,7 +119,7 @@
   },
   "render": {
     "seed": 561751697,
-    "resolution": 144,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -218,7 +218,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/holdout-review-one-reflection-561751697.json",
+    "mesh": "meshes/adaptive176-one-reflection.json",
     "planeMatrix": [
       [
         -0.10765081749494139,
@@ -257,7 +257,7 @@
         -0.4064576485362736
       ]
     ],
-    "triangleCount": 369428,
+    "triangleCount": 55482,
     "validated": true,
     "camera": {
       "yaw": -2.1324724959986168,
@@ -269,6 +269,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorProgram": {
       "schemaVersion": 1,
       "kind": "polynomial-program",

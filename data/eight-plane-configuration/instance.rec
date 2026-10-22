@@ -1955,7 +1955,7 @@ render:
   - -1
   - -1
   - -1
-  mesh: meshes/slice-eight-plane-configuration-211035.json
+  mesh: meshes/adaptive176-eight-plane-configuration.json
   planeMatrix:
   - - -0.08148721045835078
     - 0.030270869720875115
@@ -1982,7 +1982,7 @@ render:
     - -0.30467495551382745
     - -0.1404716678687872
   seed: 211035
-  resolution: 128
+  resolution: 176
   camera:
     yaw: 19.199705837829224
     pitch: -0.4297754313045278
@@ -1996,8 +1996,9 @@ render:
     - -0.4792234222383019
     - 0.2710571860722968
     - -0.6287838244090849
-  triangleCount: 213872
+  triangleCount: 72476
   validated: true
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions:

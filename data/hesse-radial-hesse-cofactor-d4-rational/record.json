@@ -130,7 +130,7 @@
   },
   "render": {
     "seed": 556205468,
-    "resolution": 112,
+    "resolution": 176,
     "terms": [
       [
         1.0,
@@ -240,7 +240,7 @@
       -1,
       -1
     ],
-    "mesh": "meshes/hesse-radial-556205468.json",
+    "mesh": "meshes/adaptive176-hesse-radial-hesse-cofactor-d4-rational.json",
     "planeMatrix": [
       [
         0.37304492458033334,
@@ -279,7 +279,7 @@
         0.4260931676756384
       ]
     ],
-    "triangleCount": 148064,
+    "triangleCount": 60188,
     "validated": true,
     "camera": {
       "yaw": 2.100899497742783,
@@ -291,6 +291,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorTerms": [
       [
         1.0,

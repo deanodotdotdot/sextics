@@ -218,7 +218,7 @@
   },
   "render": {
     "seed": 2582113920,
-    "resolution": 112,
+    "resolution": 176,
     "terms": [
       [
         1,
@@ -443,8 +443,8 @@
         0.036474131979250375
       ]
     ],
-    "mesh": "meshes/quadric-fixed-2582113920.json",
-    "triangleCount": 241180,
+    "mesh": "meshes/adaptive176-quadric-contact-broken-detailed.json",
+    "triangleCount": 233362,
     "validated": true,
     "camera": {
       "yaw": -0.29906373198585795,
@@ -456,6 +456,7 @@
         0
       ]
     },
+    "bakedHome": false,
     "divisorProgram": {
       "schemaVersion": 1,
       "kind": "factored-slice",

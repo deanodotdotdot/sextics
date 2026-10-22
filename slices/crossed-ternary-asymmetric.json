@@ -1,6 +1,6 @@
 {
   "seed": 100130,
-  "resolution": 128,
+  "resolution": 176,
   "phaseSigns": [
     1,
     1,
@@ -47,8 +47,8 @@
       0.18849381327010284
     ]
   ],
-  "mesh": "meshes/slice-crossed-ternary-asymmetric-100130-rrriii.json",
-  "triangleCount": 228788,
+  "mesh": "meshes/adaptive176-crossed-ternary-asymmetric.json",
+  "triangleCount": 77478,
   "validated": true,
   "camera": {
     "yaw": 1.2392188913864794,
@@ -65,5 +65,6 @@
       0
     ],
     "distance": 3.45
-  }
+  },
+  "bakedHome": false
 }

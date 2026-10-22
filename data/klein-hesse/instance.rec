@@ -6,7 +6,7 @@ F: X0**5*X1 + 2*X0**2*X1**2*X2**2 + X0*X2**5 + X1**5*X2 + Y0**5*Y1 + Y0*Y2**5 + 
 A: X0**3*X1**2*Y0 - X1**3*X2**2*Y0
 render:
   seed: 541985820
-  resolution: 88
+  resolution: 176
   phaseSigns:
   - 1
   - 1
@@ -15,7 +15,7 @@ render:
   - 1
   - 1
   pairId: klein-hesse
-  mesh: meshes/slice-41cf55bca972bce4.json
+  mesh: meshes/adaptive176-klein-hesse.json
   planeMatrix:
   - - 0.10946006536501014
     - 0.2607006882511643
@@ -41,7 +41,7 @@ render:
     - 0.19617727066523666
     - 0.958033697015251
     - 0.12626511269933183
-  triangleCount: 83656
+  triangleCount: 60826
   validated: true
   camera:
     yaw: -1.5659180302827058
@@ -51,6 +51,7 @@ render:
     - 0
     - 0
     - 0
+  bakedHome: false
 visibility: navigation
 category: Challenge instances
 displayDefinitions: []
