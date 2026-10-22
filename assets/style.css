@@ -472,3 +472,16 @@ dialog.participate-dialog{max-width:760px;max-height:88dvh;padding:34px 38px;ove
 .comment-contribution>a::after{content:"";position:absolute;inset:0;z-index:1}.comment-contribution>a:focus-visible{outline:none}.comment-contribution:has(>a:focus-visible){outline:1px solid #8297b8;outline-offset:3px}.comment-preview a{position:relative;z-index:2}
 
 .comment-contribution{margin-inline:-28px;padding-inline:28px}.comment-contribution:hover,.comment-contribution:focus-within{background:#8297b825}@media(max-width:680px){.comment-contribution{margin-inline:-18px;padding-inline:18px}}
+
+/* Shared horizontal inset for rankings and contributor details. */
+#leaderboardView{--leaderboard-inset:28px}
+.leaderboard-panel{padding-inline:0}
+.leaderboard-table{border-spacing:0}
+.leaderboard-table th:first-child,.leaderboard-table td:first-child{padding-left:var(--leaderboard-inset)}
+.leaderboard-table th:last-child,.leaderboard-table td:last-child{padding-right:var(--leaderboard-inset)}
+.leaderboard-table .github-account::after,.leaderboard-table tbody td:first-child,.leaderboard-table tbody td:last-child{border-radius:0}
+.leaderboard-table .github-account:hover::after{background:#8297b825}
+.leaderboard-table tr.contributor-highlight td,.leaderboard-table tr.contributor-highlight td:first-child,.leaderboard-table tr.contributor-highlight td:last-child{box-shadow:none}
+.contributor-details{padding-inline:var(--leaderboard-inset)}
+.comment-contribution{margin-inline:calc(-1 * var(--leaderboard-inset));padding-inline:var(--leaderboard-inset)}
+@media(max-width:680px){#leaderboardView{--leaderboard-inset:18px}}
