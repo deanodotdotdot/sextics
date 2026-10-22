@@ -287,16 +287,14 @@ async function startLivePreview(){
 }
 let rankingMode="solves",rankingRequest=0,renderedRankingMode=null;
 const rankingRows=new Map();
-let contributorHighlightTimer;
 function highlightContributor(login){
-  clearTimeout(contributorHighlightTimer);
   document.querySelectorAll('#leaderboardRows .contributor-highlight').forEach(row=>row.classList.remove('contributor-highlight'));
   if(!login)return;
   const row=document.getElementById(`contributor-${decodeURIComponent(login).toLowerCase()}`);
   if(!row)return;
   row.classList.add('contributor-highlight');row.focus({preventScroll:true});
-  row.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
-  contributorHighlightTimer=setTimeout(()=>row.classList.remove('contributor-highlight'),3200);
+  const panel=$('contributorDetails');
+  if(!panel.hidden)panel.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 }
 async function renderLeaderboard(loadId){
   if(location.hash.split('/')[2]==='comments')rankingMode='comments';
