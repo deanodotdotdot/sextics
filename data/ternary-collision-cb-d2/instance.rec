@@ -138,7 +138,7 @@ render:
   camera:
     yaw: 2.5337085965936677
     pitch: -0.21669182984191082
-    distance: 2.58
+    distance: 2.21706
     center:
     - 0
     - 0
