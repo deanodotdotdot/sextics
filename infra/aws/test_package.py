@@ -146,7 +146,7 @@ class PublicPackageTests(unittest.TestCase):
                     )
                 if args[2] == "delete-objects":
                     self.assertEqual(
-                        json.loads(args[-1])["Objects"], [{"Key": "assets/meshes/unused.json"}]
+                        json.loads(args[args.index("--delete") + 1])["Objects"], [{"Key": "assets/meshes/unused.json"}]
                     )
                     return CompletedProcess(
                         args,
