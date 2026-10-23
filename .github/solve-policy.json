@@ -1,7 +1,6 @@
 {
   "schemaVersion": 1,
   "mode": "live",
-  "owner": "benediamond",
   "repository": "hodge-computer/sextics",
   "maxFiles": 64,
   "maxBytes": 16777216,

@@ -136,10 +136,9 @@ class ProposalChecks(unittest.TestCase):
         for code in (b'import Proposal.Missing',b'import Lake',b'axiom bad : False',b'#eval IO.println "fake pass"',b'run_cmd pure ()',b'theorem bad : False := by sorry'):
             with self.subTest(code=code),self.assertRaises(ValueError): module_order({'Solution.lean':code})
 
-class PublicationAuthorization(unittest.TestCase):
+class PublicationVerification(unittest.TestCase):
     def setUp(self):
         self.head='a'*40; self.base='b'*40
-        self.policy={'owner':'benediamond'}
         self.pr={'merged':True,'number':122,'head':{'sha':self.head},'merge_commit_sha':'d'*40,
                  'user':{'login':'contributor'},'merged_by':{'login':'benediamond'},
                  'base':{'ref':'main','repo':{'full_name':'hodge-computer/sextics'}}}
@@ -152,11 +151,10 @@ class PublicationAuthorization(unittest.TestCase):
                   'path':'.github/workflows/solve-proposal.yml','conclusion':'success',
                   'actor':{'login':'contributor'},'triggering_actor':{'login':'contributor'}}
         self.merge={'parents':[{'sha':self.base},{'sha':self.head}]}
-        self.review={'id':1,'user':{'login':'benediamond'},'commit_id':self.head,'state':'APPROVED'}
 
     def validate(self):
         with patch.object(publish,'git',return_value=b'trusted fixture'):
-            publish.validate_report(self.report,self.pr,self.run,self.merge,self.policy)
+            publish.validate_report(self.report,self.pr,self.run,self.merge)
 
 
     def test_automatic_and_manual_run_commit_associations(self):
@@ -187,24 +185,18 @@ class PublicationAuthorization(unittest.TestCase):
         self.report['schemaVersion']=3
         with self.assertRaisesRegex(ValueError,'report version'):self.validate()
 
-    def test_owner_merge_authorizes_contributor_and_owner_authored_prs(self):
+    def test_publication_checks_evidence_independently_of_merger_identity(self):
         for author in ('contributor','benediamond'):
             self.pr['user']['login']=author
             self.report['githubLogin']=author
-            self.validate()
-            authorization=publish.merge_authorization(self.pr,self.policy)
-            self.assertEqual(authorization,{'method':'owner_merge','githubLogin':'benediamond',
-                'headCommit':self.head,'mergeCommit':'d'*40})
-            self.assertEqual(self.report['githubLogin'],author)
+            for merger in ('benediamond','another-maintainer'):
+                self.pr['merged_by']['login']=merger
+                self.validate()
+                self.assertEqual(self.report['githubLogin'],author)
 
-    def test_unmerged_or_nonowner_merges_are_rejected(self):
-        for update in ({'merged':False},{'merged_by':{'login':'stranger'}}):
-            previous=copy.deepcopy(self.pr)
-            self.pr.update(update)
-            with self.subTest(update=update),self.assertRaises(ValueError):self.validate()
-            with self.subTest(update=update),self.assertRaises(ValueError):
-                publish.merge_authorization(self.pr,self.policy)
-            self.pr=previous
+    def test_unmerged_proposal_is_rejected(self):
+        self.pr['merged']=False
+        with self.assertRaisesRegex(ValueError,'merged main-branch PR'):self.validate()
 
 
 class ProposalBoundary(unittest.TestCase):

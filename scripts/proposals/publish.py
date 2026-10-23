@@ -31,11 +31,10 @@ def git(*args):
     return subprocess.check_output(['git',*args],cwd=ROOT)
 
 
-def validate_report(report, pr, run, merge, policy):
+def validate_report(report, pr, run, merge):
     require(report.get('schemaVersion') in (1,2), 'Unsupported protected report version')
     require(pr['merged'] and pr['base']['ref']=='main' and
             pr['base']['repo']['full_name']==REPOSITORY, 'Expected a merged main-branch PR')
-    require(pr['merged_by']['login'].lower()==policy['owner'].lower(), 'Only an owner-merged proposal can be published')
     require(len(merge['parents'])==2 and merge['parents'][1]['sha']==pr['head']['sha'],
             'Use a merge commit preserving the checked proposal head')
     require(report['baseCommit']==merge['parents'][0]['sha'] and report['headCommit']==pr['head']['sha'],
@@ -53,15 +52,6 @@ def validate_report(report, pr, run, merge, policy):
     for path,expected in report['verifierSha256'].items():
         require(sha256(git('show',report['baseCommit']+':'+path))==expected, 'Verifier evidence differs from the checked base')
     require('.github/workflows/solve-proposal.yml' in report['verifierSha256'], 'Missing workflow source binding')
-
-
-def merge_authorization(pr, policy):
-    """The configured owner's merge is the solve sign-off, including on own PRs."""
-    require(pr.get('merged') is True and
-            pr.get('merged_by', {}).get('login', '').lower() == policy['owner'].lower(),
-            'Only the configured owner can authorize a solve by merging it')
-    return {'method': 'owner_merge', 'githubLogin': policy['owner'],
-            'headCommit': pr['head']['sha'], 'mergeCommit': pr['merge_commit_sha']}
 
 
 def publish(number):
@@ -93,7 +83,7 @@ def publish(number):
         reports=[entry for entry in bundle.infolist() if entry.filename=='report.json']
         require(len(reports)==1 and reports[0].file_size<4*1024*1024, 'Invalid receipt artifact')
         report=json.loads(bundle.read(reports[0]))
-    validate_report(report,pr,run,merge,policy)
+    validate_report(report,pr,run,merge)
     rid=report['instanceId']
     require(rid in json.loads((ROOT/'data/catalogue.json').read_text())['instanceIds'], 'Unknown instance')
     instance=yaml.safe_load((ROOT/'data'/rid/'instance.rec').read_text())
@@ -118,10 +108,6 @@ def publish(number):
         # editorial changes are allowed by read_acceptance, including on retry.
         require(accepted_sources(folder)==report['sourceHashes'],
                 'Merged proposal differs from the checked sources')
-        if report['schemaVersion']==2:
-            receipt['ownerAuthorization']=merge_authorization(pr,policy)
-        # Version 1 required authorization inside the successful workflow itself.
-        # Preserve that evidence when publishing or retrying older checked solves.
     solution=solution_record(ROOT,receipt)
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps(receipt,indent=2)+'\n')

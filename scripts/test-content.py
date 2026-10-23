@@ -256,18 +256,18 @@ class ContentUpdates(unittest.TestCase):
         solution['solver']['githubLogin']='another-user';path.write_text(yaml.safe_dump(solution))
         self.assertIn('differs from the accepted',self.run_build(success=False).stderr)
 
-    def test_owner_merge_gates_initial_publication_and_credits_the_contributor(self):
+    def test_publication_uses_github_merge_permissions_and_credits_the_contributor(self):
         receipt=self.receipt_fixture(login='contributor')
         report=receipt['verification']; report['schemaVersion']=2
         pr=receipt['pullRequest']; folder=self.root/'data'/RID
         (folder/'acceptance.json').unlink(); (folder/'solution.rec').unlink()
-        self.write('.github/solve-policy.json',json.dumps({'mode':'live','owner':'benediamond'}))
+        self.write('.github/solve-policy.json',json.dumps({'mode':'live'}))
         archive=io.BytesIO()
         with zipfile.ZipFile(archive,'w') as bundle:
             bundle.writestr('report.json',json.dumps(report))
         responses={
             'pulls/123':{'merged':True,'merge_commit_sha':pr['mergeCommit'],
-                         'merged_by':{'login':'stranger'},
+                         'merged_by':{'login':'another-maintainer'},
                          'head':{'sha':pr['headCommit']},'user':{'login':'contributor'},
                          'created_at':receipt['submittedAt'],'merged_at':receipt['acceptedAt'],
                          'html_url':pr['url']},
@@ -283,21 +283,16 @@ class ContentUpdates(unittest.TestCase):
         def api(path,**kwargs):
             return responses[path.removeprefix('repos/hodge-computer/sextics/')]
         # Report authentication is covered in test_check.py; exercise the real
-        # owner gate, receipt creation, and content binding without compiling Lean.
+        # receipt creation and content binding without compiling Lean.
         with patch.object(publisher,'ROOT',self.root),patch.object(publisher,'api',api), \
              patch.object(publisher,'git',return_value=f'data/{RID}/proof.json\n'.encode()), \
              patch.object(publisher,'validate_report'), \
              patch.object(publisher.subprocess,'run',return_value=SimpleNamespace(returncode=0)):
-            with self.assertRaisesRegex(ValueError,'configured owner'):
-                publisher.publish(123)
-            self.assertFalse((folder/'acceptance.json').exists())
-            responses['pulls/123']['merged_by']['login']='benediamond'
             publisher.publish(123)
             accepted=self.read(f'data/{RID}/acceptance.json')
-            self.assertEqual(accepted['ownerAuthorization']['method'],'owner_merge')
-            self.assertEqual(accepted['ownerAuthorization']['mergeCommit'],pr['mergeCommit'])
+            self.assertNotIn('ownerAuthorization',accepted)
             self.assertEqual(accepted['githubLogin'],'contributor')
-            # Publication retries retain the already accepted approval evidence.
+            # Publication retries retain the already accepted evidence.
             publisher.publish(123)
             self.assertEqual(accepted,self.read(f'data/{RID}/acceptance.json'))
         self.run_build()

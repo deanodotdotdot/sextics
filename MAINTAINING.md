@@ -63,9 +63,9 @@ The successful report records exact target/source hashes, base/head commits, the
 GitHub repository access controls who can push and merge. `benediamond` is the only
 human with write access; trusted GitHub Actions workflows can publish generated
 results. CI validates the proposed changes independently of merge authorization.
-There is no pre-merge CI approval gate for solve or maintenance PRs and no
-approval-dispatch step. The existing post-merge publisher separately checks that
-the merger matches the owner in `.github/solve-policy.json`.
+There is no CI approval gate for solve or maintenance PRs and no approval-dispatch
+step. The post-merge publisher relies on GitHub merge permissions too.
+`.github/solve-policy.json` contains verification limits and publication mode.
 
 If publication of an eligible, already-merged solve failed, rerun **Publish accepted
 solve** with its PR number. It reuses the successful Lean check against the original
@@ -80,7 +80,7 @@ Use a **merge commit**, preserving the checked head as its second parent. Merge 
 
 `publish-solve.yml` runs on a merged PR or an explicit retry. It checks out trusted main and invokes `scripts/proposals/publish.py`. The publisher requires:
 
-- The configured owner's merge of the checked head into this repository's main branch. This existing publication check runs after the merge and does not affect PR CI.
+- A merged PR into this repository's main branch. GitHub controls who may merge.
 - A successful protected workflow run associated with the exact checked head and base.
 - Matching workflow/verifier hashes and a matching preserved verification report.
 - A merge commit whose parents are exactly the checked base and head.
@@ -89,7 +89,7 @@ Use a **merge commit**, preserving the checked head as its second parent. Merge 
 
 The PR receives a separate `solve/publication` status linking to this workflow. It reports pending, successful, or failed publication independently of `solve/lean`, so a post-merge failure is visible from the PR. It then writes `data/<id>/acceptance.json`, derives `solution.rec`, and runs the content builder and validators. The workflow commits these derived files to main. A failed or interrupted publication leaves no accepted solve in published output; rerun the workflow once the cause is resolved. The generated acceptance record is durable even after transient CI artifacts expire.
 
-Acceptance receipts retain their existing post-merge owner authorization. Publication retries validate verifier sources against the original checked base, so older reports remain valid after the CI approval script is removed.
+Existing acceptance receipts and their historical authorization fields are preserved. Publication retries validate verifier sources against the original checked base, so older reports remain valid after the authorization code is removed.
 
 The atlas and leaderboard read generated files and need no GitHub service at runtime. Sign-in and discussions use the backend API. The publisher never awards credit from editable claimed identities, an unmerged proof, or a status flag. After acceptance, edit `solution.md` as ordinary reviewed documentation. The site renders the current explanation; the original submission remains in Git history and its acceptance record. Editorial changes do not require another Lean run or a new acceptance record. Changes to the target, Lean sources, proof manifest, or witness require renewed verification.
 
