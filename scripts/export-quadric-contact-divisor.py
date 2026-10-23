@@ -10,6 +10,8 @@ import re
 
 from flint import fmpq as Q, fmpq_mat as Matrix, fmpq_poly as Poly
 
+from norm_divisor import NormProgram, matrix_norm_coefficients
+
 ROOT = Path(__file__).resolve().parents[1]
 FOLDER = ROOT / 'data/quadric-contact-broken'
 
@@ -74,60 +76,16 @@ def norm_coefficients():
     for f in [xi, eta]:
         columns = [r**j*f%P for j in range(27)]
         matrices.append(Matrix([[f[i] for f in columns] for i in range(27)]))
-    values = [(matrices[0]+c*matrices[1]).charpoly() for c in range(28)]
-    result = {}
-    for i in range(28):
-        differences, row = [], [f[i] for f in values]
-        while row:
-            differences.append(row[0])
-            row = [row[j+1]-row[j] for j in range(len(row)-1)]
-        polynomial, term = Poly([0]), Poly([1])
-        for j in range(28-i):
-            polynomial += term*differences[j]
-            term = term*Poly([-j, 1])/(j+1)
-        for j, value in enumerate(polynomial):
-            if value:
-                result[i, 27-i-j, j] = value
-    return result
+    return matrix_norm_coefficients(matrices)
 
 
 def program(coefficients):
-    nodes, cache = [], {}
-
-    def node(*instruction):
-        if instruction not in cache:
-            cache[instruction] = len(nodes)
-            nodes.append(list(instruction))
-        return cache[instruction]
-
-    def rational(value):
-        return node('rational', str(value))
-
-    zero, one = rational(0), rational(1)
-
-    def multiply(a, b):
-        if a == zero or b == zero:
-            return zero
-        return b if a == one else a if b == one else node('mul', a, b)
-
-    def add(a, b):
-        return b if a == zero else a if b == zero else node('add', a, b)
-
-    def power(a, n):
-        return one if n == 0 else a if n == 1 else node('pow', a, n)
-
-    x, a, c, y = [node('variable', j) for j in [0, 1, 2, 3]]
-    S = multiply(rational(2), add(power(x, 2), power(y, 2)))
-    B, C = power(a, 2), power(c, 2)
-    scale = max(abs(value) for value in coefficients.values())
-    result = zero
-    for i in range(27, -1, -1):
-        row, n = zero, 27-i
-        for j in range(n, -1, -1):
-            k = n-j
-            row = add(multiply(row, B), multiply(rational(coefficients.get((i, j, k), 0)/scale), power(C, k)))
-        result = add(multiply(result, S), row)
-    return nodes, multiply(multiply(a, c), result)
+    p = NormProgram()
+    x, a, c, y = [p.node('variable', j) for j in [0, 1, 2, 3]]
+    S = p.multiply(p.rational(2), p.add(p.power(x, 2), p.power(y, 2)))
+    result = p.evaluate(coefficients, S, p.power(a, 2), p.power(c, 2))
+    output = p.multiply(p.multiply(a, c), result)
+    return p.nodes, output
 
 
 def main():

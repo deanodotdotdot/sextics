@@ -1,84 +1,126 @@
 #!/usr/bin/env python3
-"""Export the explicit Holdout pole-two divisor on a fixed-ratio real slice.
+"""Export the exact fixed-section norm explained in display-divisor.md.
 
-See data/holdout-q2/display-divisor.md. Requires numpy and python-flint.
-All root isolation and checks run offline; no algebraic solver runs in the browser.
+Requires python-flint. All coefficient arithmetic is rational; no line roots are
+approximated. The saved plane realizes alpha=23i/20, beta=3i/4 numerically.
 """
+import json
 from pathlib import Path
-import re,json,sys
-from flint import acb,arb,acb_poly,acb_mat,ctx
-ROOT=Path(__file__).resolve().parents[1]
-exprs=[]
-source=(ROOT/'data/holdout-q2/NewEliminant.lean').read_text()
-for i in range(28):
- s=re.search(r'def coefficient'+str(i)+r' .*? := (.*)',source)[1]
- assert re.fullmatch(r'[0-9abcd*+^() \-]+',s)
- exprs.append(compile(s.replace('^','**'),'<eliminant>','eval'))
-def chart(alpha,beta,bits=1024,endpoint=1):
- ctx.prec=bits
- k=(acb(-1,arb(3).sqrt())/2)**endpoint
- a,b,c,d=1+alpha**6,1+beta**6,alpha*beta,beta*k**2
- a,b,c,d=map(acb,[a,b,c,d])
- co=[eval(e,{'__builtins__':{}},dict(a=a,b=b,c=c,d=d)) for e in exprs]
- roots=acb_poly(co).roots(tol=arb(2)**(-bits//2),maxprec=4096)
- lines=[];sources=[]
- for r in roots:
-  K=a*r**3-c*r**2-b;t=3*a*r-2*c;u=c-3*a*r
-  num=27*d**2*u**2*K**5-d**8*u*(2*r**2*t**2+K*u)
-  den=12*K*(27*a*K**6+d**6*r**3*t**3+K*d**6*r*t*u)
-  assert not any(z.contains(0) for z in [K,num,den,d])
-  e=num/den;f=r*e;g=d*u/(6*K*e);h=r*g+K/d
-  rels=[e**3-3*e*g**2+a,3*e**2*f-6*e*g*h-3*f*g**2+c,3*e*f**2-3*e*h**2-6*f*g*h+d*g,f**3-3*f*h**2+b+d*h]
-  assert all(z.contains(0) for z in rels)
-  lines.append([e,f])
-  sources.append([-18*e**3*h+18*e**2*f*g,6*d*e**2-36*e**2*f*h+36*e*f**2*g,-18*e**2*h+18*e*f*g,-18*e*g*h+18*f*g**2,6*d*e*f-18*e*f**2*h+18*f**3*g,6*d*e-18*e*f*h+18*f**2*g,-12*d*g-18*e*h**2+18*f*g*h,acb(0),acb(0),-18*e*h+18*f*g])
- polys=[acb_poly.interpolate(roots,[row[j] for row in sources]) for j in range(10)]
- gradients=[[3*a,c,0,0],[2*c,0,0,0],[0]*4,[0]*4,[0,3*b,0,d],[0]*4,[0,2*d,0,0],[0,0,3,0],[0,0,0,-6],[0,0,-3,0]]
- minor=acb_mat([gradients[j]+[polys[j][i] for i in range(6)] for j in range(10)])
- det=minor.det(); assert not det.contains(0)
- R=27*a*a*b+4*c**3;H=R*(R**4-2916*a**8*d**6);assert not H.contains(0)
- return lines,k,{'lineCount':len(lines),'minorRelativeAccuracyBits':det.rel_accuracy_bits(),'quinticRelativeAccuracyBits':H.rel_accuracy_bits()}
+import re
 
-def factors_for(render,bits=2048):
- import numpy as np
- ctx.prec=bits
- plane=np.array(render['planeMatrix']); phases=render['phaseSigns']
- ratios=[]
- for i,j in [(3,0),(4,1)]:
-  ratio=float(plane[i]@plane[j]/(plane[j]@plane[j]))
-  if np.max(abs(plane[i]-ratio*plane[j]))>1e-14: raise ValueError('Slice parameters must be constant')
-  phase=(acb(0,1) if phases[i]<0 else acb(1))/(acb(0,1) if phases[j]<0 else acb(1))
-  ratios.append(phase*ratio)
- lines,k,checks=chart(*ratios,bits)
- other,k2,otherchecks=chart(*ratios,bits,endpoint=2)
- exponent=lambda j,n:[n if i==j else 0 for i in range(6)]
- factors=[[[[1,0],exponent(j,1)]] for j in [0,1]]
- # Both endpoint divisors are retained. Conjugate factors have identical zeros
- # on real amplitudes, and can be represented by one complex factor.
- coefficient_rows=[]
- for endpoint,unit in [(lines,k),(other,k2)]:
-  for e,f in endpoint:
-   row=[-e*phases[0],-f*phases[1],acb(phases[2]),unit**2*phases[5]]
-   if any(all((a-b.conjugate()).contains(0) for a,b in zip(row,old)) for old in coefficient_rows): continue
-   coefficient_rows.append(row)
- for row in coefficient_rows:
-  if any(not z.is_finite() or z.rel_accuracy_bits()<40 for z in row):raise ValueError('Unresolved factor coefficient')
-  factors.append([[[float(z.real),float(z.imag)],exponent(j,2)] for z,j in zip(row,[0,1,2,5])])
- checks.update(coefficientPrecisionBits=bits,endpointLineCounts=[len(lines),len(other)],renderedLineFactors=len(coefficient_rows),ratios=[[float(z.real),float(z.imag)] for z in ratios])
- return dict(schemaVersion=1,kind='factored-slice',degree=24000116,
-  source={'path':'display-divisor.md','definition':'Explicit common clearing of the two endpoint certificates'},
-  description='Support of an explicit, nonminimal common clearing of the accepted pole-two construction on this fixed-parameter slice. Algebraic coefficients are isolated numerically; this presentation export is not an additional Lean witness.',
-  planeMatrix=render['planeMatrix'],phaseSigns=render['phaseSigns'],coordinateConvention='real-amplitudes',factors=factors,checks=checks)
+from flint import fmpq as Q, fmpq_mat as Matrix, fmpq_poly as Poly
+
+from norm_divisor import NormProgram, matrix_norm_coefficients
+
+ROOT = Path(__file__).resolve().parents[1]
+FOLDER = ROOT / 'data/holdout-q2'
 
 
-if __name__=='__main__':
- import argparse
- parser=argparse.ArgumentParser(description=__doc__)
- parser.add_argument('--precision',type=int,default=2048)
- parser.add_argument('--slice',type=Path,default=ROOT/'data/holdout-q2/fixed-slice-divisor.json',help='JSON containing the fixed-ratio planeMatrix and phaseSigns')
- parser.add_argument('--output',type=Path,default=ROOT/'data/holdout-q2/fixed-slice-divisor.json')
- args=parser.parse_args()
- saved_slice=json.loads(args.slice.read_text())
- result=factors_for(saved_slice,args.precision)
- args.output.write_text(json.dumps(result,indent=2)+'\n')
- print('Exported',len(result['factors']),'factors; both sets of 27 line equations, coefficient units, and source minors checked.')
+def norm_coefficients():
+    mu, nu = Q(23, 20), Q(3, 4)
+    a, b, c, D6 = 1-mu**6, 1-nu**6, -mu*nu, -nu**6
+    source = (FOLDER / 'NewEliminant.lean').read_text()
+    coefficients = []
+    for j in range(28):
+        expression = re.search(r'def coefficient'+str(j)+r' .*? := (.*)', source)[1]
+        if not re.fullmatch(r'[0-9abcd*+^() \-]+', expression):
+            raise ValueError('Unexpected eliminant expression')
+        expression = expression.replace('((d)^12)', '(D6^2)').replace('((d)^6)', 'D6')
+        if 'd' in expression:
+            raise ValueError('Expected only sixth powers of d in the eliminant')
+        coefficients.append(eval(expression.replace('^', '**'), {'__builtins__': {}},
+                                 dict(a=a, b=b, c=c, D6=D6)))
+    P = Poly(coefficients)/coefficients[-1]
+    r = Poly([0, 1])
+    K, t, u = a*r**3-c*r**2-b, 3*a*r-2*c, c-3*a*r
+    num = -27*nu**2*u*u*K**5-nu**8*u*(2*r*r*t*t+K*u)
+    den = 12*K*(27*a*K**6-nu**6*r**3*t**3-K*nu**6*r*t*u)
+
+    def inverse(f):
+        gcd, value, _ = f.xgcd(P)
+        if gcd != 1:
+            raise ValueError('The line chart is singular on this section')
+        return value
+
+    # For k²+k+1=0, the accepted line coordinates are
+    # e=kE, f=kV, g=ikG, h=ikH. These four polynomials are rational.
+    E = num*inverse(den)%P
+    V = r*E%P
+    G = nu*u*inverse(K*E)/6%P
+    H = (r*G-K/nu)%P
+    relations = [
+        E**3+3*E*G**2+a,
+        3*E*E*V+6*E*G*H+3*V*G*G+c,
+        3*E*V*V+3*E*H*H+6*V*G*H-nu*G,
+        V**3+3*V*H*H+b-nu*H,
+    ]
+    if any(f%P != 0 for f in relations) or P.gcd(P.derivative()) != 1:
+        raise ValueError('Invalid cubic line algebra')
+    L = 27*a*a*b+4*c**3
+    if not L*(L**4+2916*a**8*nu**6):
+        raise ValueError('The quintic correction is singular on this section')
+    # Remove nonzero powers of i and k from the rows and gradient columns of
+    # GenericQuadratic.minor; invertibility is unchanged (see the derivation).
+    sources = [
+        -18*E**3*H+18*E*E*V*G,
+        6*nu*E*E-36*E*E*V*H+36*E*V*V*G,
+        -18*E*E*H+18*E*V*G,
+        18*E*G*H-18*V*G*G,
+        6*nu*E*V-18*E*V*V*H+18*V**3*G,
+        6*nu*E-18*E*V*H+18*V*V*G,
+        12*nu*G+18*E*H*H-18*V*G*H,
+        Poly(), Poly(), -18*E*H+18*V*G,
+    ]
+    sources = [f%P for f in sources]
+    gradients = [
+        [3*a, c, 0, 0], [2*c, 0, 0, 0], [0]*4, [0]*4,
+        [0, 3*b, 0, nu], [0]*4, [0, -2*nu, 0, 0],
+        [0, 0, 3, 0], [0, 0, 0, -6], [0, 0, -3, 0],
+    ]
+    if not Matrix([gradients[j]+[sources[j][i] for i in range(6)]
+                   for j in range(10)]).det():
+        raise ValueError('The source minor is singular on this section')
+    matrices = []
+    for f in [E, V]:
+        columns = [r**j*f%P for j in range(27)]
+        matrices.append(Matrix([[f[i] for f in columns] for i in range(27)]))
+    return matrix_norm_coefficients(matrices)
+
+
+def program(coefficients):
+    p = NormProgram()
+    x, a, c, d = [p.node('variable', j) for j in [0, 1, 2, 5]]
+    C, D = p.power(c, 2), p.power(d, 2)
+    negative = lambda value: p.multiply(p.rational(-1), value)
+    S = p.multiply(p.rational(Q(1, 2)), p.add(
+        negative(p.add(C, D)),
+        p.multiply(p.node('sqrt', -3), p.add(D, negative(C)))))
+    norm = p.evaluate(coefficients, S, p.power(x, 2), p.power(a, 2))
+    output = p.multiply(p.multiply(x, a), norm)
+    return p.nodes, output
+
+
+def main():
+    saved = json.loads((ROOT / 'slices/holdout-q2.json').read_text())
+    plane, signs = saved['planeMatrix'], saved['phaseSigns']
+    if signs != [1, 1, 1, -1, -1, -1] or any(
+        abs(a-ratio*b) > 2e-15
+        for top, bottom, ratio in [(3, 0, 23/20), (4, 1, 3/4)]
+        for a, b in zip(plane[top], plane[bottom])
+    ):
+        raise ValueError('This norm is for alpha=23i/20, beta=3i/4')
+    coefficients = norm_coefficients()
+    nodes, output = program(coefficients)
+    display = {
+        'schemaVersion': 1, 'kind': 'polynomial-program', 'degree': 56,
+        'source': {'path': 'display-divisor.md', 'definition': 'Exact fixed-section norm of the pole-two endpoint denominator'},
+        'description': 'Same zero set as the explicit common clearing on alpha=23i/20, beta=3i/4; coefficients are exact rationals and sqrt(-3).',
+        'sliceRestriction': {'planeMatrix': plane, 'phaseSigns': signs},
+        'nodes': nodes, 'output': output, 'normalization': {'gradient': True},
+    }
+    (FOLDER / 'display-divisor.json').write_text(json.dumps(display, indent=2)+'\n')
+    print(f'Wrote exact norm: {len(coefficients)} coefficients, {len(nodes)} program nodes.')
+
+
+if __name__ == '__main__':
+    main()

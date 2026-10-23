@@ -143,7 +143,17 @@ formula describes the ideal rational-ratio section; the saved plane and mesh
 are its floating-point realization. Rendering uses the same polynomial compiler
 and divisor shader as every other atlas entry.
 
-The pole-two holdout export is specified in `data/holdout-q2/display-divisor.md`. It supplies an explicit nonminimal clearing for the two endpoint certificates, then exports 27 conjugate-paired line factors and two coordinate factors on a fixed-ratio slice. Regenerate it with `scripts/export-holdout-q2-divisor.py`. The twelve targets sharing the central holdout sextic now use a different common plane and camera. The old factors are preserved in `data/holdout-q2/fixed-slice-divisor.json`, but the pole-two divisor overlay is disabled: those coefficients must not be applied to a different slice without re-extraction.
+The pole-two holdout uses the exact norm exported by
+`scripts/export-holdout-q2-divisor.py`, with its derivation in
+`data/holdout-q2/display-divisor.md`. Its coefficients are rational numbers and
+`sqrt(-3)`, evaluated by the shared complex polynomial compiler. Both exact-norm
+exporters use `scripts/norm_divisor.py` for characteristic-polynomial interpolation
+and compact expressions. The twelve central holdout targets share the section
+`Y0/X0 = 23i/20`, `Y1/X1 = 3i/4` and one camera. Only the pole-two target has a
+recovered display denominator; it is not a denominator for the other targets.
+The saved plane is a floating-point realization of those exact ratios, and
+`sliceRestriction` prevents applying the formula to a different saved section.
+The obsolete numerical line-factor export has been removed.
 
 All displayed denominators use per-pixel evaluation. Literal polynomials are compiled into multivariate Horner expressions; compact programs retain their arithmetic structure. The fragment shader evaluates each factor and its six ambient derivatives after the inverse stereographic map. Homogeneous coordinate rescaling, including a common scale for quadratic inputs of higher-degree expressions, reduces underflow; dividing by the gradient norm and using pixel derivatives gives curves a consistent antialiased width. Products and powers are displayed as the union of their factors' zero sets, without multiplicity. There is no vertex-sampling fallback. Generated expressions have a 4,096-node budget and run inside the existing visualization worker; context-loss handling and graphics timeouts remain active. Large formulas may still cost more on slower hardware.
 

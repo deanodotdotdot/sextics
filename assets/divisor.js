@@ -142,7 +142,8 @@ float divisorDistance(DivJet r,DivJet i,bool complexValue) {
         else if (op === 'rational') {
           const [p, q = '1'] = a.split('/');
           values.push([constant(Number(p) / Number(q)), zero]);
-        } else if (op === 'sqrt') values.push([constant(Math.sqrt(a)), zero]);
+        } else if (op === 'sqrt')
+          values.push(a < 0 ? [zero, constant(Math.sqrt(-a))] : [constant(Math.sqrt(a)), zero]);
         else if (op === 'add') values.push(ca(values[a], values[b]));
         else if (op === 'mul') values.push(cm(values[a], values[b]));
         else if (op === 'pow') values.push(cp(values[a], b));

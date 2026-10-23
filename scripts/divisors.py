@@ -82,7 +82,7 @@ def validate_program(data, folder):
             degree = None if value == 0 else 0
         elif op == "sqrt":
             require(
-                len(args) == 1 and type(args[0]) is int and 0 < args[0] <= 1000, "invalid radical"
+                len(args) == 1 and type(args[0]) is int and 0 < abs(args[0]) <= 1000, "invalid radical"
             )
             degree = 0
         elif op == "variable":
