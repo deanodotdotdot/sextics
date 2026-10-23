@@ -132,9 +132,3 @@ def solution_record(root, receipt):
                      'receipt':f'data/{instance_id}/acceptance.json',
                      'theorem':receipt['verification']['theorem'],
                      'checker':receipt['verification']['leanVersion']}}
-
-
-def validate_solution(root, instance_id, solution):
-    receipt = read_acceptance(root, instance_id)
-    require(solution == solution_record(root,receipt), 'Solution metadata differs from the accepted submission')
-    return receipt

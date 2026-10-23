@@ -12,7 +12,7 @@ from content import render
 from divisors import validate_program, validate_slice_identity
 import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent / "proposals"))
-from acceptance import exact_polynomial, validate_solution
+from acceptance import exact_polynomial, read_acceptance, solution_record
 
 ROOT = Path(__file__).resolve().parents[1]
 ATLAS = ROOT / 'assets/atlas'
@@ -79,9 +79,8 @@ for rid in catalogue['instanceIds']:
     record['formalStatus'] = 'unproved'
     record['content'] = {'why': f'assets/atlas/{rid}/why.html'}
     emit(ATLAS / rid / 'why.html', render(prose(local_path(record['rationale'], folder)), root=ROOT, source_path=local_path(record['rationale'], folder)))
-    if (folder / 'solution.rec').is_file():
-        solution = yaml.load((folder / 'solution.rec').read_text(), Loader=yaml.CSafeLoader)
-        validate_solution(ROOT, rid, solution)
+    if (folder / 'acceptance.json').is_file():
+        solution = solution_record(ROOT, read_acceptance(ROOT, rid))
         witness = solution['witness']
         login = solution['solver']['githubLogin']
         require(re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?', login), f'{rid}: invalid GitHub identity')

@@ -245,7 +245,7 @@
       if (token !== state.modalId || !dialog.open) return;
       $('dialogContent').innerHTML =
         header +
-        `<div class="solution-body mathematical-prose">${content}</div><footer class="solution-footer">${isProved(record) ? '<p>Lean proof verified.</p>' : ''}${record.leanVerification?.proofFile ? `<a href="${escape(record.leanVerification.proofFile)}" download>Lean proof ↓</a><a href="${escape(record.leanVerification.receipt)}" download>Acceptance receipt ↓</a>` : ''}<a href="data/${encodeURIComponent(record.id)}/instance.rec" download>Exact instance ↓</a><a href="data/${encodeURIComponent(record.id)}/solution.rec" download>Solution & witness ↓</a><a href="data/${encodeURIComponent(record.id)}/provenance.json" download>Context & related targets ↓</a></footer>`;
+        `<div class="solution-body mathematical-prose">${content}</div><footer class="solution-footer">${isProved(record) ? '<p>Lean proof verified.</p>' : ''}${record.leanVerification?.proofFile ? `<a href="${escape(record.leanVerification.proofFile)}" download>Lean proof ↓</a><a href="${escape(record.leanVerification.receipt)}" download>Acceptance receipt ↓</a>` : ''}<a href="data/${encodeURIComponent(record.id)}/instance.rec" download>Exact instance ↓</a>${record.D ? `<a href="data/${encodeURIComponent(record.id)}/witness.json" download>Exact witness ↓</a>` : ''}<a href="data/${encodeURIComponent(record.id)}/provenance.json" download>Context & related targets ↓</a></footer>`;
       renderMath($('dialogContent'));
       if (anchor)
         [...$('dialogContent').querySelectorAll('[id]')]
