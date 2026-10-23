@@ -2,6 +2,7 @@ import http from 'node:http';
 import { readFile, writeFile, realpath, stat, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readCommentLeaderboard, readContributorComments, readProfiles, invalidateCommentLeaderboard } from './comment-leaderboard.mjs';
 import { Auth, equal } from './auth.mjs';
 import { GitHub, ServiceError, readDiscussion, readDiscussionCounts, readReplies, postComment } from './github.mjs';
 
@@ -103,6 +104,10 @@ export async function createService({ root = ROOT, origin, setupOrigin = origin,
         return send(res, 200, { ok:true }, { 'Set-Cookie':await auth.remove(req.headers.cookie) });
       }
       if (url.pathname === '/api/discussion-counts' && req.method === 'GET') return send(res, 200, await readDiscussionCounts(github, await mappings(), session));
+      if (url.pathname === '/api/comment-leaderboard' && req.method === 'GET') return send(res, 200, await readCommentLeaderboard(github, await mappings(), session));
+      const contributor = /^\/api\/comment-leaderboard\/([^/]+)$/.exec(url.pathname);
+      if (contributor && req.method === 'GET') return send(res, 200, await readContributorComments(github, await mappings(), contributor[1], session));
+      if (url.pathname === '/api/profiles' && req.method === 'GET') return send(res, 200, await readProfiles(github, (url.searchParams.get('logins') || '').split(',').filter(Boolean), session));
       const match = /^\/api\/discussions\/([A-Za-z0-9-]+)(\/replies)?$/.exec(url.pathname);
       if (match) {
         const entry = await mapping(match[1]);
@@ -122,7 +127,9 @@ export async function createService({ root = ROOT, origin, setupOrigin = origin,
           if (!input || typeof input.body !== 'string' || !input.body.trim() || input.body.length > 30000 || Object.keys(input).some(k => !['body','replyToId'].includes(k))) throw new ServiceError(400, 'Write a comment of at most 30,000 characters.');
           if (input.replyToId !== undefined && (typeof input.replyToId !== 'string' || input.replyToId.length > 200)) throw new ServiceError(400, 'Invalid reply.');
           await auth.claimPost(session);
-          return send(res, 201, await postComment(github, entry, input.body, input.replyToId, session));
+          const comment = await postComment(github, entry, input.body, input.replyToId, session);
+          invalidateCommentLeaderboard(github);
+          return send(res, 201, comment);
         }
         throw new ServiceError(405, 'Method not allowed.');
       }

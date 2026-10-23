@@ -84,3 +84,7 @@ node server/discussion-preview.mjs
 Open `http://127.0.0.1:8773/`. It labels all content as local test data and binds only to loopback. Add `?signedout=1` to inspect the logged-out state. Stop the process to discard its comments. The fixture never loads real credentials and is not part of the production server.
 
 Bundled Markdown/sanitizer versions, licenses, and archive hashes are recorded in `assets/vendor/DISCUSSION-LIBRARIES.txt`. Raw HTML is escaped, Markdown output is sanitized before insertion, math uses KaTeX with `trust: false` and bounded expansion, and external images are links. No remote runtime scripts are loaded.
+
+## Live leaderboards
+
+`GET /api/comment-leaderboard` returns contributor profiles, comment/reply counts, and tie-breaking timestamps, with no comment bodies. `GET /api/comment-leaderboard/<login>` reads that contributor's current comment bodies for previews. `GET /api/profiles?logins=a,b` supplies GitHub names and avatars for the solve board. All endpoints use the existing discussion access checks and return `Cache-Control: no-store`. The service caches metadata for 15 seconds and profiles for five minutes, isolated by reader credentials; comment bodies are fetched fresh. Pagination covers every mapped thread and reply. No discussion text is written to the repository, deployment bucket, or database.

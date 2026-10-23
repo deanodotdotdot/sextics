@@ -308,7 +308,7 @@ class ProposalBoundary(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'only (?:edit|add)'):self.check()
 
     def test_reject_atlas_leaderboard_and_verifier_edits(self):
-        for name in ('data/example/instance.rec','leaderboard/accounts.json',
+        for name in ('data/example/instance.rec','leaderboard/credits.json',
                      'scripts/proposals/check.py','.github/solve-policy.json'):
             with self.subTest(path=name):
                 original=(self.root/name).read_bytes() if (self.root/name).exists() else None

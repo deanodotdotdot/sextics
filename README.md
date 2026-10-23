@@ -36,7 +36,7 @@ Open a PR from that branch against `hodge-computer/sextics:main` and complete th
 | [data/](data/README.md) | Exact targets, context, solution sources, and acceptance receipts |
 | [formal/](formal/README.md) | The Lean contract and pinned proof environment |
 | `discussions/` | Mapping from instances to native GitHub discussion threads |
-| `leaderboard/` | Contributor display profiles and generated credits |
+| `leaderboard/` | Generated accepted-solve credits |
 | `assets/`, `slices/` | Website code, local assets, saved real slices, and cameras |
 
 For architecture, catalogue and leaderboard maintenance, verification, and visualization details, read [MAINTAINING.md](MAINTAINING.md). Backend setup is in [server/README.md](server/README.md); hosting is in [infra/aws/README.md](infra/aws/README.md).
