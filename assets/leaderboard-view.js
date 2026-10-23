@@ -198,7 +198,7 @@
                 pending.signal
               );
             } catch {
-              /* Solve credit does not depend on profiles. */
+              /* Keep displaying the username when profiles are unavailable. */
             }
           }
           if (!valid()) return;

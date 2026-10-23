@@ -211,18 +211,13 @@ export async function readProfiles(github, logins, session, contributors) {
   const accounts = await Promise.all(
     selected.map((login) =>
       cache.get(JSON.stringify([token, login]), async () => {
-        try {
-          const user = await github.call(`/users/${encodeURIComponent(login)}`, { token });
-          return {
-            githubLogin: user.login,
-            name: user.name || user.login,
-            avatar: user.avatar_url,
-            profileUrl: user.html_url
-          };
-        } catch (error) {
-          if (error.status !== 403) throw error;
-          return { githubLogin: login, name: login };
-        }
+        const user = await github.call(`/users/${encodeURIComponent(login)}`, { token });
+        return {
+          githubLogin: user.login,
+          name: user.name || user.login,
+          avatar: user.avatar_url,
+          profileUrl: user.html_url
+        };
       })
     )
   );

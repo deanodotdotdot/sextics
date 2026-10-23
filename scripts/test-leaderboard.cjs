@@ -68,7 +68,7 @@ assert.deepEqual(
     ['lee', 1]
   ]
 );
-// Exact-time ties and older cached exports retain a deterministic fallback.
+// Exact-time ties use alphabetical login order.
 assert.equal(
   rank(
     { ...base, credits: credits.map((c) => ({ ...c, acceptedAt: '2026-10-01T12:00:00Z' })) },
@@ -76,10 +76,11 @@ assert.equal(
   )[0].githubLogin,
   'amy'
 );
-assert.equal(
-  rank({ ...base, credits: credits.map(({ acceptedAt, ...c }) => c) }, fixtures)[0].githubLogin,
-  'amy'
-);
+for (const acceptedAt of [undefined, 'invalid'])
+  assert.throws(
+    () => rank({ ...base, credits: [{ ...credits[0], acceptedAt }] }, fixtures),
+    /acceptance date/
+  );
 assert.deepEqual(
   rank({ ...base, credits: [...credits, { ...credits[0], githubLogin: 'Zoe' }] }, fixtures),
   rank(data, fixtures)

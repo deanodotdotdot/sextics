@@ -133,8 +133,8 @@ export async function createService({
       throw error;
     }
     if (index.repository !== config.repository) throw new Error('Invalid discussion repository.');
-    return Object.fromEntries(
-      Object.entries(index.instances || {}).filter(
+    if (
+      !Object.entries(index.instances).every(
         ([id, entry]) =>
           instanceIds.has(id) &&
           entry &&
@@ -142,7 +142,9 @@ export async function createService({
           entry.number > 0 &&
           typeof entry.nodeId === 'string'
       )
-    );
+    )
+      throw new Error('Invalid discussion mapping.');
+    return index.instances;
   }
   async function mapping(id) {
     if (!instanceIds.has(id)) throw new ServiceError(404, 'Unknown instance.');
@@ -190,7 +192,6 @@ export async function createService({
       if (url.pathname === '/api/session' && req.method === 'GET')
         return send(res, 200, {
           connected: !!config.client_id,
-          signInUrl: `${origin}/auth/github`,
           user: session?.user || null,
           csrf: session?.csrf || null
         });

@@ -1,6 +1,33 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
 const { create, validateDynamicMesh } = require('../assets/mesh.js');
+const { readFileSync } = require('node:fs');
+const { pathToFileURL } = require('node:url');
+const path = require('node:path');
+
+test('selected float and packed meshes decode from their gzip assets', async () => {
+  const root = path.join(__dirname, '..');
+  const home = JSON.parse(readFileSync(path.join(root, 'assets/home-scene.json')));
+  const id = JSON.parse(readFileSync(path.join(root, 'data/catalogue.json'))).instanceIds[0];
+  const record = JSON.parse(readFileSync(path.join(root, `data/${id}/record.json`)));
+  const original = global.fetch;
+  global.fetch = async (url) => new Response(readFileSync(url));
+  const meshes = create(pathToFileURL(path.join(root, 'assets') + path.sep));
+  try {
+    for (const mesh of [home.mesh, record.render.mesh]) {
+      const decoded = await meshes.load(mesh);
+      assert.equal(decoded.buffer.byteLength, decoded.meta.vertexCount * 9 * 4);
+      assert.equal(decoded.indexBuffer.byteLength, decoded.meta.triangleCount * 3 * 4);
+    }
+    for (const encoding of [undefined, 'quantized-p3-n3-phase2-v1', 'unknown']) {
+      global.fetch = async () => Response.json({ encoding });
+      await assert.rejects(meshes.load('invalid.json'), /Unrecognized mesh encoding/);
+    }
+  } finally {
+    meshes.dispose();
+    global.fetch = original;
+  }
+});
 
 test('superseding a mesh aborts its request and cannot reuse its late result', async () => {
   const original = global.fetch;

@@ -85,16 +85,15 @@ for rid in catalogue['instanceIds']:
         witness = solution['witness']
         login = solution['solver']['githubLogin']
         require(re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?', login), f'{rid}: invalid GitHub identity')
-        pull_request = solution.get('pullRequest')
-        if pull_request is not None:
-            require(isinstance(pull_request, dict), f'{rid}: invalid pull request record')
-            require(isinstance(pull_request.get('url'), str) and re.fullmatch(
-                r'https://github\.com/hodge-computer/sextics/pull/[1-9][0-9]*', pull_request['url']),
-                f'{rid}: expected a pull request URL in hodge-computer/sextics')
-            for key in ('headCommit', 'mergeCommit'):
-                require(isinstance(pull_request.get(key), str) and re.fullmatch(r'[0-9a-f]{40}', pull_request[key]),
-                        f'{rid}: pull request {key} must be a full commit SHA')
-            record['pullRequest'] = dict(pull_request)
+        pull_request = solution['pullRequest']
+        require(isinstance(pull_request, dict), f'{rid}: invalid pull request record')
+        require(isinstance(pull_request.get('url'), str) and re.fullmatch(
+            r'https://github\.com/hodge-computer/sextics/pull/[1-9][0-9]*', pull_request['url']),
+            f'{rid}: expected a pull request URL in hodge-computer/sextics')
+        for key in ('headCommit', 'mergeCommit'):
+            require(isinstance(pull_request.get(key), str) and re.fullmatch(r'[0-9a-f]{40}', pull_request[key]),
+                    f'{rid}: pull request {key} must be a full commit SHA')
+        record['pullRequest'] = dict(pull_request)
         record['status'] = 'solved'
         record['formalStatus'] = 'proved'
         record['evidenceKind'] = 'explicit-certificate' if 'D' in witness else 'existence-proof'

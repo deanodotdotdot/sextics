@@ -136,8 +136,7 @@ render:
   triangleCount: 55264
   validated: true
   camera:
-    yaw: -1.133108931431818
-    pitch: -0.5931792803038735
+    orientation: [0.8618352120495838, 0.1916769868070996, 0.10194506584795285, 0.45837452323319255]
     distance: 2.25888
     center:
     - 0

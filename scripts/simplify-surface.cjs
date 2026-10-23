@@ -13,7 +13,7 @@ if (!Number.isFinite(tolerance) || tolerance <= 0 || tolerance > 0.01)
 if (!input || !output) throw Error('Provide input and output mesh manifests.');
 const src = JSON.parse(fs.readFileSync(input)),
   root = path.dirname(input);
-if (!src.vertices || !src.indices || src.meta?.stride !== 9)
+if (src.encoding !== 'float32-p3-n3-phase2-d1' || src.meta?.stride !== 9)
   throw Error('Expected an interleaved float mesh.');
 const read = (name, T) => {
   const b = zlib.gunzipSync(fs.readFileSync(path.join(root, name)));
@@ -99,6 +99,7 @@ try {
   fs.writeFileSync(
     output,
     JSON.stringify({
+      encoding: 'float32-p3-n3-phase2-d1',
       vertices: base + '.vertices.bin.gz',
       indices: base + '.indices.bin.gz',
       meta

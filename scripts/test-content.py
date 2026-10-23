@@ -158,17 +158,17 @@ class ContentUpdates(unittest.TestCase):
         self.receipt_fixture()
         self.write(f'data/{RID}/solution.md',
                    '[Motivation](why.md) and [proof](Solution.lean#L1).\n\n'
-                   '[data](data/test-example/witness.json)')
+                   '[data](witness.json)')
         self.run_build()
         rendered=(self.root/f'data/{RID}/solution.html').read_text()
         self.assertIn('href="#case/test-example"',rendered)
         self.assertIn('href="https://github.com/hodge-computer/sextics/blob/main/data/test-example/Solution.lean#L1"',rendered)
-        self.assertIn('href="data/test-example/witness.json"',rendered)
+        self.assertIn('href="/data/test-example/witness.json"',rendered)
 
     def test_root_relative_source_links_go_to_github(self):
         self.write('formal/README.md', 'Contract')
         self.write('formal/lean/Example.lean', 'example : True := by trivial')
-        for target in ['formal/README.md', '/formal/lean/Example.lean#L1']:
+        for target in ['/formal/README.md', '/formal/lean/Example.lean#L1']:
             rendered = render('[source](' + target + ')', root=self.root,
                               source_path=Path('data') / RID / 'solution.md')
             self.assertIn('https://github.com/hodge-computer/sextics/blob/main/' + target.lstrip('/'), rendered)
@@ -185,6 +185,15 @@ class ContentUpdates(unittest.TestCase):
         for link in ('missing.md','../../../../etc/passwd','%2e%2e/%2e%2e/%2e%2e/etc/passwd'):
             with self.subTest(link=link),self.assertRaisesRegex(ValueError,'missing local link'):
                 render('[bad]('+link+')',root=self.root,source_path=source,extra_files=[proof])
+
+    def test_local_links_never_guess_a_repository_root_path(self):
+        self.write('formal/README.md', 'Contract')
+        source = Path('data') / RID / 'solution.md'
+        with self.assertRaisesRegex(ValueError, 'missing local link'):
+            render('[contract](formal/README.md)', root=self.root, source_path=source)
+        self.write(f'data/{RID}/formal/README.md', 'Instance-specific note')
+        rendered = render('[note](formal/README.md)', root=self.root, source_path=source)
+        self.assertIn(f'/data/{RID}/formal/README.md', rendered)
 
     def test_explanation_preflight_reports_invalid_formula(self):
         path=self.root/'candidate-solution.html'

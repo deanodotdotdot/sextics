@@ -1747,8 +1747,6 @@ render:
   seed: 2953005828
   resolution: 176
   camera:
-    yaw: 40.799374905387104
-    pitch: -0.4761190609117963
     distance: 2.90545
     center:
     - 0

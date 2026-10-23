@@ -70,7 +70,6 @@ uniform float uDivisorMode;
 uniform bool uContactProjection;
 uniform bool uDepthOnly;
 uniform vec4 uDivisorPlane[6];
-uniform float uTranslucencyEnabled;
 uniform float uTransNear;
 uniform float uTransFar;
 uniform float uTransMinAlpha;
@@ -177,7 +176,6 @@ vec3 aces(vec3 x) {
 // This opacity profile depends ONLY on point-to-camera distance (and the
 // user's global settings), not front/back-facing state, normals, or divisors.
 float distanceOpacity(float distanceToCamera) {
-  if(uTranslucencyEnabled < 0.5 || uTransFar <= 0.0) return 1.0;
   float t = clamp(distanceToCamera / max(uTransFar, 1e-7), 0.0, 1.0);
   float smoothT = t*t*t*(t*(t*6.0 - 15.0) + 10.0); // C2 smootherstep
   float strength = smoothstep(0.0, 0.18, uTransFar);
@@ -295,9 +293,8 @@ void main() {
 }`;
 
   function createDepthPeeler(gl, surfaceProgram) {
-    const hasHalfFloat = !!(
-      gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float')
-    );
+    if (!gl.getExtension('EXT_color_buffer_float'))
+      throw new Error('The 3D view requires floating-point render targets.');
     const copyProgram = program(gl, PEEL_FULLSCREEN_VS, PEEL_COPY_FS);
     const resolveProgram = program(gl, PEEL_FULLSCREEN_VS, PEEL_RESOLVE_FS);
     const fullscreenVao = gl.createVertexArray();
@@ -321,7 +318,7 @@ void main() {
       targets.textures.forEach((t) => gl.deleteTexture(t));
       targets = null;
     }
-    function allocate(width, height, useHalf) {
+    function allocate(width, height) {
       const textures = [],
         framebuffers = [];
       function texture(internalFormat) {
@@ -357,7 +354,7 @@ void main() {
         const layerColor = texture(gl.RGBA8),
           depth0 = texture(gl.DEPTH_COMPONENT24),
           depth1 = texture(gl.DEPTH_COMPONENT24);
-        const accumulation = texture(useHalf ? gl.RGBA16F : gl.RGBA8);
+        const accumulation = texture(gl.RGBA16F);
         const opaqueFbo = framebuffer(opaqueColor, opaqueDepth);
         const peelFbo = [framebuffer(layerColor, depth0), framebuffer(layerColor, depth1)];
         const accumulationFbo = framebuffer(accumulation);
@@ -376,8 +373,7 @@ void main() {
           peelFbo,
           accumulationFbo,
           textures,
-          framebuffers,
-          useHalf
+          framebuffers
         };
       } catch (error) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -390,16 +386,9 @@ void main() {
     function ensureTargets(width, height) {
       if (targets && targets.width === width && targets.height === height) return;
       releaseTargets();
-      const bytesPerPixel = hasHalfFloat ? 28 : 24;
-      if (width * height * bytesPerPixel > 256 * 1024 * 1024)
+      if (width * height * 28 > 256 * 1024 * 1024)
         throw new Error('Transparency exceeds the 256 MiB render-target budget.');
-      try {
-        targets = allocate(width, height, hasHalfFloat);
-      } catch (error) {
-        if (!hasHalfFloat) throw error;
-        for (let i = 0; i < 8 && gl.getError() !== gl.NO_ERROR; i++) {} // drain the failed optional allocation
-        targets = allocate(width, height, false);
-      }
+      targets = allocate(width, height);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       for (let i = 0; i < 3; i++) bindTexture(i, null);
     }
@@ -499,7 +488,6 @@ void main() {
       gl.uniform1i(passLoc, 0);
       gl.enable(gl.DEPTH_TEST);
       gl.depthMask(true);
-      return t.useHalf ? '16-bit accumulation' : '8-bit accumulation';
     }
     return {
       render,
@@ -533,14 +521,6 @@ void main() {
         w * W - x * X - y * Y - z * Z
       ];
     },
-    fromYawPitch(yaw, pitch) {
-      // Rz(yaw + pi/2) Rx(pi/2 - pitch): matches the previous initial camera.
-      const z = 0.5 * (yaw + Math.PI / 2),
-        x = 0.5 * (Math.PI / 2 - pitch);
-      return this.normalize(
-        this.multiply([0, 0, Math.sin(z), Math.cos(z)], [Math.sin(x), 0, 0, Math.cos(x)])
-      );
-    },
     basis(q) {
       const [x, y, z, w] = q;
       return {
@@ -549,11 +529,10 @@ void main() {
         back: [2 * (x * z + w * y), 2 * (y * z - w * x), 1 - 2 * (x * x + y * y)]
       };
     },
-    drag(q, dx, dy, gainX = 0.0047, gainY = 0.0042) {
-      // Positive pointer dx moves the visible/front part of the object right;
-      // positive dy moves it down. The same rule holds upside down or rolled.
-      const x = -dy * gainY,
-        y = -dx * gainX,
+    rotate(q, horizontal, vertical) {
+      // Rotate around the camera's own up/right axes, in radians.
+      const x = -vertical,
+        y = horizontal,
         angle = Math.hypot(x, y);
       if (angle < 1e-15) return q.slice();
       const s = Math.sin(angle / 2) / angle;
@@ -578,15 +557,10 @@ void main() {
     },
     pan(center, dx, dy, q, distance, fov, height) {
       // Translation in the view plane: exact pixel tracking for points at the
-      // target plane's depth. No world-up vector or yaw/pitch sign test.
+      // target plane's depth, including when the camera is rolled.
       const { right, up } = this.basis(q),
         s = (2 * distance * Math.tan(fov / 2)) / Math.max(1, height);
       return center.map((c, i) => c - right[i] * dx * s + up[i] * dy * s);
-    },
-    angles(q) {
-      // Diagnostic only. Euler values do not drive the free camera.
-      const b = this.basis(q).back;
-      return { yaw: Math.atan2(b[1], b[0]), pitch: Math.atan2(b[2], Math.hypot(b[0], b[1])) };
     }
   });
 
@@ -653,15 +627,12 @@ void main() {
     ]);
   }
 
-  const SCRIPT_BASE = new URL(
-    '.',
-    typeof document !== 'undefined' ? document.currentScript?.src || location.href : location.href
-  );
+  const SCRIPT_BASE = new URL('.', location.href);
   function create(canvas, options = {}) {
     // In production this core runs only in a dedicated worker. The host forwards
     // sizes and input; no graphics API is called by the page's UI thread.
     const { view: window, page: document, reducedMotion: reduced } = options.host;
-    const assetBase = options.assetBase ? new URL(options.assetBase, location.href) : SCRIPT_BASE;
+    const assetBase = SCRIPT_BASE;
     const onStatus = typeof options.onStatus === 'function' ? options.onStatus : () => {};
     const onModeChange =
       typeof options.onModeChange === 'function' ? options.onModeChange : () => {};
@@ -704,7 +675,6 @@ void main() {
           'ProjectionBox',
           'DivisorMode',
           'ContactProjection',
-          'TranslucencyEnabled',
           'TransNear',
           'TransFar',
           'TransMinAlpha',
@@ -726,7 +696,6 @@ void main() {
       graphicsFault = false,
       needsDraw = true;
     let depthPeeler = null,
-      depthPeelerFailed = false,
       frameFence = null,
       frameId = 0,
       fenceStarted = 0,
@@ -737,12 +706,9 @@ void main() {
     const FOV = (42 * Math.PI) / 180,
       minDistance = 0.035,
       maxDistance = 12;
-    let baseYaw = 0.71,
-      basePitch = 0.455,
-      baseDistance = 3.22,
+    let baseDistance = 1,
       baseCenter = [0, 0, 0];
-    let homeOrientation = ScreenTrackball.fromYawPitch(baseYaw, basePitch),
-      homeOffset = [0, 0, 0, 1];
+    let homeOrientation = [0, 0, 0, 1];
     let cameraMode = 'parallax',
       cameraOrientation = homeOrientation.slice(),
       orbitOrientation = homeOrientation.slice();
@@ -752,8 +718,6 @@ void main() {
       orbitCenter = [0, 0, 0];
     let targetX = 0,
       targetY = 0,
-      currentX = 0,
-      currentY = 0,
       drag = null,
       touchGesture = null,
       last = performance.now(),
@@ -848,8 +812,7 @@ void main() {
         projectionBox,
         xray: { enabled: true, reach: 2.0, layers: 6 },
         cameraDefault: {
-          yaw: baseYaw,
-          pitch: basePitch,
+          orientation: homeOrientation.slice(),
           distance: baseDistance,
           center: baseCenter.slice()
         },
@@ -875,7 +838,7 @@ void main() {
       activeMeta.divisorEvaluation = 'per-pixel polynomial';
       activeMeta.divisorOperations = pixel.operations;
       options.onLabel?.(
-        (selected.title || 'Sextic fourfold') +
+        selected.title +
           ' — real slice of F = 0' +
           (hasD ? ', with certificate divisor highlighted' : '')
       );
@@ -891,11 +854,9 @@ void main() {
       needsDraw = true;
       status('loading', 'Preparing the saved slice…');
       try {
-        const r = selected.render || {};
-        const saved = r.camera || { yaw: 0.71, pitch: 0.455, distance: 3.22, center: [0, 0, 0] };
+        const r = selected.render;
+        const saved = r.camera;
         if (
-          !Number.isFinite(saved.yaw) ||
-          !Number.isFinite(saved.pitch) ||
           !Number.isFinite(saved.distance) ||
           saved.distance < minDistance ||
           saved.distance > maxDistance ||
@@ -904,29 +865,15 @@ void main() {
           !saved.center.every(Number.isFinite)
         )
           throw new Error('Invalid saved camera.');
-        baseYaw = saved.yaw;
-        basePitch = saved.pitch;
         baseDistance = saved.distance;
         baseCenter = saved.center.slice();
-        const baseOrientation = ScreenTrackball.fromYawPitch(baseYaw, basePitch);
         if (
-          saved.orientation !== undefined &&
-          (!Array.isArray(saved.orientation) ||
-            saved.orientation.length !== 4 ||
-            !saved.orientation.every(Number.isFinite))
+          !Array.isArray(saved.orientation) ||
+          saved.orientation.length !== 4 ||
+          !saved.orientation.every(Number.isFinite)
         )
           throw new Error('Invalid saved camera orientation.');
-        homeOrientation =
-          saved.orientation === undefined
-            ? baseOrientation
-            : ScreenTrackball.normalize(saved.orientation);
-        // Retain the saved camera's roll during background motion and mode changes.
-        homeOffset = ScreenTrackball.normalize(
-          ScreenTrackball.multiply(
-            baseOrientation.map((v, i) => (i < 3 ? -v : v)),
-            homeOrientation
-          )
-        );
+        homeOrientation = ScreenTrackball.normalize(saved.orientation);
         resetCamera();
         if (!r.mesh) throw new Error('This instance has no saved slice.');
         const mesh = await meshes.load(r.mesh);
@@ -950,7 +897,7 @@ void main() {
       cameraOrientation = homeOrientation.slice();
       cameraDistance = baseDistance;
       cameraCenter = baseCenter.slice();
-      targetX = targetY = currentX = currentY = 0;
+      targetX = targetY = 0;
       drag = null;
       touches.clear();
       touchGesture = null;
@@ -961,7 +908,7 @@ void main() {
       drag = null;
       touches.clear();
       touchGesture = null;
-      targetX = targetY = currentX = currentY = 0;
+      targetX = targetY = 0;
       if (cameraMode === 'free') freezeVisibleCamera();
       // Keep the visible pose on return; the frame loop eases rotation, zoom and pan back to parallax.
       needsDraw = true;
@@ -1127,7 +1074,8 @@ void main() {
         const dx = e.clientX - drag.x,
           dy = e.clientY - drag.y;
         if (drag.action === 'orbit') {
-          orbitOrientation = ScreenTrackball.drag(orbitOrientation, dx, dy);
+          // Dragging moves the visible surface with the pointer, even when rolled.
+          orbitOrientation = ScreenTrackball.rotate(orbitOrientation, -dx * 0.0047, dy * 0.0042);
           cameraOrientation = orbitOrientation.slice();
           drag.x = e.clientX;
           drag.y = e.clientY;
@@ -1237,31 +1185,28 @@ void main() {
         return;
       }
       // The camera below supplies the smoothing; filtering the input too adds lag.
-      currentX = targetX;
-      currentY = targetY;
       const idle = reduced ? 0 : 0.01 * Math.sin(now * 0.00023),
         idle2 = reduced ? 0 : 0.007 * Math.sin(now * 0.00017 + 1.7);
       const desiredOrientation =
         cameraMode === 'free'
           ? orbitOrientation
-          : ScreenTrackball.normalize(
-              ScreenTrackball.multiply(
-                ScreenTrackball.fromYawPitch(
-                  baseYaw + 0.115 * currentX + idle,
-                  basePitch - 0.082 * currentY + idle2
-                ),
-                homeOffset
-              )
+          : ScreenTrackball.rotate(
+              homeOrientation,
+              0.115 * targetX + idle,
+              -0.082 * targetY + idle2
             );
+      const homeBasis = ScreenTrackball.basis(homeOrientation);
       const desiredDistance = cameraMode === 'free' ? orbitDistance : baseDistance,
         desiredCenter =
           cameraMode === 'free'
             ? orbitCenter
-            : [
-                baseCenter[0] + 0.038 * currentX,
-                baseCenter[1] - 0.026 * currentY,
-                baseCenter[2] + (reduced ? 0 : 0.008 * Math.sin(now * 0.00016))
-              ],
+            : baseCenter.map(
+                (value, i) =>
+                  value +
+                  0.038 * targetX * homeBasis.right[i] -
+                  0.026 * targetY * homeBasis.up[i] +
+                  (reduced ? 0 : 0.008 * Math.sin(now * 0.00016)) * homeBasis.back[i]
+              ),
         cameraEase = 1 - Math.exp(-dt * (cameraMode === 'free' ? 12 : 7));
       const turning =
         1 -
@@ -1297,14 +1242,13 @@ void main() {
         )
       );
       gl.uniform3fv(U.Camera, new Float32Array(eye));
-      gl.uniform1f(U.TranslucencyEnabled, depthPeelerFailed ? 0 : 1);
       gl.uniform1f(U.TransNear, 0);
       gl.uniform1f(U.TransFar, 2);
       gl.uniform1f(U.TransMinAlpha, 0.18);
       const draw = () => gl.drawElements(gl.TRIANGLES, activeCount, gl.UNSIGNED_INT, 0),
         bounds = Math.max(1.01, activeMeta.positionBound || 0),
         distanceToBounds = Math.hypot(...eye.map((c) => Math.max(0, Math.abs(c) - bounds)));
-      if (!depthPeelerFailed && distanceToBounds < 2) {
+      if (distanceToBounds < 2) {
         try {
           if (!depthPeeler) depthPeeler = createDepthPeeler(gl, p);
           depthPeeler.render(
@@ -1317,17 +1261,11 @@ void main() {
           );
         } catch (error) {
           if (!usable()) return;
-          depthPeelerFailed = true;
           if (depthPeeler) depthPeeler.dispose();
-          depthPeeler = null;
-          status(
-            'warning',
-            'X-ray is unavailable on this device; showing an opaque surface.',
-            activeMeta
-          );
+          stop(error.message);
+          return;
         }
-      }
-      if (depthPeelerFailed || distanceToBounds >= 2) {
+      } else {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.useProgram(p);
@@ -1379,17 +1317,5 @@ void main() {
       }
     };
   }
-  globalThis.HodgeSurfaceCore = Object.freeze({
-    create,
-    defaultView: Object.freeze({
-      seed: 245646,
-      box: 10,
-      xray: true,
-      xrayReach: 2,
-      mode: 'parallax',
-      yaw: 0.71,
-      pitch: 0.455,
-      distance: 3.22
-    })
-  });
+  globalThis.HodgeSurfaceCore = Object.freeze({ create });
 })();

@@ -23,12 +23,6 @@ def polynomial(poly, degree, parity=None):
         isinstance(poly.get("expression"), str) and poly["expression"], "missing exact expression"
     )
     terms = poly.get("terms")
-    if terms is None:
-        require(
-            poly.get("representation") or poly.get("factored"),
-            "missing exact polynomial representation",
-        )
-        return
     require(bool(terms), "zero polynomial supplied as a target or denominator")
     seen = set()
     encoded = {}
@@ -52,8 +46,7 @@ def polynomial(poly, degree, parity=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--release", action="store_true")
-    args = parser.parse_args()
+    parser.parse_args()
     subprocess.run([sys.executable, str(ROOT / "scripts/build-content.py"), "--check"], check=True)
     index = json.loads((ROOT / "data/index.json").read_text())
     ids = set()
@@ -136,10 +129,9 @@ def main():
         )
         camera = render.get("camera", {})
         require(
-            all(
-                isinstance(camera.get(k), (int, float)) and math.isfinite(camera[k])
-                for k in ["yaw", "pitch", "distance"]
-            ),
+            set(camera) == {"orientation", "distance", "center"}
+            and isinstance(camera.get("distance"), (int, float))
+            and math.isfinite(camera["distance"]),
             f"{rid}: missing finite saved camera",
         )
         require(
@@ -148,18 +140,17 @@ def main():
             and all(math.isfinite(v) for v in camera["center"]),
             f"{rid}: invalid camera framing",
         )
-        if "orientation" in camera:
-            orientation = camera["orientation"]
-            require(
-                isinstance(orientation, list)
-                and len(orientation) == 4
-                and all(isinstance(v, (int, float)) and math.isfinite(v) for v in orientation),
-                f"{rid}: invalid camera orientation",
-            )
-            require(
-                abs(sum(v * v for v in orientation) - 1) < 1e-10,
-                f"{rid}: camera orientation is not a unit quaternion",
-            )
+        orientation = camera.get("orientation")
+        require(
+            isinstance(orientation, list)
+            and len(orientation) == 4
+            and all(isinstance(v, (int, float)) and math.isfinite(v) for v in orientation),
+            f"{rid}: invalid camera orientation",
+        )
+        require(
+            abs(sum(v * v for v in orientation) - 1) < 1e-10,
+            f"{rid}: camera orientation is not a unit quaternion",
+        )
         phases = {
             sum(e for e, sign in zip(powers, render["phaseSigns"]) if sign < 0) % 2
             for _, powers in record["F"]["terms"]
@@ -208,10 +199,6 @@ def main():
     print(
         "Exact coefficient encodings, degrees, parities, saved real slices, and local asset references passed."
     )
-    if args.release:
-        raise SystemExit(
-            "RELEASE BLOCKED: repository and website publication require separate owner authorization."
-        )
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ source, record_path, destination = map(Path, sys.argv[1:])
 manifest = json.loads(source.read_text())
 meta = manifest["meta"]
 record = json.loads(record_path.read_text())
-if meta.get("stride") != 9:
+if manifest.get("encoding") != "float32-p3-n3-phase2-d1" or meta.get("stride") != 9:
     raise ValueError("Expected interleaved position/normal/color data")
 v = (
     np.frombuffer(gzip.decompress((source.parent / manifest["vertices"]).read_bytes()), dtype="<f4")

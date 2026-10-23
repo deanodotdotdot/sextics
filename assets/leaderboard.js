@@ -32,11 +32,8 @@
       const account = accounts.get(key);
       if (!account.solves.has(record.id)) {
         const acceptedAt = Date.parse(credit.acceptedAt);
-        // Older cached exports lack dates; keep them usable until refreshed.
-        account.scoreReachedAt = Math.max(
-          account.scoreReachedAt,
-          Number.isFinite(acceptedAt) ? acceptedAt : Infinity
-        );
+        if (!Number.isFinite(acceptedAt)) throw new Error('Missing acceptance date.');
+        account.scoreReachedAt = Math.max(account.scoreReachedAt, acceptedAt);
       }
       account.solves.add(record.id);
       if (credit.origin === 'starting-example') account.baseline.add(record.id);

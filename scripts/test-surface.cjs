@@ -2,12 +2,13 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const { gzipSync } = require('node:zlib');
 const path = require('node:path');
 const source = (name) => fs.readFileSync(path.join(__dirname, '../assets', name), 'utf8');
 const event = (target, name, props = {}) =>
   target.dispatchEvent(Object.assign(new Event(name), props));
 
-function core() {
+function core({ floatTargets = true, framebufferComplete = true, reducedMotion = true } = {}) {
   let now = 0,
     raf = null,
     lost = false,
@@ -27,6 +28,9 @@ function core() {
           calls.push(name);
           if (lost) throw new Error('Used a lost WebGL context: ' + name);
           if (name === 'getError') return 'NO_ERROR';
+          if (name === 'getExtension') return floatTargets ? {} : null;
+          if (name === 'checkFramebufferStatus')
+            return framebufferComplete ? 'FRAMEBUFFER_COMPLETE' : 'INCOMPLETE';
           if (name === 'getShaderParameter' || name === 'getProgramParameter') return true;
           if (name === 'clientWaitSync') return waiting ? 'TIMEOUT_EXPIRED' : 'CONDITION_SATISFIED';
           if (name.startsWith('create') || name === 'getUniformLocation' || name === 'fenceSync')
@@ -66,6 +70,8 @@ function core() {
   ]);
   const context = {
     AbortController,
+    Blob,
+    DecompressionStream,
     setTimeout,
     URL,
     Float32Array,
@@ -89,9 +95,20 @@ function core() {
       });
       return {
         ok: true,
-        json: async () => ({ meta, vertices: 'vertices.bin', indices: 'indices.bin' }),
-        arrayBuffer: async () =>
-          String(url).includes('indices') ? new Uint32Array([0, 1, 2]).buffer : vertices.buffer
+        json: async () => ({
+          encoding: 'float32-p3-n3-phase2-d1',
+          meta,
+          vertices: 'vertices.bin.gz',
+          indices: 'indices.bin.gz'
+        }),
+        arrayBuffer: async () => {
+          const data = String(url).includes('indices') ? new Uint32Array([0, 1, 2]) : vertices;
+          const compressed = gzipSync(Buffer.from(data.buffer));
+          return compressed.buffer.slice(
+            compressed.byteOffset,
+            compressed.byteOffset + compressed.byteLength
+          );
+        }
       };
     }
   };
@@ -99,15 +116,16 @@ function core() {
   vm.runInNewContext(source('mesh.js'), context);
   vm.runInNewContext(source('renderer.js'), context);
   const renderer = context.HodgeSurfaceCore.create(canvas, {
-    host: { view, page, reducedMotion: true },
+    host: { view, page, reducedMotion },
     onStatus: (s) => status.push(s),
     onFatal: (message) => failures.push(message)
   });
   const record = {
     id: 'test',
+    title: 'Test surface',
     render: {
       mesh: 'meshes/test.json',
-      camera: { yaw: 0, pitch: 0, distance: 8, center: [0, 0, 0] }
+      camera: { orientation: [0.5, 0.5, 0.5, 0.5], distance: 8, center: [0, 0, 0] }
     }
   };
   return {
@@ -116,6 +134,7 @@ function core() {
     calls,
     status,
     failures,
+    view,
     page,
     frame(time) {
       now = time;
@@ -280,6 +299,8 @@ function controller({
   assert.equal(readings().length, readingCount);
   orient(80, { beta: null });
   assert.equal(readings().length, readingCount);
+  orient(90, { alpha: null });
+  assert.equal(readings().length, readingCount);
   orient(120, { gamma: 60 });
   assert.equal(readings().at(-1).properties.x, 1);
   const inputs = tilt.workers[0].messages.length;
@@ -329,11 +350,84 @@ function controller({
     );
     c.api.destroy();
   }
+
+  // Generate physical device rotations independently with matrices, then encode
+  // them as browser angles. Check the full input patch across upright/flat and
+  // portrait/landscape poses, including the beta=90-degree representation change.
+  const radians = Math.PI / 180;
+  const mm = (a, b) =>
+    a.map((row) => b[0].map((_, j) => row.reduce((sum, v, k) => sum + v * b[k][j], 0)));
+  const rx = (t) => [
+    [1, 0, 0],
+    [0, Math.cos(t), -Math.sin(t)],
+    [0, Math.sin(t), Math.cos(t)]
+  ];
+  const ry = (t) => [
+    [Math.cos(t), 0, Math.sin(t)],
+    [0, 1, 0],
+    [-Math.sin(t), 0, Math.cos(t)]
+  ];
+  const rz = (t) => [
+    [Math.cos(t), -Math.sin(t), 0],
+    [Math.sin(t), Math.cos(t), 0],
+    [0, 0, 1]
+  ];
+  function sensorAngles(m) {
+    let beta = Math.asin(Math.max(-1, Math.min(1, m[2][1])));
+    let alpha = Math.atan2(-m[0][1], m[1][1]);
+    let gamma = Math.atan2(-m[2][0], m[2][2]);
+    if (Math.abs(gamma) > Math.PI / 2) {
+      gamma -= Math.sign(gamma) * Math.PI;
+      beta = Math.sign(beta) * Math.PI - beta;
+      alpha += Math.PI;
+    }
+    return {
+      alpha: (alpha / radians + 360) % 360,
+      beta: beta / radians,
+      gamma: gamma / radians
+    };
+  }
+  for (const angle of [0, 90, 180, 270]) {
+    for (const [alpha, beta, gamma] of [
+      [359, 0, 0],
+      [37, 60, 0],
+      [20, 89.5, 35],
+      [220, 91, -20],
+      [149, -75, 40]
+    ]) {
+      const c = controller({ mobile: true });
+      c.window.screen.orientation.angle = angle;
+      const initial = mm(mm(rz(alpha * radians), rx(beta * radians)), ry(gamma * radians));
+      event(c.window, 'deviceorientation', { alpha, beta, gamma });
+      let time = 40;
+      for (const x of [-0.5, 0, 0.5])
+        for (const y of [-0.5, 0, 0.5]) {
+          // Convert screen axes back to device axes before applying the tilt.
+          const s = Math.sin(angle * radians),
+            cs = Math.cos(angle * radians);
+          const local = mm(
+            rx((x * s + y * cs) * 18 * radians),
+            ry((x * cs - y * s) * 18 * radians)
+          );
+          c.time(time);
+          time += 40;
+          event(c.window, 'deviceorientation', sensorAngles(mm(initial, local)));
+          const actual = c.workers[0].messages
+            .filter((m) => m.name === 'parallax')
+            .at(-1).properties;
+          assert.ok(
+            Math.abs(actual.x - x) < 0.005 && Math.abs(actual.y - y) < 0.005,
+            `Tilt at ${alpha},${beta},${gamma}; screen ${angle}; expected ${x},${y}, got ${actual.x},${actual.y}`
+          );
+        }
+      c.api.destroy();
+    }
+  }
   console.log(
-    'Tilt parallax: calibration, bounds, throttling, portrait/landscape, scroll, free mode, visibility, cleanup, reduced motion and silent permission fallback passed.'
+    'Tilt parallax: calibration, bounds, throttling, portrait/landscape, scroll, free mode, visibility, cleanup, reduced motion, incomplete readings and permission handling passed.'
   );
   // Saved poses can include roll. It survives reset and returning to the
-  // background view; selecting an older yaw/pitch-only record clears it.
+  // background view; selecting a different saved pose replaces it.
   const pose = core(),
     quaternion = [
       0.7848410404195184, 0.12778571965730126, 0.5102919966531698, -0.32756286309133836
@@ -365,17 +459,13 @@ function controller({
   pose.frame(250);
   samePose();
   await pose.renderer.setCase(pose.record);
-  const legacy = core();
-  await legacy.renderer.setCase(legacy.record);
+  const unrolled = core();
+  await unrolled.renderer.setCase(unrolled.record);
   assert.deepEqual(
     Array.from(pose.renderer.getCamera().orientation),
-    Array.from(legacy.renderer.getCamera().orientation)
+    Array.from(unrolled.renderer.getCamera().orientation)
   );
-  for (const orientation of [
-    [0, 0, 0, 0],
-    [0, 0, 1],
-    [0, NaN, 0, 1]
-  ]) {
+  for (const orientation of [undefined, [0, 0, 0, 0], [0, 0, 1], [0, NaN, 0, 1]]) {
     await assert.rejects(
       pose.renderer.setCase({
         ...rolled,
@@ -385,7 +475,88 @@ function controller({
     );
   }
   pose.renderer.destroy();
-  legacy.renderer.destroy();
+  unrolled.renderer.destroy();
+
+  // Missing float targets or incomplete framebuffers pause the view without
+  // changing precision or replacing x-ray rendering with an opaque surface.
+  for (const capability of [{ floatTargets: false }, { framebufferComplete: false }]) {
+    const unsupported = core(capability);
+    await unsupported.renderer.setCase({
+      ...unsupported.record,
+      render: {
+        ...unsupported.record.render,
+        camera: { ...unsupported.record.render.camera, distance: 1 }
+      }
+    });
+    unsupported.frame(100);
+    assert.equal(unsupported.failures.length, 1);
+    assert.equal(unsupported.status.at(-1).state, 'error');
+    assert.equal(unsupported.calls.includes('drawElements'), false);
+    unsupported.renderer.destroy();
+  }
+
+  // Project actual camera movement onto the saved view's screen axes. Every
+  // saved pose, including rolled cameras, must respond on two independent axes.
+  const root = path.join(__dirname, '..');
+  const ids = JSON.parse(fs.readFileSync(path.join(root, 'data/catalogue.json'))).instanceIds;
+  const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0);
+  const basis = ([x, y, z, w]) => ({
+    right: [1 - 2 * (y * y + z * z), 2 * (x * y + w * z), 2 * (x * z - w * y)],
+    up: [2 * (x * y - w * z), 1 - 2 * (x * x + z * z), 2 * (y * z + w * x)],
+    back: [2 * (x * z + w * y), 2 * (y * z - w * x), 1 - 2 * (x * x + y * y)]
+  });
+  async function movedCamera(orientation, input) {
+    const c = core({ reducedMotion: false });
+    await c.renderer.setCase({
+      ...c.record,
+      render: {
+        ...c.record.render,
+        camera: { ...c.record.render.camera, orientation }
+      }
+    });
+    if (input.phone) event(c.view, 'parallax', input.phone);
+    else
+      event(c.view, 'pointermove', {
+        clientX: (input.x + 1) * 400,
+        clientY: (input.y + 1) * 300
+      });
+    c.frame(100);
+    const camera = c.renderer.getCamera();
+    c.renderer.destroy();
+    return JSON.parse(JSON.stringify(camera));
+  }
+  for (const id of [...ids, 'home']) {
+    const { orientation } = JSON.parse(
+      fs.readFileSync(path.join(root, `slices/${id}.json`))
+    ).camera;
+    const axes = basis(orientation);
+    const views = await Promise.all(
+      [
+        { x: 0, y: 0 },
+        { x: 0.5, y: 0 },
+        { x: 0, y: 0.5 }
+      ].map((input) => movedCamera(orientation, input))
+    );
+    const angles = views.map((camera) => {
+      const back = basis(camera.orientation).back;
+      return [
+        Math.atan2(dot(back, axes.right), dot(back, axes.back)),
+        Math.asin(dot(back, axes.up))
+      ];
+    });
+    const horizontal = angles[1].map((v, i) => v - angles[0][i]);
+    const vertical = angles[2].map((v, i) => v - angles[0][i]);
+    assert.ok(
+      horizontal[0] > 0.02 && Math.abs(horizontal[1]) < 0.0001,
+      `${id}: horizontal parallax`
+    );
+    assert.ok(vertical[1] < -0.015 && Math.abs(vertical[0]) < 0.0001, `${id}: vertical parallax`);
+    const phone = await movedCamera(orientation, { phone: { x: 0.5, y: 0 } });
+    assert.deepEqual(phone, views[1], `${id}: mouse and phone share camera motion`);
+  }
+  console.log(
+    'Parallax: independent horizontal/vertical movement for all 83 saved poses; mouse and phone agree.'
+  );
 
   // Report ready only after the GPU confirms an actual frame, not after upload.
   let c = core();
@@ -412,7 +583,10 @@ function controller({
     formalStatus: 'proved',
     render: { ...switching.record.render, divisorTerms: [[1, [1, 0, 0, 0, 0, 0]]] }
   };
-  const second = { ...first, render: { ...first.render, divisorTerms: [[1, [0, 1, 0, 0, 0, 0]]] } };
+  const second = {
+    ...first,
+    render: { ...first.render, divisorTerms: [[1, [0, 1, 0, 0, 0, 0]]] }
+  };
   await switching.renderer.setCase(first);
   await switching.renderer.setCase(first);
   assert.equal(switching.calls.filter((x) => x === 'createProgram').length, 1);

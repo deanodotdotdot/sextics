@@ -232,7 +232,9 @@ export async function readDiscussionCounts(github, entries, session) {
         { ids: ids.slice(offset, offset + 100) },
         token
       );
-      for (const node of data.nodes || []) {
+      if (!Array.isArray(data.nodes))
+        throw new ServiceError(502, 'GitHub returned an invalid discussion list.');
+      for (const node of data.nodes) {
         if (node && ids.includes(node.id))
           byNode.set(node.id, await countCommentsAndReplies(github, node.id, node.comments, token));
       }

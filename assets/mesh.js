@@ -103,8 +103,6 @@
         if (!response.ok) throw new Error('Missing local mesh asset: ' + name);
         const buffer = await response.arrayBuffer();
         check();
-        const magic = new Uint8Array(buffer);
-        if (magic[0] !== 31 || magic[1] !== 139) return buffer;
         if (typeof DecompressionStream === 'undefined')
           throw new Error('This browser cannot decompress the saved mesh.');
         const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'));
@@ -128,17 +126,13 @@
         }
       }
       let buffer, indexBuffer;
-      if (
-        ['quantized-p3-n3-phase2-v1', 'quantized-p3-n3-phase2-delta-v1'].includes(manifest.encoding)
-      ) {
+      if (manifest.encoding === 'quantized-p3-n3-phase2-delta-v1') {
         const parts = await Promise.all(
           ['position', 'normal', 'complex', 'indices'].map((name) => bytes(manifest[name]))
         );
         check();
-        if (manifest.encoding === 'quantized-p3-n3-phase2-delta-v1') {
-          for (let i = 0; i < 4; i++)
-            parts[i] = unpackDeltaPlanes(parts[i], i === 3 ? 4 : 2, i < 2 ? 3 : i === 2 ? 2 : 1);
-        }
+        for (let i = 0; i < 4; i++)
+          parts[i] = unpackDeltaPlanes(parts[i], i === 3 ? 4 : 2, i < 2 ? 3 : i === 2 ? 2 : 1);
         const pos = new Uint16Array(parts[0]),
           normal = new Int16Array(parts[1]),
           phase = new Int16Array(parts[2]),
@@ -169,12 +163,12 @@
         }
         buffer = data.buffer;
         indexBuffer = parts[3];
-      } else {
+      } else if (manifest.encoding === 'float32-p3-n3-phase2-d1') {
         [buffer, indexBuffer] = await Promise.all([
           bytes(manifest.vertices),
           bytes(manifest.indices)
         ]);
-      }
+      } else throw new Error('Unrecognized mesh encoding.');
       check();
       await validateDynamicMesh(
         buffer,

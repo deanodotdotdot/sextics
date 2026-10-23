@@ -24,8 +24,6 @@
     solutionId: null,
     overview: null
   };
-  const expression = (p) => (typeof p === 'string' ? p : p?.expression || '');
-  const latex = (p) => (typeof p === 'object' ? p?.latex || '' : String(p ?? ''));
   const isProved = (r) => r.formalStatus === 'proved';
   const group = (r) => (isProved(r) ? 'solved' : 'open');
   const groupNames = { open: 'Open', solved: 'Solved' };
@@ -47,19 +45,13 @@
   function math(tex, display = false) {
     const span = document.createElement('span');
     if (!tex) return '';
-    try {
-      katex.render(tex, span, {
-        displayMode: display,
-        throwOnError: true,
-        trust: false,
-        strict: 'ignore',
-        output: 'htmlAndMathml'
-      });
-    } catch (error) {
-      console.warn('Math rendering:', error.message);
-      span.textContent = tex;
-      span.className = 'math-fallback';
-    }
+    katex.render(tex, span, {
+      displayMode: display,
+      throwOnError: true,
+      trust: false,
+      strict: 'ignore',
+      output: 'htmlAndMathml'
+    });
     return span.innerHTML;
   }
   function coefficientFractions(tex) {
@@ -163,7 +155,7 @@
     return result;
   }
   function displayPolynomial(p) {
-    return math(polynomialTex(latex(p) || expression(p)), true);
+    return math(polynomialTex(p.latex), true);
   }
   function renderMath(root) {
     root.querySelectorAll('[data-math]:not([data-rendered])').forEach((node) => {
@@ -238,7 +230,7 @@
     dialog.classList.add('solution-dialog');
     dialog.setAttribute('aria-labelledby', 'solutionTitle');
     positionDialog();
-    const header = `<header class="solution-header"><p class="dialog-eyebrow">THE CONSTRUCTION</p><h2 id="solutionTitle">${escape(record.title)}</h2><div class="solution-contributor"><a class="solver-leaderboard-link" href="#leaderboard/${encodeURIComponent(account.githubLogin)}" aria-label="View ${escape(account.name)} on the leaderboard">${avatar(account)}<span><span class="solver-label">Solved by</span><strong>${escape(account.name)}</strong><span class="account-handle">@${escape(account.githubLogin)} · view leaderboard →</span></span></a><a class="solver-github-link" href="${escape(record.pullRequest?.url || 'https://github.com/hodge-computer/sextics/pulls?q=' + encodeURIComponent('is:pr in:title "' + record.id + '"'))}" target="_blank" rel="noopener noreferrer">View pull request ↗</a></div></header>`;
+    const header = `<header class="solution-header"><p class="dialog-eyebrow">THE CONSTRUCTION</p><h2 id="solutionTitle">${escape(record.title)}</h2><div class="solution-contributor"><a class="solver-leaderboard-link" href="#leaderboard/${encodeURIComponent(account.githubLogin)}" aria-label="View ${escape(account.name)} on the leaderboard">${avatar(account)}<span><span class="solver-label">Solved by</span><strong>${escape(account.name)}</strong><span class="account-handle">@${escape(account.githubLogin)} · view leaderboard →</span></span></a><a class="solver-github-link" href="${escape(record.pullRequest.url)}" target="_blank" rel="noopener noreferrer">View pull request ↗</a></div></header>`;
     $('dialogContent').innerHTML =
       header + '<p role="status">Loading the mathematical explanation…</p>';
     dialog.showModal();
@@ -353,9 +345,7 @@
     $('clearCaseSearch').disabled = !$('caseSearch').value;
     $('atlasColophon').hidden = !!query || !state.records.length;
     const filtered = state.records.filter((r) =>
-      `${r.id} ${r.title} ${r.category || ''} ${r.family || ''} ${r.evidenceKind || ''}`
-        .toLowerCase()
-        .includes(query)
+      `${r.id} ${r.title} ${r.category} ${r.evidenceKind}`.toLowerCase().includes(query)
     );
     $('caseIndex').innerHTML =
       groupOrder
@@ -363,7 +353,7 @@
           const rows = instancesInGroup(key, filtered);
           if (!rows.length && key !== 'solved') return '';
           if (!rows.length && query) return '';
-          return `<section class="index-section" aria-label="${escape(groupNames[key])}"><h2 class="index-heading"><span class="status-dot ${key === 'open' ? 'open' : ''}"></span>${escape(groupNames[key])}<span class="index-count">${rows.length.toString().padStart(2, '0')}</span></h2>${rows.map((r) => `<div class="case-index-row"><a class="case-link${state.current === r.id ? ' active' : ''}" href="#case/${encodeURIComponent(r.id)}" ${state.current === r.id ? 'aria-current="page"' : ''}><span class="case-number">${escape(r.number)}</span><span class="case-index-title"><span class="case-name">${escape(r.title)}</span>${r.id === 'holdout' || r.featured ? `<span class="case-family">${escape(r.subtitle || r.category || 'A central open target')}</span>` : ''}</span></a><a class="case-discussion-link" href="#case/${encodeURIComponent(r.id)}/discussion" data-discussion="${escape(r.id)}" data-title="${escape(r.title)}" aria-label="Open discussion for ${escape(r.title)}"><svg viewBox="0 0 30 25" aria-hidden="true"><path d="M6 2.5h18a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3h-8l-6 4v-4H6a3 3 0 0 1-3-3v-11a3 3 0 0 1 3-3Z"/></svg><span aria-hidden="true">—</span></a></div>`).join('')}${!rows.length ? '<p class="index-empty">Reserved for verified Lean proofs.</p>' : ''}</section>`;
+          return `<section class="index-section" aria-label="${escape(groupNames[key])}"><h2 class="index-heading"><span class="status-dot ${key === 'open' ? 'open' : ''}"></span>${escape(groupNames[key])}<span class="index-count">${rows.length.toString().padStart(2, '0')}</span></h2>${rows.map((r) => `<div class="case-index-row"><a class="case-link${state.current === r.id ? ' active' : ''}" href="#case/${encodeURIComponent(r.id)}" ${state.current === r.id ? 'aria-current="page"' : ''}><span class="case-number">${escape(r.number)}</span><span class="case-index-title"><span class="case-name">${escape(r.title)}</span>${r.id === 'holdout' ? `<span class="case-family">${escape(r.category)}</span>` : ''}</span></a><a class="case-discussion-link" href="#case/${encodeURIComponent(r.id)}/discussion" data-discussion="${escape(r.id)}" data-title="${escape(r.title)}" aria-label="Open discussion for ${escape(r.title)}"><svg viewBox="0 0 30 25" aria-hidden="true"><path d="M6 2.5h18a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3h-8l-6 4v-4H6a3 3 0 0 1-3-3v-11a3 3 0 0 1 3-3Z"/></svg><span aria-hidden="true">—</span></a></div>`).join('')}${!rows.length ? '<p class="index-empty">Reserved for verified Lean proofs.</p>' : ''}</section>`;
         })
         .join('') || '<p class="index-empty">No instances match this search.</p>';
     updateDiscussionCounts();
@@ -412,15 +402,14 @@
       : 'Loading surface…';
     $('surface').setAttribute('aria-busy', String(loading));
   }
-  function onStatus(event) {
-    const status = typeof event === 'string' ? { message: event } : event;
+  function onStatus(status) {
     if (status.state) {
       state.surfaceState = status.state;
       updateSurfaceLoading();
     }
     $('surfaceStatus').textContent = status.state === 'ready' ? '' : status.message || '';
     if (status.state === 'ready' && state.renderer) {
-      const meta = state.renderer.getMeta?.();
+      const meta = state.renderer.getMeta();
       if (meta) {
         const signs = meta.phaseSigns;
         const phased = signs?.some((s) => s < 0);
@@ -432,12 +421,12 @@
   }
   function setScene(record) {
     const status = group(record),
-      title = record.title || 'Contact cone 46006';
+      title = record.title;
     $('exploreInfo').innerHTML =
       `<span class="explore-status-dot ${status}" aria-hidden="true"></span><span class="explore-instance-name">${escape(title)}</span>`;
     $('exploreInfo').setAttribute('aria-label', `${groupNames[status]} instance shown`);
     $('exploreInfo').title = title;
-    $('sceneLabel').textContent = record.title || 'Contact cone 46006';
+    $('sceneLabel').textContent = title;
     $('sliceLabel').textContent = record.render?.phaseSigns?.some((s) => s < 0)
       ? 'a real slice in complex coordinates'
       : 'a real slice of X = {F = 0}';
@@ -447,7 +436,7 @@
     });
   }
   function definitionsMarkup(r) {
-    const definitions = r.displayDefinitions || [];
+    const definitions = r.displayDefinitions;
     return definitions.length
       ? `<div class="definitions">${definitions.map((definition) => math(polynomialTex(definition), true)).join('')}</div>`
       : '';
@@ -466,17 +455,16 @@
   async function renderCase(record, loadId) {
     const why = await loadContent(record.content.why);
     if (loadId !== state.loadId) return;
-    const certificate = isProved(record),
-      proved = isProved(record);
+    const proved = isProved(record);
     const number = state.records.find((r) => r.id === record.id)?.number || '';
-    const category = record.category || record.family || '';
+    const category = record.category;
 
     $('caseView').innerHTML =
-      `<div class="case-breadcrumb">THE ATLAS <span>/</span> ${certificate || proved ? 'SOLVED' : 'OPEN TARGET'} <span>/</span> ${escape(number)}</div>
+      `<div class="case-breadcrumb">THE ATLAS <span>/</span> ${proved ? 'SOLVED' : 'OPEN TARGET'} <span>/</span> ${escape(number)}</div>
     <div class="case-heading"><h1 class="case-title">${escape(record.title)}</h1>${statusCard(record)}</div>
     <div class="case-meta"><span class="badge">q = ${escape(record.q)}</span>${category ? `<span class="badge">${escape(category)}</span>` : ''}</div>
     <section class="goal-panel" aria-label="Certificate problem"><h2 class="goal-label">THE GOAL</h2><p class="goal-intro">Find a homogeneous polynomial ${math('D')} on six complex variables such that</p><div class="goal-equation">${math('F^{q+1}\\;\\bigm|\\; A-q\\cdot\\mathrm dF(v)+F\\cdot\\operatorname{div}(v)', true)}</div><div class="goal-fields"><span>for some vector field</span><span class="goal-field-equation">${math('v=\\left(\\frac{N_0}{D},\\ldots,\\frac{N_5}{D}\\right)')}</span><span>with</span><span class="goal-field-equation">${math('\\deg N_i=\\deg D+6q-5.')}</span></div><div class="goal-fineprint">${math('D\\ne0')} and ${math('\\gcd(D,F)=1')}. Divisibility is in ${math('\\mathbb C[X_0,X_1,X_2,Y_0,Y_1,Y_2]_{(F)}')}. The challenge asks for a Lean proof that such a field exists.</div></section>
-    <section class="instance-panel" aria-label="Exact instance"><div class="section-line"><h2>THIS INSTANCE</h2><button id="copyInstance" class="subtle-button copy-instance-button" aria-label="Copy (F, q, A)">Copy ${math('(F, q, A)')}</button></div><div class="polynomial-row"><div class="polynomial-symbol">${math('F')}</div><div class="polynomial-value"><div class="primary-polynomial">${displayPolynomial(record.F)}</div>${definitionsMarkup(record)}</div></div><div class="polynomial-row"><div class="polynomial-symbol">${math('q')}</div><div class="polynomial-value">${math(String(record.q), true)}</div></div><div class="polynomial-row"><div class="polynomial-symbol">${math('A')}</div><div class="polynomial-value"><div class="primary-polynomial">${displayPolynomial(record.A)}</div></div></div>${certificate && record.D ? `<div class="solution-panel"><div class="solution-title"><span class="status-dot"></span> Known certificate </div><div class="polynomial-row"><div class="polynomial-symbol">${math('D')}</div><div class="polynomial-value"><div class="primary-polynomial">${displayPolynomial(record.D)}</div>${record.D.degree !== undefined ? `<p class="goal-fineprint">Homogeneous degree ${escape(record.D.degree)}. Highlighted on the surface where visible.</p>` : ''}</div></div></div>` : ''}</section>
+    <section class="instance-panel" aria-label="Exact instance"><div class="section-line"><h2>THIS INSTANCE</h2><button id="copyInstance" class="subtle-button copy-instance-button" aria-label="Copy (F, q, A)">Copy ${math('(F, q, A)')}</button></div><div class="polynomial-row"><div class="polynomial-symbol">${math('F')}</div><div class="polynomial-value"><div class="primary-polynomial">${displayPolynomial(record.F)}</div>${definitionsMarkup(record)}</div></div><div class="polynomial-row"><div class="polynomial-symbol">${math('q')}</div><div class="polynomial-value">${math(String(record.q), true)}</div></div><div class="polynomial-row"><div class="polynomial-symbol">${math('A')}</div><div class="polynomial-value"><div class="primary-polynomial">${displayPolynomial(record.A)}</div></div></div>${proved && record.D ? `<div class="solution-panel"><div class="solution-title"><span class="status-dot"></span> Known certificate </div><div class="polynomial-row"><div class="polynomial-symbol">${math('D')}</div><div class="polynomial-value"><div class="primary-polynomial">${displayPolynomial(record.D)}</div>${record.D.degree !== undefined ? `<p class="goal-fineprint">Homogeneous degree ${escape(record.D.degree)}. Highlighted on the surface where visible.</p>` : ''}</div></div></div>` : ''}</section>
     <section class="case-notes mathematical-prose"><h2>Why this instance matters</h2>${why}</section>
     <div class="record-actions"><button class="participate-action" data-modal="participate" data-instance="${escape(record.id)}">Participate <span>↗</span></button><button id="discussionToggle" aria-expanded="false" aria-controls="instanceDiscussion">Discussion <span aria-hidden="true">＋</span></button></div>${HodgeDiscussion.markup(record)}${caseNavigation(record)}`;
     renderMath($('caseView'));
@@ -499,7 +487,7 @@
       revealDiscussion(HodgeRoutes.parse(location.hash)?.comment);
     $('copyInstance').addEventListener('click', () =>
       copyText(
-        `F = ${expression(record.F)}\nq = ${record.q}\nA = ${expression(record.A)}\nvariables = X0, X1, X2, Y0, Y1, Y2`
+        `F = ${record.F.expression}\nq = ${record.q}\nA = ${record.A.expression}\nvariables = X0, X1, X2, Y0, Y1, Y2`
       )
     );
   }
@@ -783,7 +771,7 @@
     );
     $('participateCopyTarget')?.addEventListener('click', () =>
       copyText(
-        `F = ${expression(record.F)}\nq = ${record.q}\nA = ${expression(record.A)}\nvariables = X0, X1, X2, Y0, Y1, Y2`
+        `F = ${record.F.expression}\nq = ${record.q}\nA = ${record.A.expression}\nvariables = X0, X1, X2, Y0, Y1, Y2`
       )
     );
     renderMath($('dialogContent'));
