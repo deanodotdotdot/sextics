@@ -85,9 +85,10 @@ def publish_manifest(bucket, manifest):
                     json.dumps(
                         {
                             "Objects": [{"Key": key} for key in obsolete[offset : offset + 1000]],
-                            "Quiet": True,
                         }
                     ),
+                    "--output",
+                    "json",
                 ],
                 capture_output=True,
                 text=True,
