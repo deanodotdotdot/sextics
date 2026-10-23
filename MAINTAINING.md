@@ -4,11 +4,11 @@ Contributor instructions are in [CONTRIBUTING.md](CONTRIBUTING.md); this documen
 
 ## Repository architecture
 
-The project uses direct GitHub PRs with protected Lean verification, owner sign-off, and a trusted publication step. GitHub provides contributor identities, PRs, and discussions; the website backend handles GitHub sign-in and discussion access. Contribution format and checks are documented in [CONTRIBUTING.md](CONTRIBUTING.md); the review and publication procedure is described below.
+The project uses direct GitHub PRs with protected Lean verification, GitHub merge permissions, and a trusted publication step. GitHub provides contributor identities, PRs, and discussions; the website backend handles GitHub sign-in and discussion access. Contribution format and checks are documented in [CONTRIBUTING.md](CONTRIBUTING.md); the verification and publication procedure is described below.
 
 Each instance lives permanently in `data/<id>/`. Its protected target and prospective context exist before a solve. A solve PR adds proof sources, an explanation, and optional witness data to that same folder. After a checked merge, the publisher adds an acceptance receipt and derives the canonical solution record. The atlas, explanations, PR links, and leaderboard are generated from these records.
 
-`formal/lean/` pins the shared contract, Lean toolchain, and mathlib manifest. `scripts/proposals/` implements source restrictions, sandboxed compilation, kernel replay, theorem/axiom auditing, owner review, and publication. `.github/workflows/` invokes trusted base-branch code; candidate workflow and setup files are never executed as part of solve verification.
+`formal/lean/` pins the shared contract, Lean toolchain, and mathlib manifest. `scripts/proposals/` implements source restrictions, sandboxed compilation, kernel replay, theorem/axiom auditing, and publication. `.github/workflows/` invokes trusted base-branch code; candidate workflow and setup files are never executed as part of solve verification.
 
 Treat the shared formal library as the Lean counterpart of the book: retain organized, generally useful machinery with explicit scope and concrete applications; keep failed experiments and instance-specific calculations out of it. Reusable constructions belong under `formal/lean/HodgeComputer/Constructions/` when they support concrete applications. Extract accepted machinery through a maintenance PR, preserving its attribution and the original acceptance-backed instance files. New solve PRs import the maintained library and supply their target-specific proof. Build changed shared modules, replay them with `leanchecker`, and check an application against the protected target before merging library changes. The protected dependency-cache key includes the shared Lean sources as well as the pinned toolchain and manifest.
 
@@ -44,48 +44,43 @@ Solver portraits link to the contributor's leaderboard entry; the construction h
 
 ## Verification, sign-off, and publication
 
-Solve contributions are direct GitHub PRs. The protected checker validates the exact target and proof, the owner signs off on the checked commit, and the owner merges it. A separate trusted publisher records acceptance and rebuilds the atlas and leaderboard. No workflow merges a PR automatically.
+Solve contributions are direct GitHub PRs. The protected checker validates the exact target and proof, and the owner decides whether to merge it. A separate trusted publisher records acceptance and rebuilds the atlas and leaderboard. No workflow merges a PR automatically.
 
 ### Protected checks
 
 Before preparing Lean, CI renders the proposed `solution.md` with the publication renderer, validates local file links against the protected checkout plus proposed files, and checks formulas with the bundled KaTeX. This check does not fetch external URLs or execute proposal code. `scripts/content.py` resolves ordinary Markdown links relative to the instance folder; existing repository-root artifact links remain supported.
 
-`solve-proposal.yml` uses trusted base-branch code. Draft PRs wait until marked ready, or until the owner explicitly dispatches a check. Pinned protected Lean dependencies are cached between runs; each submitted proof is still compiled and checked independently. It fetches the PR as data and freezes the base and head commit IDs. A solve may add only permitted proof, witness, and explanation files to one existing `data/<id>/` folder. Existing target, context, infrastructure, and generated files are protected. A mixed solve/maintenance change fails even with owner approval; split it into separate PRs.
+`solve-proposal.yml` uses trusted base-branch code. Draft PRs wait until marked ready, or until the owner explicitly dispatches a check. Pinned protected Lean dependencies are cached between runs; each submitted proof is still compiled and checked independently. It fetches the PR as data and freezes the base and head commit IDs. A solve may add only permitted proof, witness, and explanation files to one existing `data/<id>/` folder. Existing target, context, infrastructure, and generated files are protected. A mixed solve/maintenance change fails validation; split it into separate PRs.
 
 The checker generates `HodgeTarget` from the base record, and optional `HodgeWitness` from exact witness data. It compiles the proposal inside an OS sandbox, replays every submitted and protected module with `leanchecker` in a separate read-only process, and audits the protected theorem type and transitive axioms. Sequential replay bounds memory use even when a submission has many helpers; unused helpers are checked too. A submitted JSON witness requires an additional theorem binding the exact displayed polynomials to the same protected target. Printed claims are never verification evidence.
 
 Candidate code receives no networking, credentials, or repository write access. Protected target artifacts, candidate artifacts, and the final trusted wrapper have separate write permissions. Linux uses Docker; local macOS checking uses `sandbox-exec`. The pinned toolchain, dependencies, verifier, and OS remain trusted components. Verification fails if isolation is unavailable.
 
-The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed; the result is ready for the owner to merge. No separate approving review is required.
+The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed. Maintenance PRs have no solve to verify and use Repository checks for code validation. CI does not request approval or inspect GitHub reviews.
 
-### Owner sign-off
+### Merge permissions
 
-`.github/solve-policy.json` selects `live` mode and the account authorized to merge
-solves. After a solve's `solve/lean` check succeeds, the owner reviews its explanation
-and uses **Create a merge commit**. That merge is the sign-off. No separate approving
-review is required, including when the owner authored the PR. The publisher checks
-GitHub's `merged_by` identity against the configured owner; it does not grant credit
-for a merge performed by another account. Repository write/merge access should remain
-limited to the owner, with the trusted Actions publisher allowed to record acceptance.
+GitHub repository access controls who can push and merge. `benediamond` is the only
+human with write access; trusted GitHub Actions workflows can publish generated
+results. CI validates the proposed changes independently of merge authorization.
+There is no pre-merge CI approval gate for solve or maintenance PRs and no
+approval-dispatch step. The existing post-merge publisher separately checks that
+the merger matches the owner in `.github/solve-policy.json`.
 
 If publication of an eligible, already-merged solve failed, rerun **Publish accepted
 solve** with its PR number. It reuses the successful Lean check against the original
 merge parents and source files. A changed head or base requires fresh verification
 before merging. This retry cannot turn a failed or unchecked proof into an acceptance.
 
-Maintenance PRs retain their explicit authorization requirement. For an owner-authored
-maintenance PR, dispatch **Solve proposal** with its number and full reviewed head SHA
-in `approved_head`. Both the original workflow actor and rerun actor must be the owner.
-
 Use a **merge commit**, preserving the checked head as its second parent. Merge only against the checked base. Squash/rebase merges and base drift fail publication. When merging through GitHub CLI or an owner script, bind the merge request to the reviewed head SHA. Do not merge another solve until the previous publication commit has landed and the next proof has been checked against current main.
 
-Branch protection or repository rulesets can require `solve/lean`, up-to-date branches, and maintainer-controlled merging. A failing workflow status does not itself prevent a merge unless the repository settings enforce it. `preview` mode is available for infrastructure experiments, but its receipts cannot be published as accepted solves.
+`preview` mode is available for infrastructure experiments, but its receipts cannot be published as accepted solves.
 
 ### Trusted publication
 
 `publish-solve.yml` runs on a merged PR or an explicit retry. It checks out trusted main and invokes `scripts/proposals/publish.py`. The publisher requires:
 
-- The configured owner's merge of the checked head into this repository's main branch. The merge is the sign-off, regardless of PR authorship.
+- The configured owner's merge of the checked head into this repository's main branch. This existing publication check runs after the merge and does not affect PR CI.
 - A successful protected workflow run associated with the exact checked head and base.
 - Matching workflow/verifier hashes and a matching preserved verification report.
 - A merge commit whose parents are exactly the checked base and head.
@@ -94,7 +89,7 @@ Branch protection or repository rulesets can require `solve/lean`, up-to-date br
 
 The PR receives a separate `solve/publication` status linking to this workflow. It reports pending, successful, or failed publication independently of `solve/lean`, so a post-merge failure is visible from the PR. It then writes `data/<id>/acceptance.json`, derives `solution.rec`, and runs the content builder and validators. The workflow commits these derived files to main. A failed or interrupted publication leaves no accepted solve in published output; rerun the workflow once the cause is resolved. The generated acceptance record is durable even after transient CI artifacts expire.
 
-Version 2 verification reports separate proof checking from owner authorization; the acceptance receipt records both. Version 1 reports retain their original meaning: a successful run already required owner authorization. Existing accepted solves and publication retries remain valid under that earlier evidence.
+Acceptance receipts retain their existing post-merge owner authorization. Publication retries validate verifier sources against the original checked base, so older reports remain valid after the CI approval script is removed.
 
 The atlas and leaderboard read generated files and need no GitHub service at runtime. Sign-in and discussions use the backend API. The publisher never awards credit from editable claimed identities, an unmerged proof, or a status flag. After acceptance, edit `solution.md` as ordinary reviewed documentation. The site renders the current explanation; the original submission remains in Git history and its acceptance record. Editorial changes do not require another Lean run or a new acceptance record. Changes to the target, Lean sources, proof manifest, or witness require renewed verification.
 
@@ -105,7 +100,7 @@ python3 scripts/proposals/test_check.py
 python3 scripts/proposals/test_lean.py
 ```
 
-The first checks file boundaries, schema, identity, and review logic. The second exercises the real Lean/sandbox path, including a small valid certificate and deliberately invalid inputs. These verifier regression tests belong to infrastructure changes; solve PRs run their actual submitted proof, not the regression suite. See [CONTRIBUTING.md](CONTRIBUTING.md#local-verification) for the contributor's local verification recipe.
+The first checks file boundaries, schema, attribution, workflow status, and publication evidence. The second exercises the real Lean/sandbox path, including a small valid certificate and deliberately invalid inputs. These verifier regression tests belong to infrastructure changes; solve PRs run their actual submitted proof, not the regression suite. See [CONTRIBUTING.md](CONTRIBUTING.md#local-verification) for the contributor's local verification recipe.
 
 The unprivileged Repository checks workflow runs the content, browser-state,
 renderer, backend and packaging suites on every PR. It validates generated records

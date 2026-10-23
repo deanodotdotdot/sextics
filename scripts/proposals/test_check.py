@@ -12,7 +12,6 @@ from unittest.mock import patch
 import yaml
 from check import ROOT, read_proposal
 from check import module_order, polynomial, strip_comments, target_source
-from review import approved, dispatched_approval, requires_owner_review
 import publish
 import classify
 from acceptance import sha256
@@ -102,64 +101,23 @@ class WorkflowCommitBinding(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError,'PR changed'):
             self.run_step('Reject a result for a superseded PR or base',head='d'*40)
 
+    def test_solve_and_maintenance_status_follow_verification_result(self):
+        steps=yaml.safe_load((ROOT/'.github/workflows/solve-proposal.yml').read_text())['jobs']['verify']['steps']
+        shell=next(step['run'] for step in steps if step.get('name')=='Record result on the submitted commit')
+        # Capture the actual status API call without credentials or review data.
+        shell='gh() { printf "%s\\n" "$@"; }\n'+shell
+        for solve in ('true','false'):
+            for result in ('success','failure'):
+                with self.subTest(solve=solve,result=result):
+                    env={**os.environ,'RESULT':result,'IS_SOLVE':solve,'HEAD':'c'*40,
+                         'REPO':'hodge-computer/sextics','RUN':'https://example.invalid/run'}
+                    output=subprocess.check_output(['bash','-euc',shell],env=env,text=True)
+                    self.assertIn('state='+result+'\n',output)
+                    self.assertIn('context=solve/lean\n',output)
+                    if result=='failure':self.assertIn('verification failed',output)
+                    elif solve=='false':self.assertIn('No solve changes',output)
+
 class ProposalChecks(unittest.TestCase):
-    def test_solve_cli_keeps_pending_review_separate_from_proof_result(self):
-        owner=json.loads((ROOT/'.github/solve-policy.json').read_text())['owner']
-        head='a'*40
-        with tempfile.TemporaryDirectory() as tmp:
-            reviews=Path(tmp)/'reviews.json'; reviews.write_text('[[]]')
-            report=Path(tmp)/'report.json'
-            checked={'schemaVersion':2,'headCommit':head,'kernelReplay':True,
-                     'result':'lean-checked-awaiting-owner'}
-            report.write_text(json.dumps(checked))
-            command=[sys.executable,str(ROOT/'scripts/proposals/review.py'),
-                     '--reviews',str(reviews),'--head',head,'--report',str(report)]
-            result=subprocess.run(command,capture_output=True,text=True)
-            self.assertEqual(result.returncode,0,result.stderr)
-            self.assertIn('Lean verification passed. Ready for owner merge',result.stdout)
-            self.assertIsNone(json.loads(report.read_text())['ownerAuthorization'])
-            result=subprocess.run(command+['--event','workflow_dispatch','--actor',owner,
-                '--triggering-actor',owner,'--approved-head',head],capture_output=True,text=True)
-            self.assertEqual(result.returncode,0,result.stderr)
-            self.assertIsNone(json.loads(report.read_text())['ownerAuthorization'])
-            # A sign-off cannot be attached to an incomplete or different check.
-            for mutation in ({'result':'structure-only'},{'headCommit':'b'*40},{'kernelReplay':False}):
-                report.write_text(json.dumps({**checked,**mutation}))
-                with self.subTest(mutation=mutation):
-                    self.assertNotEqual(subprocess.run(command,capture_output=True).returncode,0)
-
-    def test_maintenance_cli_rejects_missing_and_stale_approval(self):
-        owner=json.loads((ROOT/'.github/solve-policy.json').read_text())['owner']
-        head='a'*40
-        with tempfile.TemporaryDirectory() as tmp:
-            reviews=Path(tmp)/'reviews.json'
-            command=[sys.executable,str(ROOT/'scripts/proposals/review.py'),
-                     '--reviews',str(reviews),'--head',head,'--maintenance']
-            reviews.write_text('[[]]')
-            result=subprocess.run(command,capture_output=True,text=True)
-            self.assertNotEqual(result.returncode,0)
-            self.assertIn('owner must authorize',result.stderr)
-            review={'id':1,'user':{'login':owner},'state':'APPROVED','commit_id':head}
-            reviews.write_text(json.dumps([[review]]))
-            self.assertEqual(subprocess.run(command,capture_output=True).returncode,0)
-            review['commit_id']='b'*40
-            reviews.write_text(json.dumps([[review]]))
-            self.assertNotEqual(subprocess.run(command,capture_output=True).returncode,0)
-
-    def test_maintenance_cannot_bypass_owner_review_in_preview(self):
-        self.assertTrue(requires_owner_review('preview',maintenance=True))
-        self.assertTrue(requires_owner_review('live',maintenance=True))
-        self.assertFalse(requires_owner_review('live',maintenance=False))
-        self.assertFalse(requires_owner_review('preview',maintenance=False))
-        with self.assertRaises(ValueError): requires_owner_review('disabled',maintenance=False)
-
-    def test_explicit_owner_dispatch(self):
-        args=['workflow_dispatch','benediamond','benediamond','a'*40,'benediamond','a'*40]
-        self.assertTrue(dispatched_approval(*args))
-        for index,value in ((0,'pull_request_target'),(1,'stranger'),(2,'stranger'),(3,'b'*40)):
-            bad=args.copy();bad[index]=value
-            with self.subTest(index=index):self.assertFalse(dispatched_approval(*bad))
-
     def test_exact_polynomial_translation(self):
         self.assertIn('(1 / 87 : ℂ)',polynomial('610 * X0 * Y0**5 * Y2**6 / 87'))
         for expression in ('__import__("os").system("true")','X6','X0**-1','X0 / Y0','1.2*X0'):
@@ -177,18 +135,6 @@ class ProposalChecks(unittest.TestCase):
         self.assertEqual(module_order(files)[0],['Helper.lean','Solution.lean'])
         for code in (b'import Proposal.Missing',b'import Lake',b'axiom bad : False',b'#eval IO.println "fake pass"',b'run_cmd pure ()',b'theorem bad : False := by sorry'):
             with self.subTest(code=code),self.assertRaises(ValueError): module_order({'Solution.lean':code})
-
-    def test_owner_approval_is_bound_to_the_exact_head(self):
-        head='a'*40
-        approved_review={'id':1,'user':{'login':'benediamond'},'state':'APPROVED','commit_id':head}
-        self.assertTrue(approved([approved_review],'benediamond',head))
-        self.assertFalse(approved([approved_review],'benediamond','b'*40))
-        self.assertFalse(approved([approved_review],'other-user',head))
-        dismissed={**approved_review,'id':2,'state':'DISMISSED'}
-        self.assertFalse(approved([approved_review,dismissed],'benediamond',head))
-        changes={**approved_review,'id':3,'state':'CHANGES_REQUESTED'}
-        self.assertFalse(approved([approved_review,changes],'benediamond',head))
-
 
 class PublicationAuthorization(unittest.TestCase):
     def setUp(self):
@@ -230,12 +176,14 @@ class PublicationAuthorization(unittest.TestCase):
         self.merge['parents'][0]['sha']='d'*40
         with self.assertRaisesRegex(ValueError,'checked base and head'):self.validate()
 
-    def test_old_reports_remain_valid_and_new_reports_bind_signoff_code(self):
-        self.report['schemaVersion']=1
-        del self.report['verifierSha256']['scripts/proposals/review.py']
-        self.validate()
-        self.report['schemaVersion']=2
-        with self.assertRaisesRegex(ValueError,'sign-off source binding'):self.validate()
+    def test_old_reports_and_current_reports_remain_valid(self):
+        for version in (1,2):
+            self.report['schemaVersion']=version
+            self.validate()
+            # The removed CI approval script is absent from new reports.
+            digest=self.report['verifierSha256'].pop('scripts/proposals/review.py')
+            self.validate()
+            self.report['verifierSha256']['scripts/proposals/review.py']=digest
         self.report['schemaVersion']=3
         with self.assertRaisesRegex(ValueError,'report version'):self.validate()
 

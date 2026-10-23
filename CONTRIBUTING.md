@@ -102,7 +102,7 @@ Use the [shared constructions](formal/README.md#reusable-constructions) when the
 
 Ordinary declarations and tactic proofs are accepted. Custom executable extensions, `axiom`, `sorry`, `admit`, and unchecked native decision procedures are refused. Shared infrastructure changes need a separate maintenance PR. Do not submit binaries, compiled artifacts, symlinks, executable scripts, Lake configuration, nested directories, or unrelated files.
 
-The complete committed diff must consist solely of newly added permitted solution files in **one existing instance folder**. Edits to `instance.rec`, `why.md`, the leaderboard, the website, the verifier, workflows, or any other existing file fail validation. Owner approval does not override this solve-file boundary. A PR without a solve is treated as maintenance and requires owner authorization of its exact head commit.
+The complete committed diff must consist solely of newly added permitted solution files in **one existing instance folder**. Edits to `instance.rec`, `why.md`, the leaderboard, the website, the verifier, workflows, or any other existing file fail validation. A PR without a solve is treated as maintenance and checked by Repository checks. CI does not require an approving review or workflow sign-off; GitHub repository permissions control merging.
 
 Limits are in `.github/solve-policy.json`: 64 files, 16 MiB of source, a 60-minute proof budget, and 14 GiB memory. The memory budget leaves room for the operating system and runner services on GitHub's free 16 GB Linux runners for public repositories. The allowed axiom set is `propext`, `Classical.choice`, and `Quot.sound`.
 
@@ -170,7 +170,7 @@ This checks the proof against the checkout's target and exports logs, without co
 
 ### Review and acceptance
 
-The protected workflow compiles in an OS sandbox, replays every submitted module with `leanchecker`, and audits the exact theorem and transitive axioms. Proposal code receives no network access, repository write access, or GitHub credentials. A green `solve/lean` status means verification passed and the PR is ready for the owner to merge. The owner's merge is the approval; a separate approving review is not required, including for an owner-authored PR. An updated PR commit or changed base requires fresh checks before merging.
+The protected workflow compiles in an OS sandbox, replays every submitted module with `leanchecker`, and audits the exact theorem and transitive axioms. Proposal code receives no network access, repository write access, or GitHub credentials. A green `solve/lean` status means verification passed and the PR is ready for the owner to merge. Merge authorization is controlled by GitHub repository permissions, independently of CI. No separate approving review or workflow sign-off is required. An updated PR commit or changed base requires fresh checks before merging.
 
 The owner merges the checked head with a merge commit. The trusted publication workflow then validates the successful run, source hashes, unchanged target, contributor identity, and merge parents. It writes an acceptance receipt and rebuilds the website and leaderboard. The instance remains open if publication fails; fix the cause and rerun publication rather than editing status flags. See [verification and owner sign-off](MAINTAINING.md#verification-sign-off-and-publication).
 

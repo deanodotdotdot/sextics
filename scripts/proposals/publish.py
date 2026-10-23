@@ -53,8 +53,6 @@ def validate_report(report, pr, run, merge, policy):
     for path,expected in report['verifierSha256'].items():
         require(sha256(git('show',report['baseCommit']+':'+path))==expected, 'Verifier evidence differs from the checked base')
     require('.github/workflows/solve-proposal.yml' in report['verifierSha256'], 'Missing workflow source binding')
-    if report['schemaVersion']==2:
-        require('scripts/proposals/review.py' in report['verifierSha256'], 'Missing sign-off source binding')
 
 
 def merge_authorization(pr, policy):
