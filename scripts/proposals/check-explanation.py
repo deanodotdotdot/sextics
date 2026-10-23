@@ -34,6 +34,7 @@ def main():
                 'Run the checker from the trusted base checkout')
         policy = json.loads((ROOT / '.github/solve-policy.json').read_text())
         rid, _, files, _ = read_proposal(args.base, args.head, args.author, policy)
+    subprocess.run([sys.executable, str(ROOT / 'scripts/build-content.py')], cwd=ROOT, check=True)
     folder = Path('data') / rid
     rendered = render(files['solution.md'].decode(), root=ROOT,
                       source_path=folder / 'solution.md',
