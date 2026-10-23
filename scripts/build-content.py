@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Compile local .rec and Markdown sources. No network access or proof acceptance."""
-from datetime import date, datetime
 from fractions import Fraction
 import json
 import re
@@ -60,7 +59,6 @@ def polynomial(expression):
 catalogue = json.loads((ROOT / 'data/catalogue.json').read_text())
 presentation = json.loads((ROOT / 'assets/atlas-presentation.json').read_text())
 summaries = []
-credits = []
 require(catalogue['schemaVersion'] == 2, 'Unsupported catalogue schema')
 require(len(catalogue['instanceIds']) == len(set(catalogue['instanceIds'])), 'Duplicate instance ID')
 for rid in catalogue['instanceIds']:
@@ -112,17 +110,9 @@ for rid in catalogue['instanceIds']:
             else:
                 require('sliceIdentity' not in display, f'{rid}: slice identity needs an explicit denominator')
             record['render']['divisorProgram'] = display
-        submitted = solution.get('submittedAt')
-        if isinstance(submitted, (date, datetime)):
-            submitted = submitted.isoformat()
-        require(submitted is None or isinstance(submitted, str), f'{rid}: invalid submission date')
-        solution['submittedAt'] = submitted
-        record['credit'] = {'githubLogin': login, 'origin': solution['creditOrigin'], 'awardedAt': submitted}
+        record['credit'] = {'githubLogin': login, 'acceptedAt': solution['acceptedAt']}
         record['content']['solution'] = f'assets/atlas/{rid}/solution.html'
         emit(ATLAS / rid / 'solution.html', render(prose(local_path(solution['explanation'], folder)), root=ROOT, source_path=local_path(solution['explanation'], folder)))
-        accepted = solution['acceptedAt']
-        accepted = accepted.isoformat() if isinstance(accepted, (date, datetime)) else accepted
-        credits.append({'instanceId': rid, **record['credit'], 'acceptedAt': accepted})
     if record['formalStatus'] == 'unproved':
         require(not (ROOT / 'slices/divisors' / f'{rid}.json').exists(), f'{rid}: display divisor requires an accepted proof')
         record['witnessAvailability'] = 'missing'
@@ -135,7 +125,6 @@ for rid in catalogue['instanceIds']:
 home = json.loads((ROOT / 'slices/home.json').read_text())
 dump(ROOT / 'assets/home-scene.json', {key: home[key] for key in ['pairId', 'seed', 'mesh', 'camera']})
 dump(ATLAS / 'index.json', {'schemaVersion': 2, 'records': summaries})
-dump(ROOT / 'leaderboard/credits.json', {'schemaVersion': 2, 'basis': 'accepted-proofs', 'credits': credits})
 
 doc_index = json.loads((ROOT / 'docs/index.json').read_text())
 for page in doc_index['pages']:
@@ -155,4 +144,4 @@ for path in generated:
         path.unlink()
 for path, text in outputs.items():
     write_output(path, text)
-print(f'Built {len(summaries)} instances, {len(credits)} credited constructions, and {len(doc_index["pages"])} chapters.')
+print(f'Built {len(summaries)} instances, {sum("credit" in record for record in summaries)} credited constructions, and {len(doc_index["pages"])} chapters.')

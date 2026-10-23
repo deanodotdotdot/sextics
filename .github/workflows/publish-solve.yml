@@ -73,7 +73,7 @@ jobs:
           set -euo pipefail
           [[ "$PR" =~ ^[0-9]+$ ]]
           python3 scripts/proposals/publish.py --pr "$PR"
-      - name: Commit the acceptance record and leaderboard
+      - name: Commit the acceptance record
         id: commit
         env:
           GH_TOKEN: ${{ github.token }}
@@ -81,7 +81,7 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          git add data leaderboard/credits.json
+          git add data
           if git diff --cached --quiet; then exit 0; fi
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m "Record accepted solution from PR #$PR"
           auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)

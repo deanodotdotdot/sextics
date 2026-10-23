@@ -123,8 +123,7 @@ def solution_record(root, receipt):
         availability = 'literal'
     return {'schemaVersion':2, 'instanceId':instance_id,
             'solver':{'githubLogin':receipt['githubLogin']},
-            'evidenceStatus':'lean-accepted','creditOrigin':'contribution',
-            'submittedAt':receipt['submittedAt'],'acceptedAt':receipt['acceptedAt'],
+            'evidenceStatus':'lean-accepted','acceptedAt':receipt['acceptedAt'],
             'witnessAvailability':availability,'witness':witness,
             'explanation':'solution.md','pullRequest':receipt['pullRequest'],
             'proof':{'formalStatus':'proved','status':'accepted',

@@ -2,7 +2,6 @@
   "roots": [
     "assets",
     "data",
-    "leaderboard",
     "discussions",
     "docs"
   ],

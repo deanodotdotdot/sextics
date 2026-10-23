@@ -18,7 +18,7 @@ Edit `solution.md` directly and rebuild the content. The site uses its current t
 
 ## Generated files
 
-The website build writes its index, per-instance JSON, and rendered explanations to `assets/atlas/`. This directory is disposable build output, including polynomial coefficient arrays; do not commit it. `leaderboard/credits.json` is also generated. For authorized source maintenance, rebuild and validate:
+The website build writes its index, per-instance JSON, and rendered explanations to `assets/atlas/`. This directory is disposable build output, including polynomial coefficient arrays; do not commit it. For authorized source maintenance, rebuild and validate:
 
 ```sh
 python3 scripts/build-content.py

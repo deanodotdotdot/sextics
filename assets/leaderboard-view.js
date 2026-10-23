@@ -20,7 +20,7 @@
       panel.innerHTML = `<header class="contributor-heading"><p class="dialog-eyebrow">THE CONTRIBUTIONS</p><div class="contributor-title-line"><h2>Constructions by ${escape(account.name)}</h2><a href="https://github.com/${encodeURIComponent(account.githubLogin)}" target="_blank" rel="noopener noreferrer">@${escape(account.githubLogin)} ↗</a></div></header><div class="contribution-list">${row.instanceIds
         .map((id) => {
           const r = records().find((r) => r.id === id);
-          return `<div class="contribution-row"><a class="contribution-solution" href="#case/${encodeURIComponent(id)}/solution" aria-haspopup="dialog"><span class="contribution-check" aria-hidden="true">✓</span><span><strong>${escape(r.title)}</strong><small>${r.credit.origin === 'starting-example' ? 'Starting Fermat example' : 'Contributed construction'} · q = ${r.q}</small></span><span class="contribution-read">Read the construction ↗</span></a><a href="#case/${encodeURIComponent(id)}" aria-label="View instance: ${escape(r.title)}">Instance →</a></div>`;
+          return `<div class="contribution-row"><a class="contribution-solution" href="#case/${encodeURIComponent(id)}/solution" aria-haspopup="dialog"><span class="contribution-check" aria-hidden="true">✓</span><span><strong>${escape(r.title)}</strong><small>Contributed construction · q = ${r.q}</small></span><span class="contribution-read">Read the construction ↗</span></a><a href="#case/${encodeURIComponent(id)}" aria-label="View instance: ${escape(r.title)}">Instance →</a></div>`;
         })
         .join('')}</div>`;
     }
@@ -99,8 +99,7 @@
     const rankings = new Map(),
       contributorComments = new Map();
     let current = null,
-      request = null,
-      credits = null;
+      request = null;
     let rankingSignature = '',
       detailsSignature = '',
       refreshing = false,
@@ -184,16 +183,7 @@
             rows = data.rows;
             rememberAccounts(rows);
           } else {
-            credits ||= fetch('leaderboard/credits.json')
-              .then((response) => {
-                if (!response.ok) throw Error('Leaderboard unavailable.');
-                return response.json();
-              })
-              .catch((error) => {
-                credits = null;
-                throw error;
-              });
-            rows = HodgeLeaderboard.rank(await credits, records());
+            rows = HodgeLeaderboard.rank(records());
             try {
               await loadProfiles(
                 rows.map((row) => row.githubLogin),
