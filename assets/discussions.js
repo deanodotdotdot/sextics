@@ -367,7 +367,8 @@
         HodgeDiscussionMarkdown.render(intro.querySelector('div'), data.body, data.url);
       updateComposer();
     }
-    function load(append = false) {
+    async function load(append = false) {
+      await account.ready;
       if (loading) return loadPending;
       loadPending = loadPage(append);
       return loadPending;
@@ -382,7 +383,6 @@
       q('.discussion-more').disabled = true;
       message(append ? 'Loading more comments…' : loaded ? '' : 'Loading discussion…');
       try {
-        await account.ready;
         if (!active() || run !== version) return;
         const next = await account.request(
           endpoint +

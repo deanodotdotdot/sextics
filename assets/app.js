@@ -389,17 +389,13 @@
     panel.hidden = false;
     $('discussionToggle').setAttribute('aria-expanded', 'true');
     $('discussionToggle').querySelector('span').textContent = '−';
-    const scroll = () => {
-      if (panel.isConnected && !panel.hidden)
-        panel.scrollIntoView({
-          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
-          block: 'start'
-        });
-    };
-    if (!commentNumber) scroll();
     panel.focus({ preventScroll: true });
     await HodgeDiscussion.open(commentNumber);
-    if (!commentNumber) scroll();
+    if (!commentNumber && panel.isConnected && !panel.hidden)
+      panel.scrollIntoView({
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+        block: 'start'
+      });
   }
   function updateSurfaceLoading() {
     const loading = state.surfaceState === 'loading',
