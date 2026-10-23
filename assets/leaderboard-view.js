@@ -42,33 +42,7 @@
         })
         .join('')}</div>`;
       panel.querySelectorAll('.comment-preview').forEach((node, i) => {
-        HodgeDiscussionMarkdown.render(node, row.comments[i].body, row.comments[i].url);
-        let remaining = 240,
-          truncated = false;
-        function shorten(parent) {
-          for (const child of [...parent.childNodes]) {
-            if (remaining <= 0) {
-              child.remove();
-              truncated = true;
-              continue;
-            }
-            if (child.nodeType === 3) {
-              const text = child.textContent;
-              if (text.length > remaining) {
-                child.textContent = text.slice(0, remaining).replace(/\s+\S*$/, '');
-                truncated = true;
-              }
-              remaining -= text.length;
-            } else if (child.nodeType === 1) {
-              if (child.matches('.discussion-math-inline,.discussion-math-display,pre'))
-                remaining -= (child.querySelector('annotation')?.textContent || child.textContent)
-                  .length;
-              else shorten(child);
-            }
-          }
-        }
-        shorten(node);
-        if (truncated) node.append('…');
+        HodgeDiscussionMarkdown.render(node, row.comments[i].body, row.comments[i].url, 240);
       });
     }
     function highlightContributor(login, { scroll = true } = {}) {
@@ -103,7 +77,8 @@
     let rankingSignature = '',
       detailsSignature = '',
       refreshing = false,
-      scrollPending = false;
+      scrollPending = false,
+      refreshedAt = 0;
 
     function paint(rows) {
       const comments = current.mode === 'comments';
@@ -181,6 +156,7 @@
             });
             if (!valid()) return;
             rows = data.rows;
+            refreshedAt = Date.now();
             rememberAccounts(rows);
           } else {
             rows = HodgeLeaderboard.rank(records());
@@ -201,7 +177,7 @@
           key = row?.githubLogin.toLowerCase();
         const cached = contributorComments.get(key);
         details(row, cached?.comments);
-        if (!comments || !row || (!refresh && cached && Date.now() - cached.time < 15000)) return;
+        if (!comments || !row || (!refresh && cached && Date.now() - cached.time < 120000)) return;
         if (!cached)
           $('contributorDetails').querySelector('.comment-contribution-list').innerHTML =
             '<p class="comment-load-status" role="status">Loading comments…</p>';
@@ -247,7 +223,7 @@
       }
     }
     async function refresh() {
-      if (document.hidden || current?.mode !== 'comments' || refreshing) return;
+      if (document.hidden || current?.mode !== 'comments' || refreshing || Date.now() - refreshedAt < 60000) return;
       refreshing = true;
       try {
         await show(current, { refresh: true, quiet: true });
@@ -268,7 +244,7 @@
         location.hash = HodgeRoutes.leaderboard(mode);
       });
     $('leaderboardRetry').addEventListener('click', () => show(current, { refresh: true }));
-    setInterval(refresh, 30000);
+    setInterval(refresh, 60000);
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', refresh);
     document.addEventListener('hodge-session-change', () => {

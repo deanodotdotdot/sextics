@@ -589,6 +589,11 @@
       state.current === caseId &&
       $('instanceDiscussion')?.dataset.instance === caseId
     ) {
+      if (!destination.discussion && !destination.solution)
+        $('main').scrollTo({
+          top: 0,
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+        });
       if (destination.discussion) revealDiscussion(destination.comment);
       if (destination.solution) {
         const record = await getRecord(caseId);
