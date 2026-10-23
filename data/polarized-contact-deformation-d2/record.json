@@ -1736,7 +1736,7 @@
   },
   "render": {
     "seed": 691639697,
-    "resolution": 176,
+    "resolution": 192,
     "terms": [
       [
         1000005.0,
@@ -2913,7 +2913,7 @@
       1,
       1
     ],
-    "mesh": "meshes/adaptive176-polarized-contact-deformation-d2.json",
+    "mesh": "meshes/adaptive-polarized-contact-deformation-d2.json",
     "planeMatrix": [
       [
         0.33135562316960127,
@@ -2952,7 +2952,7 @@
         -0.3873668298911581
       ]
     ],
-    "triangleCount": 72768,
+    "triangleCount": 76672,
     "validated": true,
     "camera": {
       "orientation": [
@@ -2961,7 +2961,7 @@
         -0.09994474425643307,
         0.40928113576796604
       ],
-      "distance": 2.53212,
+      "distance": 2.53225,
       "center": [
         0,
         0,

@@ -33,7 +33,7 @@ A: -48*X0**5*Y0 - 40*X0**5*Y1 - 200*X0**4*X1*Y0 - 264*X0**4*X1*Y1 - 528*X0**3*X1
   + 1212003636*X2*Y0**2*Y1**3 + 1616004848*X2*Y0*Y1**4 + 1212003636*X2*Y1**5
 render:
   seed: 691639697
-  resolution: 176
+  resolution: 192
   terms:
   - - 1000005.0
     - - 6
@@ -784,7 +784,7 @@ render:
   - 1
   - 1
   - 1
-  mesh: meshes/adaptive176-polarized-contact-deformation-d2.json
+  mesh: meshes/adaptive-polarized-contact-deformation-d2.json
   planeMatrix:
   - - 0.33135562316960127
     - -0.15979440733092315
@@ -810,11 +810,15 @@ render:
     - 0.5203990390576896
     - -0.7258929326248226
     - -0.3873668298911581
-  triangleCount: 72768
+  triangleCount: 76672
   validated: true
   camera:
-    orientation: [0.8810296059311006, -0.2151437507177231, -0.09994474425643307, 0.40928113576796604]
-    distance: 2.53212
+    orientation:
+    - 0.8810296059311006
+    - -0.2151437507177231
+    - -0.09994474425643307
+    - 0.40928113576796604
+    distance: 2.53225
     center:
     - 0
     - 0

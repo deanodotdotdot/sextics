@@ -1,7 +1,7 @@
 {
-  "mesh": "meshes/adaptive176-polarized-contact-deformation-d2.json",
+  "mesh": "meshes/adaptive-polarized-contact-deformation-d2.json",
   "seed": 691639697,
-  "resolution": 176,
+  "resolution": 192,
   "phaseSigns": [
     1,
     1,
@@ -48,20 +48,20 @@
       -0.3873668298911581
     ]
   ],
-  "triangleCount": 72768,
+  "triangleCount": 76672,
   "validated": true,
   "camera": {
-    "distance": 2.53212,
-    "center": [
-      0,
-      0,
-      0
-    ],
     "orientation": [
       0.8810296059311006,
       -0.2151437507177231,
       -0.09994474425643307,
       0.40928113576796604
+    ],
+    "distance": 2.53225,
+    "center": [
+      0,
+      0,
+      0
     ]
   },
   "bakedHome": false
