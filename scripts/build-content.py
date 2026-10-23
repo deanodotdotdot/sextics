@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from content import render
-from divisors import validate_display, validate_slice_identity
+from divisors import validate_program, validate_slice_identity
 import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent / "proposals"))
 from acceptance import validate_solution
@@ -107,7 +107,7 @@ for rid in catalogue['instanceIds']:
         record['leanVerification'] = solution['proof']
         display_divisor = folder / 'display-divisor.json'
         if display_divisor.is_file():
-            display = validate_display(json.loads(display_divisor.read_text()), folder, record['render'])
+            display = validate_program(json.loads(display_divisor.read_text()), folder)
             if 'D' in witness:
                 validate_slice_identity(display, witness['D'], record['render'], folder)
             else:
@@ -137,6 +137,8 @@ for rid in catalogue['instanceIds']:
     if 'credit' in record:
         summary['credit'] = record['credit']
     summaries.append(summary)
+home = json.loads((ROOT / 'slices/home.json').read_text())
+dump(ROOT / 'assets/home-scene.json', {key: home[key] for key in ['pairId', 'seed', 'mesh', 'camera']})
 dump(ROOT / 'data/index.json', {'schemaVersion': 2, 'records': summaries})
 dump(ROOT / 'leaderboard/credits.json', {'schemaVersion': 2, 'basis': 'accepted-proofs', 'credits': credits})
 

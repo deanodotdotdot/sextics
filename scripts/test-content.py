@@ -44,6 +44,7 @@ class ContentUpdates(unittest.TestCase):
         self.write('docs/overview.md', r'An overview with \(F^{q+1}\).')
         self.write('index.html', '<main></main>')
         self.write('assets/renderer.js', '// Renderer fixture')
+        self.write('slices/home.json', json.dumps({'pairId': 'example', 'seed': 1, 'mesh': 'meshes/example.json', 'camera': {}}))
         self.run_build()
 
     def write(self, relative, text):
@@ -163,6 +164,14 @@ class ContentUpdates(unittest.TestCase):
         self.assertIn('href="#case/test-example"',rendered)
         self.assertIn('href="https://github.com/hodge-computer/sextics/blob/main/data/test-example/Solution.lean#L1"',rendered)
         self.assertIn('href="data/test-example/witness.json"',rendered)
+
+    def test_root_relative_source_links_go_to_github(self):
+        self.write('formal/README.md', 'Contract')
+        self.write('formal/lean/Example.lean', 'example : True := by trivial')
+        for target in ['formal/README.md', '/formal/lean/Example.lean#L1']:
+            rendered = render('[source](' + target + ')', root=self.root,
+                              source_path=Path('data') / RID / 'solution.md')
+            self.assertIn('https://github.com/hodge-computer/sextics/blob/main/' + target.lstrip('/'), rendered)
 
     def test_preflight_resolves_added_files_before_checkout_and_rejects_missing_links(self):
         source=Path('data')/RID/'solution.md'

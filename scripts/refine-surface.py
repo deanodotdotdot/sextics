@@ -11,6 +11,16 @@ from fractions import Fraction
 from pathlib import Path
 import numpy as np
 
+# Distances below use the mesh's normalized display coordinates.
+REFINEMENT_PASSES = 4
+PROJECTION_STEPS = 12
+MIDPOINT_ERROR = 0.0003
+CURVED_NORMAL_COSINE = 0.985
+SHARP_NORMAL_COSINE = 0.9659
+MIN_SHARP_EDGE_LENGTH = 0.00025
+MAX_PROJECTION_STEP_FRACTION = 0.1
+MAX_MIDPOINT_SHIFT_FRACTION = 0.4
+
 if len(sys.argv) != 4:
     raise SystemExit(__doc__)
 source, record_path, destination = map(Path, sys.argv[1:])
@@ -87,7 +97,7 @@ def field(p):
 
 def project(p, limit):
     out = p.copy()
-    for _ in range(12):
+    for _ in range(PROJECTION_STEPS):
         z, g = field(out)
         delta = z[:, None] * g / np.maximum(np.sum(g * g, axis=1), 1e-30)[:, None]
         delta *= np.minimum(1, limit / np.maximum(np.linalg.norm(delta, axis=1), 1e-30))[:, None]
@@ -105,7 +115,7 @@ def attributes(p):
     return np.column_stack((p, g, phase, np.zeros(len(p))))
 
 
-for it in range(4):
+for it in range(REFINEMENT_PASSES):
     p = v[:, :3]
     edges, inv = np.unique(
         np.sort(f[:, [[0, 1], [1, 2], [2, 0]]].reshape(-1, 2), axis=1), axis=0, return_inverse=True
@@ -113,13 +123,14 @@ for it in range(4):
     inv = inv.reshape(-1, 3)
     mids = p[edges].mean(axis=1)
     length = np.linalg.norm(p[edges[:, 0]] - p[edges[:, 1]], axis=1)
-    corrected = project(mids, 0.1 * length)
+    corrected = project(mids, MAX_PROJECTION_STEP_FRACTION * length)
     err = np.linalg.norm(corrected - mids, axis=1)
     normals = v[edges, 3:6]
     angle = np.sum(normals[:, 0] * normals[:, 1], axis=1)
-    selected = (((err > 0.0003) & (angle < 0.985)) | ((angle < 0.9659) & (length > 0.00025))) & (
-        err < 0.4 * length
-    )
+    curved = (err > MIDPOINT_ERROR) & (angle < CURVED_NORMAL_COSINE)
+    sharp = (angle < SHARP_NORMAL_COSINE) & (length > MIN_SHARP_EDGE_LENGTH)
+    safe_shift = err < MAX_MIDPOINT_SHIFT_FRACTION * length
+    selected = (curved | sharp) & safe_shift
     print(
         it,
         "faces",
@@ -129,7 +140,7 @@ for it in range(4):
         "error quantiles",
         np.quantile(err, [0.5, 0.9, 0.99, 1]).tolist(),
         "unresolved",
-        int((err >= 0.4 * length).sum()),
+        int((~safe_shift).sum()),
         flush=True,
     )
     if not selected.any():

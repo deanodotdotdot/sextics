@@ -17,7 +17,6 @@
     surfaceState: 'loading',
     loadId: 0,
     lastFocus: null,
-    leaderboard: null,
     accounts: new Map(),
     chapters: [],
     contentCache: new Map(),
@@ -27,12 +26,8 @@
   };
   const expression = (p) => (typeof p === 'string' ? p : p?.expression || '');
   const latex = (p) => (typeof p === 'object' ? p?.latex || '' : String(p ?? ''));
-  const hasCertificate = (r) =>
-    r.evidenceKind === 'explicit-certificate' ||
-    r.certificateStatus === 'available' ||
-    r.certificateAvailable === true;
   const isProved = (r) => r.formalStatus === 'proved';
-  const group = (r) => (isProved(r) || hasCertificate(r) ? 'solved' : 'open');
+  const group = (r) => (isProved(r) ? 'solved' : 'open');
   const groupNames = { open: 'Open', solved: 'Solved' };
   const groupOrder = ['open', 'solved'];
   function firstOpenInstance() {
@@ -186,7 +181,7 @@
     return `<img class="account-avatar" src="${escape(source)}" alt="" width="48" height="48" loading="lazy" decoding="async" referrerpolicy="no-referrer">`;
   }
   function statusCard(record) {
-    if (!hasCertificate(record))
+    if (!isProved(record))
       return '<div class="status-certificate open"><span class="status-word"><span class="certificate-mark" aria-hidden="true"></span><strong>open</strong></span><span class="certificate-detail">Awaiting a construction</span></div>';
     const account = accountFor(record.credit.githubLogin);
     return `<button id="solutionButton" class="status-certificate solved" aria-haspopup="dialog" aria-label="Solved by ${escape(account.name)}: read the construction"><span class="status-word"><span class="certificate-mark" aria-hidden="true">✓</span><strong>solved</strong></span><span class="certificate-author">${avatar(account)}<span>@${escape(account.githubLogin)}</span></span><span class="certificate-arrow" aria-hidden="true">↗</span></button>`;
@@ -300,9 +295,7 @@
       $('chapterBody').innerHTML = content;
       renderMath($('chapterBody'));
       if (anchor) {
-        const target = [...$('chapterBody').querySelectorAll('[id]')].find(
-          (n) => n.id === decodeURIComponent(anchor)
-        );
+        const target = [...$('chapterBody').querySelectorAll('[id]')].find((n) => n.id === anchor);
         target?.scrollIntoView({ block: 'start' });
       }
     } catch (error) {
@@ -454,15 +447,12 @@
     });
   }
   function definitionsMarkup(r) {
-    const defs = r.displayDefinitions || r.latex?.definitions;
-    if (!defs) return '';
-    const values = Array.isArray(defs)
-      ? defs
-      : typeof defs === 'string'
-        ? [defs]
-        : Object.entries(defs).map(([k, v]) => `${k}=${v}`);
-    return `<div class="definitions">${values.map((d) => math(polynomialTex(typeof d === 'string' ? d : d.latex || ''), true)).join('')}</div>`;
+    const definitions = r.displayDefinitions || [];
+    return definitions.length
+      ? `<div class="definitions">${definitions.map((definition) => math(polynomialTex(definition), true)).join('')}</div>`
+      : '';
   }
+
   function caseNavigation(record) {
     const ordered = groupOrder.flatMap((key) => instancesInGroup(key));
     const index = ordered.findIndex((r) => r.id === record.id);
@@ -476,7 +466,7 @@
   async function renderCase(record, loadId) {
     const why = await loadContent(record.content.why);
     if (loadId !== state.loadId) return;
-    const certificate = hasCertificate(record),
+    const certificate = isProved(record),
       proved = isProved(record);
     const number = state.records.find((r) => r.id === record.id)?.number || '';
     const category = record.category || record.family || '';
@@ -505,8 +495,8 @@
       $('discussionToggle').querySelector('span').textContent = open ? '−' : '＋';
       if (open) revealDiscussion();
     });
-    if (discussion.resume || location.hash.split('/')[2] === 'discussion')
-      revealDiscussion(location.hash.split('/')[3]);
+    if (discussion.resume || HodgeRoutes.parse(location.hash)?.discussion)
+      revealDiscussion(HodgeRoutes.parse(location.hash)?.comment);
     $('copyInstance').addEventListener('click', () =>
       copyText(
         `F = ${expression(record.F)}\nq = ${record.q}\nA = ${expression(record.A)}\nvariables = X0, X1, X2, Y0, Y1, Y2`
@@ -533,151 +523,42 @@
     if (state.cache.has(id)) return state.cache.get(id);
     const summary = state.records.find((r) => r.id === id);
     if (!summary) throw new Error('Unknown instance');
-    const response = await fetch(summary.path, { cache: 'no-cache' });
-    if (!response.ok) throw new Error('Instance unavailable');
-    const record = await response.json();
-    state.cache.set(id, record);
-    return record;
-  }
-  function renderContributor(login, rows) {
-    const row = rows.find((r) => r.githubLogin.toLowerCase() === login?.toLowerCase()),
-      panel = $('contributorDetails');
-    panel.hidden = !row;
-    if (!row) {
-      panel.innerHTML = '';
-      return;
-    }
-    const account = accountFor(row.githubLogin);
-    panel.innerHTML = `<header class="contributor-heading"><p class="dialog-eyebrow">THE CONTRIBUTIONS</p><div class="contributor-title-line"><h2>Constructions by ${escape(account.name)}</h2><a href="https://github.com/${encodeURIComponent(account.githubLogin)}" target="_blank" rel="noopener noreferrer">@${escape(account.githubLogin)} ↗</a></div></header><div class="contribution-list">${row.instanceIds
-      .map((id) => {
-        const r = state.records.find((r) => r.id === id);
-        return `<div class="contribution-row"><button type="button" data-solution="${escape(id)}" aria-haspopup="dialog"><span class="contribution-check" aria-hidden="true">✓</span><span><strong>${escape(r.title)}</strong><small>${r.credit.origin === 'starting-example' ? 'Starting Fermat example' : 'Contributed construction'} · q = ${r.q}</small></span><span class="contribution-read">Read the construction ↗</span></button><a href="#case/${encodeURIComponent(id)}" aria-label="View instance: ${escape(r.title)}">Instance →</a></div>`;
+    const pending = fetch(summary.path, { cache: 'no-cache' })
+      .then((response) => {
+        if (!response.ok) throw new Error('Instance unavailable');
+        return response.json();
       })
-      .join('')}</div>`;
+      .catch((error) => {
+        state.cache.delete(id);
+        throw error;
+      });
+    state.cache.set(id, pending);
+    return pending;
   }
-  function paintCommentContributor(login, rows) {
-    const row = rows.find((r) => r.githubLogin.toLowerCase() === login?.toLowerCase()),
-      panel = $('contributorDetails');
-    panel.hidden = !row;
-    if (!row) {
-      panel.innerHTML = '';
-      return;
-    }
-    const account = accountFor(row.githubLogin);
-    panel.innerHTML = `<header class="contributor-heading"><div class="contributor-title-line"><h2>Comments by <code>${escape(account.githubLogin)}</code></h2><a href="https://github.com/${encodeURIComponent(account.githubLogin)}" target="_blank" rel="noopener noreferrer">@${escape(account.githubLogin)} ↗</a></div></header><div class="comment-contribution-list">${(
-      row.comments || []
-    )
-      .map((c) => {
-        const record = state.records.find((r) => r.id === c.instanceId);
-        return `<article class="comment-contribution"><a href="#case/${encodeURIComponent(c.instanceId)}/discussion/${c.number}"><strong>${escape(record?.title || c.instanceId)}</strong><small>${escape(new Date(c.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }))} · ${c.isReply ? 'Reply' : 'Comment'} · Read comment →</small></a><div class="comment-preview discussion-markdown"></div></article>`;
-      })
-      .join('')}</div>`;
-    panel.querySelectorAll('.comment-preview').forEach((node, i) => {
-      HodgeDiscussionMarkdown.render(node, row.comments[i].body);
-      let remaining = 240,
-        truncated = false;
-      function shorten(parent) {
-        for (const child of [...parent.childNodes]) {
-          if (remaining <= 0) {
-            child.remove();
-            truncated = true;
-            continue;
-          }
-          if (child.nodeType === 3) {
-            const text = child.textContent;
-            if (text.length > remaining) {
-              child.textContent = text.slice(0, remaining).replace(/\s+\S*$/, '');
-              truncated = true;
-            }
-            remaining -= text.length;
-          } else if (child.nodeType === 1) {
-            if (child.matches('.discussion-math-inline,.discussion-math-display,pre'))
-              remaining -= (child.querySelector('annotation')?.textContent || child.textContent)
-                .length;
-            else shorten(child);
-          }
-        }
-      }
-      shorten(node);
-      if (truncated) node.append('…');
-    });
-  }
-  const contributorComments = new Map();
-  let commentRequest = 0,
-    commentPanelKey = '';
-  async function renderCommentContributor(login, rows, { refresh = false } = {}) {
-    const request = ++commentRequest,
-      loadId = state.loadId,
-      panel = $('contributorDetails');
-    const row = rows.find((r) => r.githubLogin.toLowerCase() === login?.toLowerCase());
-    if (!row) {
-      panel.hidden = true;
-      panel.innerHTML = '';
-      commentPanelKey = '';
-      return;
-    }
-    const key = row.githubLogin.toLowerCase(),
-      cached = contributorComments.get(key);
-    if (commentPanelKey !== key) {
-      paintCommentContributor(login, [{ ...row, comments: cached?.comments || [] }]);
-      commentPanelKey = key;
-      if (!cached)
-        panel.querySelector('.comment-contribution-list').innerHTML =
-          '<p class="comment-load-status" role="status">Loading comments…</p>';
-    }
-    if (!refresh && cached && Date.now() - cached.time < 15000) return;
-    try {
-      const data = await HodgeAccount.request(
-        '/api/comment-leaderboard/' + encodeURIComponent(row.githubLogin)
-      );
-      if (
-        request !== commentRequest ||
-        loadId !== state.loadId ||
-        state.page !== 'leaderboard' ||
-        rankingMode !== 'comments'
-      )
-        return;
-      const signature = JSON.stringify(data.comments);
-      if (!cached || cached.signature !== signature || panel.querySelector('.comment-load-error'))
-        paintCommentContributor(login, [{ ...row, comments: data.comments }]);
-      contributorComments.set(key, { comments: data.comments, signature, time: Date.now() });
-    } catch (error) {
-      if (request !== commentRequest || loadId !== state.loadId) return;
-      let message = panel.querySelector('.comment-load-error');
-      if (!message) {
-        message = document.createElement('p');
-        message.className = 'comment-load-error';
-        message.setAttribute('role', 'status');
-        panel.append(message);
-      }
-      if (!cached) panel.querySelector('.comment-contribution-list').textContent = '';
-      message.replaceChildren(document.createTextNode('Comments could not be refreshed. '));
-      const retry = document.createElement('button');
-      retry.className = 'discussion-button';
-      retry.textContent = 'Try again';
-      retry.onclick = () => renderCommentContributor(login, rows, { refresh: true });
-      message.append(retry);
-    }
-  }
-  async function loadProfiles(logins) {
+  async function loadProfiles(logins, signal) {
     const missing = [...new Set(logins)].filter(
       (login) => !state.accounts.has(login.toLowerCase())
     );
     if (!missing.length) return;
     for (let offset = 0; offset < missing.length; offset += 50) {
       const data = await HodgeAccount.request(
-        '/api/profiles?logins=' + encodeURIComponent(missing.slice(offset, offset + 50).join(','))
+        '/api/profiles?logins=' + encodeURIComponent(missing.slice(offset, offset + 50).join(',')),
+        { signal }
       );
+      if (signal?.aborted) return;
       for (const account of data.accounts)
         state.accounts.set(account.githubLogin.toLowerCase(), account);
     }
   }
   async function loadCatalogue() {
     const responses = await Promise.all(
-      ['data/index.json', 'docs/index.json'].map((path) => fetch(path, { cache: 'no-cache' }))
+      ['data/index.json', 'docs/index.json', 'assets/home-scene.json'].map((path) =>
+        fetch(path, { cache: 'no-cache' })
+      )
     );
     if (responses.some((r) => !r.ok)) throw new Error('Catalogue content unavailable');
-    const [data, chapters] = await Promise.all(responses.map((r) => r.json()));
+    const [data, chapters, home] = await Promise.all(responses.map((r) => r.json()));
+    state.homeScene = home;
     state.chapters = chapters.pages;
     state.overview = chapters.overview;
     buildChapterIndex();
@@ -687,7 +568,7 @@
     updateOpenInstanceLinks();
     $('totalCount').textContent = `${state.records.length} instances`;
     $('openCount').textContent = state.records.filter((r) => group(r) === 'open').length;
-    $('solvedCount').textContent = state.records.filter(hasCertificate).length;
+    $('solvedCount').textContent = state.records.filter(isProved).length;
   }
   async function restorePreview() {
     let saved;
@@ -702,10 +583,7 @@
     buildIndex();
     $('main').scrollTop = saved.scroll;
     $('sidebarScroll').scrollTop = saved.sidebarScroll;
-    if (
-      saved.solutionId &&
-      state.records.some((r) => r.id === saved.solutionId && hasCertificate(r))
-    ) {
+    if (saved.solutionId && state.records.some((r) => r.id === saved.solutionId && isProved(r))) {
       await showSolution(await getRecord(saved.solutionId));
       $('infoDialog').scrollTop = saved.modalScroll;
     }
@@ -747,200 +625,21 @@
       }
     }, 2500);
   }
-  let rankingMode = 'solves',
-    rankingRequest = 0,
-    renderedRankingMode = null;
-  const rankingRows = new Map();
-  function highlightContributor(login, { scroll = true } = {}) {
-    document
-      .querySelectorAll('#leaderboardRows .contributor-highlight')
-      .forEach((row) => row.classList.remove('contributor-highlight'));
-    if (!login) return;
-    const row = document.getElementById(`contributor-${decodeURIComponent(login).toLowerCase()}`);
-    if (!row) return;
-    row.classList.add('contributor-highlight');
-    if (!scroll) return;
-    row.focus({ preventScroll: true });
-    const panel = $('contributorDetails');
-    if (!panel.hidden)
-      panel.scrollIntoView({
-        block: 'start',
-        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
-      });
-  }
-  function paintRanking(rows, comments) {
-    $('leaderboardRows').innerHTML = rows
-      .map((row) => {
-        const account = accountFor(row.githubLogin);
-        return `<tr id="contributor-${escape(row.githubLogin.toLowerCase())}" tabindex="-1"><td class="leaderboard-rank">${row.rank}</td><td><a class="github-account" href="${'#leaderboard/' + encodeURIComponent(row.githubLogin) + (comments ? '/comments' : '')}" aria-label="View ${comments ? 'comments by' : 'constructions by'} ${escape(account.name)}">${avatar(account)}<span><strong>${escape(account.name)}</strong><span class="account-handle">@${escape(account.githubLogin)}</span></span><span class="account-arrow" aria-hidden="true">↗</span></a></td><td class="leaderboard-score">${row.score}<span>${comments ? (row.score === 1 ? 'comment' : 'comments') : row.score === 1 ? 'solve' : 'solves'}</span></td></tr>`;
-      })
-      .join('');
-  }
-  let rankingSignature = '',
-    refreshingRanking = false;
-  async function renderLeaderboard(loadId, { refresh = false, quiet = false } = {}) {
-    if (location.hash.split('/')[2] === 'comments') rankingMode = 'comments';
-    const request = ++rankingRequest,
-      mode = rankingMode,
-      comments = mode === 'comments',
-      login = location.hash.split('/')[1];
-    const selected = login ? decodeURIComponent(login) : null;
-    const renderDetails = async (rows) => {
-      if (comments) await renderCommentContributor(selected, rows, { refresh });
-      else {
-        ++commentRequest;
-        commentPanelKey = '';
-        renderContributor(selected, rows);
-      }
-    };
-    for (const [id, active] of [
-      ['rankSolves', !comments],
-      ['rankComments', comments]
-    ])
-      $(id).setAttribute('aria-pressed', String(active));
-    $('rankingColumn').textContent = comments ? 'Comments' : 'Solves';
-    document
-      .querySelector('.leaderboard-table')
-      .setAttribute(
-        'aria-label',
-        comments
-          ? 'GitHub accounts ranked by comments'
-          : 'GitHub accounts ranked by known constructions'
-      );
-    document.querySelector('#leaderboardView .information-deck').textContent = comments
-      ? 'Contributors ranked by comments and replies across the atlas.'
-      : 'Contributors to the challenge, ranked by number of solves.';
-    const cached = rankingRows.get(mode);
-    if (cached) {
-      $('leaderboardMessage').hidden = cached.length > 0;
-      if (renderedRankingMode !== mode) {
-        paintRanking(cached, comments);
-        rankingSignature = '';
-        renderedRankingMode = mode;
-      }
-      const details = renderDetails(cached);
-      highlightContributor(login, { scroll: false });
-      await details;
-      if (request !== rankingRequest || loadId !== state.loadId) return;
-      highlightContributor(login, { scroll: !quiet });
-      $('leaderboardMessage').hidden = cached.length > 0;
-      if (!refresh) return;
-    } else {
-      $('leaderboardRows').innerHTML = '';
-      $('contributorDetails').hidden = true;
-      $('leaderboardMessage').hidden = false;
-      $('leaderboardMessage').innerHTML = '<p>Loading the leaderboard…</p>';
-    }
-    $('leaderboardRetry').hidden = true;
-    try {
-      let rows;
-      if (comments) {
-        rows = (await HodgeAccount.request('/api/comment-leaderboard')).rows;
-        for (const account of rows) state.accounts.set(account.githubLogin.toLowerCase(), account);
-      } else {
-        state.leaderboard ||= fetch('leaderboard/credits.json')
-          .then((response) => {
-            if (!response.ok) throw Error('Leaderboard unavailable.');
-            return response.json();
-          })
-          .catch((error) => {
-            state.leaderboard = null;
-            throw error;
-          });
-        rows = HodgeLeaderboard.rank(await state.leaderboard, state.records);
-        // A profile outage does not hide accepted solve credit.
-        try {
-          await loadProfiles(rows.map((row) => row.githubLogin));
-        } catch {}
-      }
-      if (loadId !== state.loadId || request !== rankingRequest) return;
-      rankingRows.set(mode, rows);
-      renderedRankingMode = mode;
-      const signature = JSON.stringify([
-        mode,
-        rows,
-        rows.map((row) => accountFor(row.githubLogin))
-      ]);
-      if (signature !== rankingSignature) {
-        paintRanking(rows, comments);
-        rankingSignature = signature;
-      }
-      $('leaderboardMessage').hidden = rows.length > 0;
-      if (!rows.length)
-        $('leaderboardMessage').textContent = comments
-          ? 'No discussion comments yet.'
-          : 'The first solve starts the board.';
-      // Cached selections were already refreshed above; a deleted last comment may remove its row.
-      if (
-        !cached ||
-        !rows.some((row) => row.githubLogin.toLowerCase() === selected?.toLowerCase())
-      ) {
-        const details = renderDetails(rows);
-        highlightContributor(login, { scroll: false });
-        await details;
-        if (loadId !== state.loadId || request !== rankingRequest) return;
-        highlightContributor(login, { scroll: !quiet });
-      } else highlightContributor(login, { scroll: false });
-      if (loadId !== state.loadId || request !== rankingRequest) return;
-      $('leaderboardMessage').hidden = rows.length > 0;
-      if (!rows.length)
-        $('leaderboardMessage').textContent = comments
-          ? 'No discussion comments yet.'
-          : 'The first solve starts the board.';
-    } catch (error) {
-      if (loadId !== state.loadId || request !== rankingRequest) return;
-      $('leaderboardMessage').hidden = false;
-      $('leaderboardMessage').textContent = cached
-        ? 'The leaderboard could not be refreshed.'
-        : 'The leaderboard could not be loaded.';
-      $('leaderboardRetry').hidden = false;
-    }
-  }
-  async function refreshCommentRanking() {
-    if (
-      document.hidden ||
-      state.page !== 'leaderboard' ||
-      rankingMode !== 'comments' ||
-      refreshingRanking
-    )
-      return;
-    refreshingRanking = true;
-    try {
-      await renderLeaderboard(state.loadId, { refresh: true, quiet: true });
-    } finally {
-      refreshingRanking = false;
-    }
-  }
-  setInterval(refreshCommentRanking, 30000);
-  window.addEventListener('focus', refreshCommentRanking);
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) refreshCommentRanking();
-  });
-  document.addEventListener('hodge-session-change', () => {
-    ++rankingRequest;
-    ++commentRequest;
-    rankingRows.delete('comments');
-    contributorComments.clear();
-    state.accounts.clear();
-    commentPanelKey = '';
-    rankingSignature = '';
-    if (state.page === 'leaderboard')
-      renderLeaderboard(state.loadId, { refresh: true, quiet: true });
+  const leaderboard = HodgeLeaderboardView.create({
+    records: () => state.records,
+    accountFor,
+    avatar,
+    loadProfiles,
+    rememberAccounts: (accounts) => {
+      for (const account of accounts)
+        state.accounts.set(account.githubLogin.toLowerCase(), account);
+    },
+    clearAccounts: () => state.accounts.clear()
   });
   async function route() {
     const id = ++state.loadId;
-    const hash = location.hash.replace(/^#/, '');
-    const caseId = hash.startsWith('case/') ? decodeURIComponent(hash.split('/')[1]) : null;
-    const chapterId = hash.startsWith('technical-information/')
-      ? decodeURIComponent(hash.split('/')[1])
-      : null;
-    const page = caseId
-      ? 'case'
-      : hash === 'technical-information' || chapterId
-        ? 'technical-information'
-        : hash === 'leaderboard' || hash.startsWith('leaderboard/')
-          ? 'leaderboard'
-          : 'home';
+    const destination = HodgeRoutes.parse(location.hash) || { page: 'home' };
+    const { page, caseId = null, chapterId = null } = destination;
     openDrawer(false);
     if (state.exploring) setExploring(false);
     if ($('infoDialog').open) $('infoDialog').close();
@@ -950,16 +649,17 @@
       page === 'case' &&
       state.page === 'case' &&
       state.current === caseId &&
-      hash.split('/')[2] === 'discussion' &&
+      destination.discussion &&
       $('instanceDiscussion')?.dataset.instance === caseId
     ) {
-      revealDiscussion(hash.split('/')[3]);
+      revealDiscussion(destination.comment);
       return;
     }
     if (page === 'leaderboard' && state.page === 'leaderboard') {
-      await renderLeaderboard(id);
+      await leaderboard.show(destination);
       return;
     }
+    if (page !== 'leaderboard') leaderboard.leave();
     HodgeDiscussion.unmount();
     state.current = caseId;
     state.page = page;
@@ -993,7 +693,7 @@
           : `${page === 'leaderboard' ? 'Leaderboard' : 'Technical information'} — hodge.computer`;
       const contactSummary = state.records.find((r) => r.id === 'contact46006');
       const contact =
-        contactSummary && hasCertificate(contactSummary)
+        contactSummary && isProved(contactSummary)
           ? await getRecord('contact46006')
           : contactSummary;
       if (id !== state.loadId) return;
@@ -1005,23 +705,12 @@
         render: {
           divisorTerms: contact?.render?.divisorTerms,
           divisorProgram: contact?.render?.divisorProgram,
-          pairId: 'contact46006',
-          seed: 245646,
-          mesh: 'meshes/contact46006-adaptive-round4-ordered-packed.json',
-          camera: {
-            yaw: 0.71,
-            pitch: 0.455,
-            distance: 1.532096540936717,
-            center: [0, 0, 0],
-            orientation: [
-              -0.3457515492356953, -0.648849719104112, 0.041786456405925244, -0.6765380996519467
-            ]
-          }
+          ...state.homeScene
         }
       });
       if (page === 'technical-information') {
         setChaptersExpanded(true);
-        if (chapterId) await renderChapter(chapterId, hash.split('/').slice(2).join('/'), id);
+        if (chapterId) await renderChapter(chapterId, destination.anchor, id);
         else if (state.overview) {
           const content = await loadContent(state.overview.content);
           if (id === state.loadId) {
@@ -1030,7 +719,7 @@
           }
         }
       }
-      if (page === 'leaderboard') await renderLeaderboard(id);
+      if (page === 'leaderboard') await leaderboard.show(destination);
       return;
     }
     const summary = state.records.find((r) => r.id === caseId);
@@ -1083,7 +772,7 @@
     positionDialog();
     $('dialogContent').innerHTML =
       `<header class="participate-heading"><p class="dialog-eyebrow">PARTICIPATE</p><h2 id="participateTitle">${proved ? 'Build on this result.' : record ? 'Take on this instance.' : 'Bring an agent.<br>Find a proof.'}</h2><p>${proved ? 'Study the checked construction, then carry its ideas to an open target.' : record ? 'Give your agent this exact target and the contribution instructions.' : 'Choose an open instance and work toward a Lean proof, with a human-readable mathematical explanation.'}</p></header>
-    ${record ? `<section class="participate-target" aria-label="Selected instance"><strong>${escape(record.title)}</strong><div><code>${escape(record.id)}</code><span>${math(`q=${record.q}`)}</span></div><p>${proved ? 'This instance has an accepted proof. First-solve submissions are for open instances.' : hasCertificate(record) ? 'Read the construction, or carry its ideas to an open target.' : 'This is an open target. Its exact statement lives in the instance record.'}</p><button type="button" id="participateCopyTarget" class="participate-copy" aria-label="Copy (F, q, A)">Copy ${math('(F, q, A)')}</button>${proved && record.pullRequest ? `<a href="${escape(record.pullRequest.url)}" target="_blank" rel="noopener noreferrer">Read the accepted PR ↗</a>` : ''}</section>` : ''}
+    ${record ? `<section class="participate-target" aria-label="Selected instance"><strong>${escape(record.title)}</strong><div><code>${escape(record.id)}</code><span>${math(`q=${record.q}`)}</span></div><p>${proved ? 'This instance has an accepted proof. First-solve submissions are for open instances.' : 'This is an open target. Its exact statement lives in the instance record.'}</p><button type="button" id="participateCopyTarget" class="participate-copy" aria-label="Copy (F, q, A)">Copy ${math('(F, q, A)')}</button>${proved && record.pullRequest ? `<a href="${escape(record.pullRequest.url)}" target="_blank" rel="noopener noreferrer">Read the accepted PR ↗</a>` : ''}</section>` : ''}
     <section class="participate-step"><div class="participate-step-heading"><h3>1. Give your agent a starting point</h3><button type="button" id="copyAgentPrompt" class="participate-copy">Copy prompt</button></div><pre class="agent-prompt"><code>${escape(prompt)}</code></pre></section>
     <section class="participate-step"><div class="participate-step-heading"><h3>2. Open the repository</h3><button type="button" id="copySetupCommands" class="participate-copy">Copy commands</button></div><pre><code>${escape(commands)}</code></pre><p>Start with <a href="${repo}/blob/main/README.md" target="_blank" rel="noopener noreferrer">README.md ↗</a>. The <a href="${repo}/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">proposal specification ↗</a> gives the current file format, Lean theorem, and verification commands.</p></section>
     <section class="participate-step"><h3>3. Submit one clear mathematical contribution</h3><p>${proved ? 'Choose an open instance for your next solution PR.' : 'A solution PR adds proof.json, Solution.lean, solution.md, and permitted supporting files to the existing data/&lt;instance-id&gt;/ folder. Preserve every existing file, including the target and motivation.'} Automated checks verify the fixed target; the project owner reviews the result before merging. Credit belongs to the contributor’s GitHub account, with collaborators acknowledged in the explanation.</p><p>A complete solve is not required to contribute. Agents and people are encouraged to share partial results, failed approaches, questions, and useful observations in the instance’s discussion. Read the <a href="${repo}/blob/main/CONTRIBUTING.md#discuss-an-instance" target="_blank" rel="noopener noreferrer">discussion instructions ↗</a> to get started.</p></section>
@@ -1137,18 +826,6 @@
       onStatus({ state: 'error', message: 'WebGL2 unavailable' });
     }
     $('exploreToggle').addEventListener('click', () => setExploring(!state.exploring));
-    for (const [id, mode] of [
-      ['rankSolves', 'solves'],
-      ['rankComments', 'comments']
-    ])
-      $(id).addEventListener('click', () => {
-        rankingMode = mode;
-        history.replaceState(history.state, '', '#leaderboard');
-        renderLeaderboard(state.loadId);
-      });
-    $('leaderboardRetry').addEventListener('click', () =>
-      renderLeaderboard(state.loadId, { refresh: true })
-    );
     $('caseSearch').addEventListener('input', () => {
       buildIndex();
       $('caseSearch').scrollIntoView({ block: 'nearest' });
@@ -1189,7 +866,7 @@
         discussion &&
         discussion.origin === location.origin &&
         discussion.pathname === location.pathname &&
-        /^#case\/[^/]+\/discussion(?:\/\d+)?$/.test(discussion.hash) &&
+        HodgeRoutes.parse(discussion.hash)?.discussion &&
         discussion.hash === location.hash &&
         event.button === 0 &&
         !event.metaKey &&
@@ -1199,7 +876,7 @@
       ) {
         event.preventDefault();
         if ($('infoDialog').open) $('infoDialog').close();
-        revealDiscussion(discussion.hash.split('/')[3]);
+        revealDiscussion(HodgeRoutes.parse(discussion.hash).comment);
       }
       const target = event.target.closest('[data-modal]');
       if (target) {

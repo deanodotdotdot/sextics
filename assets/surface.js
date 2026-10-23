@@ -63,7 +63,7 @@
         resetTilt();
         // Only presentation data crosses the worker boundary, not the proof/text.
         record = {id:selected.id, title:selected.title, render:selected.render,
-          certificateAvailable:selected.certificateAvailable, evidenceKind:selected.evidenceKind, status:selected.status};
+          formalStatus:selected.formalStatus};
         meta = null; camera = null;
         onStatus({state:'loading', message:'Preparing the saved slice…'});
         send({type:'case', record});

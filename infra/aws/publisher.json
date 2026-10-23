@@ -70,6 +70,30 @@
                   "Resource": {
                     "Fn::Sub": "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/E2D78CDNFUIIQG"
                   }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "s3:DeleteObject",
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::hodge-sextics-site-${AWS::AccountId}-us-east-1/index.html"
+                    },
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::hodge-sextics-site-${AWS::AccountId}-us-east-1/assets/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::hodge-sextics-site-${AWS::AccountId}-us-east-1/data/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::hodge-sextics-site-${AWS::AccountId}-us-east-1/leaderboard/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::hodge-sextics-site-${AWS::AccountId}-us-east-1/discussions/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:s3:::hodge-sextics-site-${AWS::AccountId}-us-east-1/docs/*"
+                    }
+                  ]
                 }
               ]
             }

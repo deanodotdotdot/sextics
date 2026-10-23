@@ -5,6 +5,7 @@ import re
 from urllib.parse import quote, unquote, urlsplit
 
 import mistune
+from public_files import is_public
 
 
 def link_resolver(root, source_path, extra_files=()):
@@ -28,7 +29,7 @@ def link_resolver(root, source_path, extra_files=()):
         if not path.startswith('/') and exists(local):
             target = local
         elif exists(rooted):
-            if rooted.is_file():
+            if rooted.is_file() and is_public(rooted.relative_to(root).as_posix()):
                 return link
             target = rooted
         else:

@@ -18,6 +18,16 @@ V cross(V a, V b) {
           a[0] * b[1] - a[1] * b[0]};
 }
 double dot(V a, V b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+// Distances are in normalized display coordinates; angle tests use squared cosines.
+constexpr int COLLAPSE_PASSES = 8;
+constexpr double MAX_EDGE_LENGTH_SQUARED = 0.0025;
+constexpr double MIN_FACE_NORMAL_SQUARED = 1e-28;
+constexpr double MIN_NORMAL_COSINE_SQUARED = 0.95;
+bool preservesFaceOrientation(V before, V after) {
+  const double alignment = dot(before, after);
+  return alignment > 0 && alignment * alignment >=
+      MIN_NORMAL_COSINE_SQUARED * dot(before, before) * dot(after, after);
+}
 int main(int argc, char **argv) {
   if (argc != 4 && argc != 5) {
     cerr << "usage: simplify INPUT_POSITIONS INPUT_INDICES OUTPUT_INDICES "
@@ -52,7 +62,7 @@ int main(int argc, char **argv) {
     for (auto v : f[i])
       star[v].insert(i);
   size_t count = nt;
-  for (int pass = 0; pass < 8; pass++) {
+  for (int pass = 0; pass < COLLAPSE_PASSES; pass++) {
     size_t before = count;
     for (unsigned b = 0; b < nv; b++) {
       if (star[b].empty())
@@ -67,7 +77,7 @@ int main(int argc, char **argv) {
         candidates.push_back({dot(sub(p[a], p[b]), sub(p[a], p[b])), a});
       sort(candidates.begin(), candidates.end());
       for (auto [len, a] : candidates) {
-        if (len > .0025)
+        if (len > MAX_EDGE_LENGTH_SQUARED)
           continue;
         unordered_set<unsigned> na, opp;
         vector<unsigned> shared;
@@ -100,7 +110,7 @@ int main(int argc, char **argv) {
           auto old = f[t];
           V n = cross(sub(p[old[1]], p[old[0]]), sub(p[old[2]], p[old[0]]));
           double nn = dot(n, n);
-          if (nn < 1e-28) {
+          if (nn < MIN_FACE_NORMAL_SQUARED) {
             good = false;
             break;
           }
@@ -116,8 +126,7 @@ int main(int argc, char **argv) {
             if (v == b)
               v = a;
           V n2 = cross(sub(p[q[1]], p[q[0]]), sub(p[q[2]], p[q[0]]));
-          if (dot(n, n2) <= 0 ||
-              dot(n, n2) * dot(n, n2) < .95 * nn * dot(n2, n2)) {
+          if (!preservesFaceOrientation(n, n2)) {
             good = false;
             break;
           }

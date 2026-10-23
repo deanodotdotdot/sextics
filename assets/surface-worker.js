@@ -59,7 +59,7 @@ function handleMessage({data}) {
 const pending = [];
 onmessage = event => pending.push(event);
 send('booting');
-import('./divisor.js').then(() => import('./renderer.js')).then(() => {
+import('./divisor.js').then(() => import('./mesh.js')).then(() => import('./renderer.js')).then(() => {
   if (stopped) return;
   onmessage = handleMessage;
   for (const event of pending) {

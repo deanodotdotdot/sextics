@@ -6,7 +6,11 @@
       /[&<>"']/g,
       (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
     );
-  const drafts = new Map();
+  const drafts = HodgeDrafts.create({
+    getItem: (key) => sessionStorage.getItem(key),
+    setItem: (key, value) => sessionStorage.setItem(key, value),
+    removeItem: (key) => sessionStorage.removeItem(key)
+  });
   let current;
   let discussionIndex = null,
     linksReady;
@@ -22,9 +26,7 @@
         !url.username &&
         !url.password &&
         ['/', '/index.html'].includes(url.pathname) &&
-        /^#(?:home|case\/[^/]+(?:\/discussion(?:\/\d+)?)?|technical-information(?:\/[^#]*)?|leaderboard(?:\/[^/]+)?)$/.test(
-          url.hash
-        )
+        HodgeRoutes.parse(url.hash)
       )
         return url.hash;
       if (
@@ -198,32 +200,30 @@
       commentSequence = 0,
       loadPending = null,
       navigation = 0;
-    const pendingKey = 'hodge-discussion-draft:' + id;
-    let saved = drafts.get(id);
-    try {
-      saved ||= JSON.parse(sessionStorage.getItem(pendingKey));
-    } catch {}
+    let saved = drafts.read(id);
     if (saved) {
-      draft.value = saved.body || '';
+      draft.value = saved.body;
       replyTo = saved.replyTo || null;
     }
     const active = () => panel.isConnected && !requests.signal.aborted;
     function save() {
-      const value = { body: draft.value, replyTo };
-      drafts.set(id, value);
-      try {
-        if (value.body) sessionStorage.setItem(pendingKey, JSON.stringify(value));
-        else sessionStorage.removeItem(pendingKey);
-      } catch {}
+      return (saved = drafts.save(id, draft.value, replyTo));
     }
     function rememberForSignIn() {
       save();
       try {
         sessionStorage.setItem('hodge-discussion-open', id);
-        sessionStorage.setItem(pendingKey, JSON.stringify(drafts.get(id)));
       } catch {}
       account.signIn();
     }
+    const unsubscribeDraft = drafts.onClear((instanceId, submitted) => {
+      if (instanceId !== id || saved !== submitted || !active()) return;
+      draft.value = '';
+      replyTo = null;
+      saved = undefined;
+      setPreview(false);
+      updateComposer();
+    });
     function setPreview(value) {
       previewing = value;
       preview.hidden = !value;
@@ -591,6 +591,7 @@
       posting = true;
       updateComposer();
       showPostStatus('');
+      const submitted = save();
       const parent = replyTo?.id,
         body = draft.value,
         postingUser = account.user?.login;
@@ -599,14 +600,8 @@
           method: 'POST',
           body: JSON.stringify({ body, ...(parent ? { replyToId: parent } : {}) })
         });
-        drafts.delete(id);
-        try {
-          sessionStorage.removeItem(pendingKey);
-        } catch {}
+        drafts.clear(id, submitted);
         if (!active() || account.user?.login !== postingUser) return;
-        draft.value = '';
-        replyTo = null;
-        setPreview(false);
         showPostStatus(parent ? 'Reply posted.' : 'Comment posted.', posted.url);
         expandedComments.set(posted.id, true);
         if (parent) expandedComments.set(parent, true);
@@ -654,7 +649,7 @@
       q('.discussion-count').hidden = true;
       q('.discussion-more').hidden = true;
       updateComposer();
-      if (!panel.hidden) open(location.hash.split('/')[3]);
+      if (!panel.hidden) open(HodgeRoutes.parse(location.hash)?.comment);
     }
     document.addEventListener('hodge-session-change', sessionChanged);
     const controller = {
@@ -662,6 +657,7 @@
       destroy() {
         save();
         requests.abort();
+        unsubscribeDraft();
         document.removeEventListener('hodge-session-change', sessionChanged);
       }
     };

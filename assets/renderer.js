@@ -61,7 +61,6 @@ in vec3 vPosition;
 in vec3 vNormal;
 in vec2 vComplex;
 uniform vec3 uCamera;
-uniform float uTime;
 uniform vec3 uOriginalCenter;
 uniform float uDisplayScale;
 uniform float uComplexScale;
@@ -654,76 +653,6 @@ void main() {
     ]);
   }
 
-  async function validateDynamicMesh(buffer, indexBuffer, meta, shouldContinue = () => true) {
-    const STRIDE = 9;
-    if (!(buffer instanceof ArrayBuffer) || !(indexBuffer instanceof ArrayBuffer))
-      throw new Error('Missing geometry buffers.');
-    if (meta?.format !== 'indexed-p3-n3-phase2-d1-v3' || meta.stride !== STRIDE)
-      throw new Error('Unrecognized vertex layout.');
-    if (!Number.isInteger(meta.vertexCount) || meta.vertexCount < 3 || meta.vertexCount > 2000000)
-      throw new Error('Vertex budget exceeded.');
-    if (
-      !Number.isInteger(meta.triangleCount) ||
-      meta.triangleCount < 1 ||
-      meta.triangleCount > 4000000
-    )
-      throw new Error('Triangle budget exceeded.');
-    if (
-      buffer.byteLength !== meta.vertexCount * STRIDE * 4 ||
-      indexBuffer.byteLength !== meta.triangleCount * 3 * 4
-    )
-      throw new Error('Geometry buffer length mismatch.');
-    if (buffer.byteLength + indexBuffer.byteLength > 128 * 1024 * 1024)
-      throw new Error('Geometry memory budget exceeded.');
-    if (
-      !Number.isFinite(meta.displayScale) ||
-      meta.displayScale <= 0 ||
-      !Array.isArray(meta.centerOriginal) ||
-      meta.centerOriginal.length !== 3 ||
-      !meta.centerOriginal.every(Number.isFinite)
-    )
-      throw new Error('Invalid mesh transform.');
-    if (!Number.isFinite(meta.edgeBound) || meta.edgeBound <= 0)
-      throw new Error('Missing triangle bound.');
-    const v = new Float32Array(buffer),
-      ix = new Uint32Array(indexBuffer);
-    // Compact-domain meshes may extend beyond the usual normalized box.
-    const positionBound =
-      meta.samplingMode === 'sphere' ? Math.min(4, Number(meta.positionBound) || 1.01) : 1.01;
-    const yieldUI = () => new Promise((resolve) => setTimeout(resolve, 0));
-    for (let start = 0; start < meta.vertexCount; start += 8192) {
-      if (!shouldContinue()) throw new Error('Cancelled');
-      for (let n = start; n < Math.min(meta.vertexCount, start + 8192); n++) {
-        const o = n * STRIDE;
-        for (let j = 0; j < STRIDE; j++)
-          if (!Number.isFinite(v[o + j])) throw new Error('Non-finite mesh attribute rejected.');
-        if (Math.max(Math.abs(v[o]), Math.abs(v[o + 1]), Math.abs(v[o + 2])) > positionBound)
-          throw new Error('Corrupt position data rejected.');
-        if (Math.abs(Math.hypot(v[o + 3], v[o + 4], v[o + 5]) - 1) > 0.015)
-          throw new Error('Corrupt normal data rejected.');
-      }
-      await yieldUI();
-    }
-    const bound = meta.edgeBound + 1e-5;
-    for (let start = 0; start < ix.length; start += 24576) {
-      if (!shouldContinue()) throw new Error('Cancelled');
-      for (let q = start; q < Math.min(ix.length, start + 24576); q += 3) {
-        for (let j = 0; j < 3; j++) {
-          const a = ix[q + j],
-            b = ix[q + ((j + 1) % 3)];
-          if (a >= meta.vertexCount || b >= meta.vertexCount)
-            throw new Error('Triangle index out of range.');
-          const i = a * STRIDE,
-            k = b * STRIDE;
-          if (Math.hypot(v[i] - v[k], v[i + 1] - v[k + 1], v[i + 2] - v[k + 2]) > bound)
-            throw new Error('Corrupt triangle extent rejected.');
-        }
-      }
-      await yieldUI();
-    }
-    return true;
-  }
-
   const SCRIPT_BASE = new URL(
     '.',
     typeof document !== 'undefined' ? document.currentScript?.src || location.href : location.href
@@ -768,7 +697,6 @@ void main() {
           'View',
           'Projection',
           'Camera',
-          'Time',
           'OriginalCenter',
           'DisplayScale',
           'ComplexScale',
@@ -791,10 +719,8 @@ void main() {
     let activeVao = null,
       activeBuffers = [],
       activeCount = 0,
-      activeMeta = null,
-      record = null;
+      activeMeta = null;
     let job = 0,
-      busy = false,
       destroyed = false,
       contextLost = false,
       graphicsFault = false,
@@ -843,8 +769,8 @@ void main() {
       onStatus({ state, message, meta: meta || undefined });
     }
     function cancel() {
+      meshes.cancel();
       job++;
-      busy = false;
       awaitingFirstFrame = false;
     }
     function stop(message) {
@@ -880,13 +806,6 @@ void main() {
       activeBuffers = [];
       activeCount = 0;
     }
-    function hasCertificate(selected) {
-      return (
-        selected.certificateAvailable === true ||
-        selected.evidenceKind === 'explicit-certificate' ||
-        selected.status === 'solved'
-      );
-    }
     function upload(mesh, selected) {
       if (!usable()) return;
       const { meta, buffer, indexBuffer } = mesh;
@@ -919,7 +838,7 @@ void main() {
       activeBuffers = [vbo, ebo];
       activeCount = meta.triangleCount * 3;
       const hasD =
-        hasCertificate(selected) &&
+        selected.formalStatus === 'proved' &&
         !!(selected.render?.divisorTerms?.length || selected.render?.divisorProgram);
       const whole = meta.samplingMode === 'sphere' && meta.projectionBox === 0,
         projectionBox = whole ? 0 : 10;
@@ -963,156 +882,11 @@ void main() {
       needsDraw = true;
       awaitingFirstFrame = true;
     }
-    function unpackDeltaPlanes(buffer, elementBytes, stride) {
-      const bytes = new Uint8Array(buffer);
-      if (bytes.length % (elementBytes * stride) !== 0)
-        throw new Error('Invalid delta-packed mesh stream.');
-      const count = bytes.length / elementBytes,
-        output = new Uint8Array(bytes.length);
-      // Restore byte order, then the exact unsigned modular differences.
-      for (let byte = 0; byte < elementBytes; byte++)
-        for (let i = 0; i < count; i++) output[i * elementBytes + byte] = bytes[byte * count + i];
-      const values =
-        elementBytes === 2 ? new Uint16Array(output.buffer) : new Uint32Array(output.buffer);
-      for (let i = stride; i < count; i++) values[i] += values[i - stride];
-      return output.buffer;
-    }
-    async function ungzip(url) {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Missing local mesh asset: ' + url.pathname);
-      const bytes = await response.arrayBuffer();
-      // Most static servers send .gz as application/octet-stream. Also accept
-      // servers which have already decompressed a Content-Encoding:gzip response.
-      if (new Uint8Array(bytes)[0] !== 31 || new Uint8Array(bytes)[1] !== 139) return bytes;
-      if (typeof DecompressionStream === 'undefined')
-        throw new Error('This browser cannot decompress the baked mesh.');
-      return new Response(
-        new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))
-      ).arrayBuffer();
-    }
-    let bakedPromise = null;
-    async function baked() {
-      if (!bakedPromise)
-        bakedPromise = (async () => {
-          const response = await fetch(new URL('meshes/contact46006.json', assetBase));
-          if (!response.ok) throw new Error('Missing baked mesh metadata.');
-          const meta = await response.json();
-          const [position, normal, complex, indexBuffer] = await Promise.all(
-            ['position', 'normal', 'complex', 'index'].map((k) =>
-              ungzip(new URL('meshes/contact46006-' + k + '.bin.gz', assetBase))
-            )
-          );
-          const pos = new Uint16Array(position),
-            nrm = new Int16Array(normal),
-            cpx = new Int16Array(complex),
-            data = new Float32Array(meta.vertexCount * 9);
-          for (let i = 0; i < meta.vertexCount; i++) {
-            for (let j = 0; j < 3; j++) {
-              data[9 * i + j] =
-                meta.positionMin[j] +
-                ((meta.positionMax[j] - meta.positionMin[j]) * pos[3 * i + j]) / 65535;
-              data[9 * i + 3 + j] = nrm[3 * i + j] / 32767;
-            }
-            data[9 * i + 6] = cpx[2 * i] / 32767;
-            data[9 * i + 7] = cpx[2 * i + 1] / 32767;
-            data[9 * i + 8] = 0;
-          }
-          return {
-            buffer: data.buffer,
-            indexBuffer,
-            meta: {
-              ...meta,
-              pairId: 'contact46006',
-              phaseSigns: [1, 1, 1, 1, 1, 1],
-              format: 'indexed-p3-n3-phase2-d1-v3',
-              stride: 9
-            }
-          };
-        })();
-      return bakedPromise;
-    }
-    // Retain the most recently decoded saved mesh while moving among front pages.
-    // The HTTP cache still handles subsequent visits after this worker is released.
-    let savedMeshURL = null,
-      savedMeshPromise = null;
-    function savedMesh(path) {
-      const url = new URL(path, assetBase).href;
-      if (url !== savedMeshURL) {
-        savedMeshURL = url;
-        savedMeshPromise = (async () => {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error('Missing saved slice.');
-          const manifest = await response.json(),
-            root = new URL('.', url);
-          let buffer, indexBuffer;
-          if (
-            ['quantized-p3-n3-phase2-v1', 'quantized-p3-n3-phase2-delta-v1'].includes(
-              manifest.encoding
-            )
-          ) {
-            const parts = await Promise.all(
-              ['position', 'normal', 'complex', 'indices'].map((k) =>
-                ungzip(new URL(manifest[k], root))
-              )
-            );
-            if (manifest.encoding === 'quantized-p3-n3-phase2-delta-v1') {
-              for (let i = 0; i < 4; i++)
-                parts[i] = unpackDeltaPlanes(
-                  parts[i],
-                  i === 3 ? 4 : 2,
-                  i < 2 ? 3 : i === 2 ? 2 : 1
-                );
-            }
-            const pos = new Uint16Array(parts[0]),
-              normal = new Int16Array(parts[1]),
-              phase = new Int16Array(parts[2]),
-              n = manifest.meta.vertexCount;
-            if (
-              !Number.isInteger(n) ||
-              n < 3 ||
-              n > 2000000 ||
-              pos.length !== 3 * n ||
-              normal.length !== 3 * n ||
-              phase.length !== 2 * n
-            )
-              throw new Error('Invalid packed mesh.');
-            const data = new Float32Array(n * 9);
-            for (let i = 0; i < n; i++) {
-              for (let j = 0; j < 3; j++) {
-                data[9 * i + j] =
-                  manifest.positionMin[j] +
-                  ((manifest.positionMax[j] - manifest.positionMin[j]) * pos[3 * i + j]) / 65535;
-                data[9 * i + 3 + j] = normal[3 * i + j] / 32767;
-              }
-              data[9 * i + 6] = (phase[2 * i] / 32767) * manifest.complexScale;
-              data[9 * i + 7] = (phase[2 * i + 1] / 32767) * manifest.complexScale;
-            }
-            buffer = data.buffer;
-            indexBuffer = parts[3];
-          } else {
-            [buffer, indexBuffer] = await Promise.all([
-              ungzip(new URL(manifest.vertices, root)),
-              ungzip(new URL(manifest.indices, root))
-            ]);
-          }
-          await validateDynamicMesh(buffer, indexBuffer, manifest.meta, usable);
-          return { buffer, indexBuffer, meta: manifest.meta };
-        })();
-        savedMeshPromise.catch(() => {
-          if (savedMeshURL === url) {
-            savedMeshURL = null;
-            savedMeshPromise = null;
-          }
-        });
-      }
-      return savedMeshPromise;
-    }
+    const meshes = HodgeMeshes.create(assetBase, usable);
     async function setCase(selected) {
       if (!usable()) return;
       cancel();
       const id = job;
-      record = selected;
-      busy = true;
       activeCount = 0;
       needsDraw = true;
       status('loading', 'Preparing the saved slice…');
@@ -1154,37 +928,13 @@ void main() {
           )
         );
         resetCamera();
-        if (r.bakedHome) {
-          const mesh = await baked();
-          if (id !== job || !usable()) return;
-          busy = false;
-          upload(mesh, selected);
-          return;
-        }
-        if (r.mesh) {
-          const mesh = await savedMesh(r.mesh);
-          if (id !== job || !usable()) return;
-          busy = false;
-          upload(mesh, selected);
-          return;
-        }
-        if (
-          r.pairId === 'contact46006' &&
-          !r.terms &&
-          (r.seed === undefined || r.seed === 245646)
-        ) {
-          const mesh = await baked();
-          if (id !== job || !usable()) return;
-          busy = false;
-          upload(mesh, selected);
-          return;
-        }
-        throw new Error('This instance has no saved slice.');
+        if (!r.mesh) throw new Error('This instance has no saved slice.');
+        const mesh = await meshes.load(r.mesh);
+        if (id !== job || !usable()) return;
+        upload(mesh, selected);
       } catch (error) {
-        if (id === job && usable()) {
-          busy = false;
-          status('error', error.message || String(error));
-        }
+        if (id !== job || !usable()) return;
+        status('error', error.message || String(error));
         throw error;
       }
     }
@@ -1455,7 +1205,6 @@ void main() {
       // Animation callbacks can resume before the forwarded visibility event.
       // Sleep/background time must not consume the GPU's response deadline.
       if (delayed) fenceStarted = now;
-      if (now - lastDraw < (busy ? 180 : 16.0) && !needsDraw) return;
       if (frameFence) {
         const state = gl.clientWaitSync(frameFence, 0, 0);
         if (!usable()) return;
@@ -1474,14 +1223,19 @@ void main() {
           status('ready', 'Surface ready', activeMeta);
         }
       }
+      if (now - lastDraw < 16 && !needsDraw) return;
       // Follow elapsed time during slow frames; cap only long suspension gaps.
       const dt = Math.min(0.25, (now - last) / 1000);
       last = now;
-      lastDraw = now;
       resize();
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      if (!activeCount || !activeVao) return;
+      if (!activeCount || !activeVao) {
+        if (needsDraw) {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          needsDraw = false;
+        }
+        return;
+      }
       // The camera below supplies the smoothing; filtering the input too adds lag.
       currentX = targetX;
       currentY = targetY;
@@ -1509,6 +1263,20 @@ void main() {
                 baseCenter[2] + (reduced ? 0 : 0.008 * Math.sin(now * 0.00016))
               ],
         cameraEase = 1 - Math.exp(-dt * (cameraMode === 'free' ? 12 : 7));
+      const turning =
+        1 -
+          Math.abs(
+            cameraOrientation.reduce((sum, value, i) => sum + value * desiredOrientation[i], 0)
+          ) >
+        1e-12;
+      const moving =
+        turning ||
+        Math.abs(desiredDistance - cameraDistance) > 1e-7 ||
+        desiredCenter.some((value, i) => Math.abs(value - cameraCenter[i]) > 1e-7);
+      if (!needsDraw && !moving && (reduced || cameraMode === 'free')) return;
+      lastDraw = now;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       cameraOrientation = ScreenTrackball.slerp(cameraOrientation, desiredOrientation, cameraEase);
       cameraDistance += (desiredDistance - cameraDistance) * cameraEase;
       for (let i = 0; i < 3; i++)
@@ -1529,7 +1297,6 @@ void main() {
         )
       );
       gl.uniform3fv(U.Camera, new Float32Array(eye));
-      gl.uniform1f(U.Time, now / 1000);
       gl.uniform1f(U.TranslucencyEnabled, depthPeelerFailed ? 0 : 1);
       gl.uniform1f(U.TransNear, 0);
       gl.uniform1f(U.TransFar, 2);
@@ -1608,6 +1375,7 @@ void main() {
           gl.deleteProgram(p);
         }
         destroyed = true;
+        meshes.dispose();
       }
     };
   }

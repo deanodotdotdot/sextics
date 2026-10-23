@@ -1,7 +1,7 @@
 // Discussion permalinks should stay on the site only for mapped project threads.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.join(__dirname,'..'),index=JSON.parse(fs.readFileSync(path.join(root,'discussions/index.json')));
-const context={window:{},URL,location:{href:'https://hodge.computer/#home'},
+const context={HodgeDrafts:require('../assets/discussion-drafts.js'),HodgeRoutes:require('../assets/routes.js'),window:{},URL,location:{href:'https://hodge.computer/#home'},
   document:{querySelectorAll:()=>[],body:{}},MutationObserver:class{observe(){}},
   fetch:async()=>({ok:true,json:async()=>index})};
 vm.runInNewContext(fs.readFileSync(path.join(root,'assets/discussions.js'),'utf8'),context);
