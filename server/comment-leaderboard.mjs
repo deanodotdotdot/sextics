@@ -189,7 +189,8 @@ export async function readContributorComments(github, entries, login, session) {
       isReply: saved.isReply,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
-      body: comment.body
+      body: comment.body,
+      url: comment.url
     });
   }
   if (result.length !== selected.length) invalidateCommentLeaderboard(github);

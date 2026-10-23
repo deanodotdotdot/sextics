@@ -164,7 +164,12 @@
     });
   }
   function accountFor(login) {
-    return state.accounts.get(login.toLowerCase()) || { githubLogin: login, name: login };
+    return (
+      state.accounts.get(login.toLowerCase()) || {
+        githubLogin: login,
+        name: login
+      }
+    );
   }
   function avatar(account) {
     const source =
@@ -176,7 +181,7 @@
     if (!isProved(record))
       return '<div class="status-certificate open"><span class="status-word"><span class="certificate-mark" aria-hidden="true"></span><strong>open</strong></span><span class="certificate-detail">Awaiting a construction</span></div>';
     const account = accountFor(record.credit.githubLogin);
-    return `<button id="solutionButton" class="status-certificate solved" aria-haspopup="dialog" aria-label="Solved by ${escape(account.name)}: read the construction"><span class="status-word"><span class="certificate-mark" aria-hidden="true">✓</span><strong>solved</strong></span><span class="certificate-author">${avatar(account)}<span>@${escape(account.githubLogin)}</span></span><span class="certificate-arrow" aria-hidden="true">↗</span></button>`;
+    return `<a href="#case/${encodeURIComponent(record.id)}/solution" class="status-certificate solved" aria-haspopup="dialog" aria-label="Solved by ${escape(account.name)}: read the construction"><span class="status-word"><span class="certificate-mark" aria-hidden="true">✓</span><strong>solved</strong></span><span class="certificate-author">${avatar(account)}<span>@${escape(account.githubLogin)}</span></span><span class="certificate-arrow" aria-hidden="true">↗</span></a>`;
   }
   async function loadContent(path) {
     if (!state.contentCache.has(path))
@@ -221,7 +226,7 @@
       dialog.style.removeProperty('--solution-width');
     }
   }
-  async function showSolution(record) {
+  async function showSolution(record, anchor) {
     state.solutionId = record.id;
     const token = ++state.modalId,
       account = accountFor(record.credit.githubLogin),
@@ -242,6 +247,10 @@
         header +
         `<div class="solution-body mathematical-prose">${content}</div><footer class="solution-footer">${isProved(record) ? '<p>Lean proof verified.</p>' : ''}${record.leanVerification?.proofFile ? `<a href="${escape(record.leanVerification.proofFile)}" download>Lean proof ↓</a><a href="${escape(record.leanVerification.receipt)}" download>Acceptance receipt ↓</a>` : ''}<a href="data/${encodeURIComponent(record.id)}/instance.rec" download>Exact instance ↓</a><a href="data/${encodeURIComponent(record.id)}/solution.rec" download>Solution & witness ↓</a><a href="data/${encodeURIComponent(record.id)}/provenance.json" download>Context & related targets ↓</a></footer>`;
       renderMath($('dialogContent'));
+      if (anchor)
+        [...$('dialogContent').querySelectorAll('[id]')]
+          .find((node) => node.id === anchor)
+          ?.scrollIntoView({ block: 'start' });
     } catch (error) {
       if (token !== state.modalId || !dialog.open) return;
       $('dialogContent').innerHTML =
@@ -473,7 +482,6 @@
       .addEventListener('click', (event) => {
         if (event.target.closest('a')) $('main').focus({ preventScroll: true });
       });
-    $('solutionButton')?.addEventListener('click', () => showSolution(record));
     const discussion = HodgeDiscussion.mount($('instanceDiscussion'));
     $('discussionToggle').addEventListener('click', () => {
       const panel = $('instanceDiscussion'),
@@ -540,12 +548,15 @@
   }
   async function loadCatalogue() {
     const responses = await Promise.all(
-      ['data/index.json', 'docs/index.json', 'assets/home-scene.json'].map((path) =>
-        fetch(path, { cache: 'no-cache' })
-      )
+      [
+        'data/index.json',
+        'docs/index.json',
+        'assets/home-scene.json',
+        'discussions/index.json'
+      ].map((path) => fetch(path, { cache: 'no-cache' }))
     );
     if (responses.some((r) => !r.ok)) throw new Error('Catalogue content unavailable');
-    const [data, chapters, home] = await Promise.all(responses.map((r) => r.json()));
+    const [data, chapters, home, discussions] = await Promise.all(responses.map((r) => r.json()));
     state.homeScene = home;
     state.chapters = chapters.pages;
     state.overview = chapters.overview;
@@ -553,6 +564,7 @@
     state.records = data.records
       .map((r, i) => ({ ...r, number: String(i + 1).padStart(2, '0') }))
       .filter((r) => r.visibility !== 'hidden' && r.visibility !== 'backend');
+    HodgeRoutes.startLinks(state.records, chapters, discussions);
     updateOpenInstanceLinks();
     $('totalCount').textContent = `${state.records.length} instances`;
     $('openCount').textContent = state.records.filter((r) => group(r) === 'open').length;
@@ -576,16 +588,18 @@
     openDrawer(false);
     if (state.exploring) setExploring(false);
     if ($('infoDialog').open) $('infoDialog').close();
-    // A comment permalink within the current instance should preserve the draft,
-    // loaded pages, and surface instead of rebuilding the whole instance view.
+    // Navigation within an instance preserves its discussion draft and surface.
     if (
       page === 'case' &&
       state.page === 'case' &&
       state.current === caseId &&
-      destination.discussion &&
       $('instanceDiscussion')?.dataset.instance === caseId
     ) {
-      revealDiscussion(destination.comment);
+      if (destination.discussion) revealDiscussion(destination.comment);
+      if (destination.solution) {
+        const record = await getRecord(caseId);
+        if (id === state.loadId && isProved(record)) await showSolution(record, destination.anchor);
+      }
       return;
     }
     if (page === 'leaderboard' && state.page === 'leaderboard') {
@@ -669,6 +683,7 @@
       if (id !== state.loadId) return;
       document.title = `${record.title} — hodge.computer`;
       setScene(record);
+      if (destination.solution && isProved(record)) await showSolution(record, destination.anchor);
     } catch (error) {
       if (id !== state.loadId) return;
       console.error(error);
@@ -742,7 +757,6 @@
     dialog.scrollTop = 0;
   }
   async function main() {
-    HodgeDiscussion.startLinks();
     renderMath(document);
     $('technicalDisclosure').addEventListener('click', () =>
       setChaptersExpanded($('technicalChapters').hidden)
@@ -774,6 +788,10 @@
     $('drawerBackdrop').addEventListener('click', () => openDrawer(false));
     $('closeDialog').addEventListener('click', () => $('infoDialog').close());
     $('infoDialog').addEventListener('close', () => {
+      if ($('infoDialog').open) return;
+      const destination = HodgeRoutes.parse(location.hash);
+      if (destination?.solution && destination.caseId === state.solutionId)
+        history.replaceState(null, '', '#case/' + state.solutionId);
       state.modalId++;
       state.solutionId = null;
       $('infoDialog').classList.remove('column-dialog');
@@ -794,13 +812,13 @@
       }
     });
     document.addEventListener('click', async (event) => {
-      const discussion = event.target.closest('a[href]');
+      const link = event.target.closest('a[href]');
       if (
-        discussion &&
-        discussion.origin === location.origin &&
-        discussion.pathname === location.pathname &&
-        HodgeRoutes.parse(discussion.hash)?.discussion &&
-        discussion.hash === location.hash &&
+        link &&
+        link.origin === location.origin &&
+        link.pathname === location.pathname &&
+        HodgeRoutes.parse(link.hash) &&
+        link.hash === location.hash &&
         event.button === 0 &&
         !event.metaKey &&
         !event.ctrlKey &&
@@ -808,8 +826,8 @@
         !event.altKey
       ) {
         event.preventDefault();
-        if ($('infoDialog').open) $('infoDialog').close();
-        revealDiscussion(HodgeRoutes.parse(discussion.hash).comment);
+        await route();
+        return;
       }
       const target = event.target.closest('[data-modal]');
       if (target) {
@@ -833,20 +851,6 @@
             announce('Could not load this instance. Please try again.');
           }
         } else showModal(target.dataset.modal);
-      }
-      const solution = event.target.closest('[data-solution]');
-      if (solution) {
-        try {
-          await showSolution(await getRecord(solution.dataset.solution));
-        } catch (error) {
-          announce('The construction could not be loaded. Please try again.');
-          console.error(error);
-        }
-      }
-      const solver = event.target.closest('.solver-leaderboard-link');
-      if (solver && solver.hash === location.hash) {
-        event.preventDefault();
-        await route();
       }
     });
     document.addEventListener('keydown', (event) => {
