@@ -21,7 +21,7 @@ def build():
     return result.returncode == 0
 
 def source_stamp():
-    paths = [ROOT / 'index.html', ROOT / 'data/catalogue.json', ROOT / 'docs/index.json', ROOT / 'leaderboard/accounts.json', ROOT / 'scripts/build-content.py', ROOT / 'scripts/content.py']
+    paths = [ROOT / 'index.html', ROOT / 'data/catalogue.json', ROOT / 'docs/index.json', ROOT / 'scripts/build-content.py', ROOT / 'scripts/content.py']
     for pattern in ['data/*/*.rec', 'data/*/*.md', 'data/*/witness.json', 'data/*/provenance.json', 'docs/*.md', 'assets/*.js', 'assets/*.css']:
         paths.extend(ROOT.glob(pattern))
     result = []

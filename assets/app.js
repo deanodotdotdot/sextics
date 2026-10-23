@@ -240,7 +240,7 @@ function renderContributor(login,rows){
   const account=accountFor(row.githubLogin);
   panel.innerHTML=`<header class="contributor-heading"><p class="dialog-eyebrow">THE CONTRIBUTIONS</p><div class="contributor-title-line"><h2>Constructions by ${escape(account.name)}</h2><a href="https://github.com/${encodeURIComponent(account.githubLogin)}" target="_blank" rel="noopener noreferrer">@${escape(account.githubLogin)} ↗</a></div></header><div class="contribution-list">${row.instanceIds.map(id=>{const r=state.records.find(r=>r.id===id);return `<div class="contribution-row"><button type="button" data-solution="${escape(id)}" aria-haspopup="dialog"><span class="contribution-check" aria-hidden="true">✓</span><span><strong>${escape(r.title)}</strong><small>${r.credit.origin==='starting-example'?'Starting Fermat example':'Contributed construction'} · q = ${r.q}</small></span><span class="contribution-read">Read the construction ↗</span></button><a href="#case/${encodeURIComponent(id)}" aria-label="View instance: ${escape(r.title)}">Instance →</a></div>`;}).join('')}</div>`;
 }
-function renderCommentContributor(login,rows){
+function paintCommentContributor(login,rows){
   const row=rows.find(r=>r.githubLogin.toLowerCase()===login?.toLowerCase()),panel=$('contributorDetails');
   panel.hidden=!row;if(!row){panel.innerHTML='';return;}
   const account=accountFor(row.githubLogin);
@@ -259,11 +259,47 @@ function renderCommentContributor(login,rows){
     shorten(node);if(truncated)node.append('…');
   });
 }
+const contributorComments=new Map();
+let commentRequest=0,commentPanelKey='';
+async function renderCommentContributor(login,rows,{refresh=false}={}){
+  const request=++commentRequest,loadId=state.loadId,panel=$('contributorDetails');
+  const row=rows.find(r=>r.githubLogin.toLowerCase()===login?.toLowerCase());
+  if(!row){panel.hidden=true;panel.innerHTML='';commentPanelKey='';return;}
+  const key=row.githubLogin.toLowerCase(),cached=contributorComments.get(key);
+  if(commentPanelKey!==key){
+    paintCommentContributor(login,[{...row,comments:cached?.comments||[]}]);commentPanelKey=key;
+    if(!cached)panel.querySelector('.comment-contribution-list').textContent='Loading comments…';
+  }
+  if(!refresh&&cached&&Date.now()-cached.time<15000)return;
+  try{
+    const data=await HodgeAccount.request('/api/comment-leaderboard/'+encodeURIComponent(row.githubLogin));
+    if(request!==commentRequest||loadId!==state.loadId||state.page!=='leaderboard'||rankingMode!=='comments')return;
+    const signature=JSON.stringify(data.comments);
+    if(!cached||cached.signature!==signature||panel.querySelector('.comment-load-error'))paintCommentContributor(login,[{...row,comments:data.comments}]);
+    contributorComments.set(key,{comments:data.comments,signature,time:Date.now()});
+  }catch(error){
+    if(request!==commentRequest||loadId!==state.loadId)return;
+    let message=panel.querySelector('.comment-load-error');
+    if(!message){message=document.createElement('p');message.className='comment-load-error';message.setAttribute('role','status');panel.append(message);}
+    if(!cached)panel.querySelector('.comment-contribution-list').textContent='';
+    message.replaceChildren(document.createTextNode('Comments could not be refreshed. '));
+    const retry=document.createElement('button');retry.className='discussion-button';retry.textContent='Try again';
+    retry.onclick=()=>renderCommentContributor(login,rows,{refresh:true});message.append(retry);
+  }
+}
+async function loadProfiles(logins){
+  const missing=[...new Set(logins)].filter(login=>!state.accounts.has(login.toLowerCase()));
+  if(!missing.length)return;
+  for(let offset=0;offset<missing.length;offset+=50){
+    const data=await HodgeAccount.request('/api/profiles?logins='+encodeURIComponent(missing.slice(offset,offset+50).join(',')));
+    for(const account of data.accounts)state.accounts.set(account.githubLogin.toLowerCase(),account);
+  }
+}
 async function loadCatalogue(){
-  const responses=await Promise.all(['data/index.json','leaderboard/accounts.json','docs/index.json'].map(path=>fetch(path,{cache:'no-cache'})));
+  const responses=await Promise.all(['data/index.json','docs/index.json'].map(path=>fetch(path,{cache:'no-cache'})));
   if(responses.some(r=>!r.ok))throw new Error('Catalogue content unavailable');
-  const [data,accounts,chapters]=await Promise.all(responses.map(r=>r.json()));
-  state.accounts=new Map(accounts.accounts.map(a=>[a.githubLogin.toLowerCase(),a]));state.chapters=chapters.pages;state.overview=chapters.overview;buildChapterIndex();
+  const [data,chapters]=await Promise.all(responses.map(r=>r.json()));
+  state.chapters=chapters.pages;state.overview=chapters.overview;buildChapterIndex();
   state.records=data.records.map((r,i)=>({...r,number:String(i+1).padStart(2,'0')})).filter(r=>r.visibility!=='hidden'&&r.visibility!=='backend');
   updateOpenInstanceLinks();
   $('totalCount').textContent=`${state.records.length} instances`;$('openCount').textContent=state.records.filter(r=>group(r)==='open').length;$('solvedCount').textContent=state.records.filter(hasCertificate).length;
@@ -287,44 +323,91 @@ async function startLivePreview(){
 }
 let rankingMode="solves",rankingRequest=0,renderedRankingMode=null;
 const rankingRows=new Map();
-function highlightContributor(login){
+function highlightContributor(login,{scroll=true}={}){
   document.querySelectorAll('#leaderboardRows .contributor-highlight').forEach(row=>row.classList.remove('contributor-highlight'));
   if(!login)return;
   const row=document.getElementById(`contributor-${decodeURIComponent(login).toLowerCase()}`);
   if(!row)return;
-  row.classList.add('contributor-highlight');row.focus({preventScroll:true});
+  row.classList.add('contributor-highlight');if(!scroll)return;row.focus({preventScroll:true});
   const panel=$('contributorDetails');
   if(!panel.hidden)panel.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 }
-async function renderLeaderboard(loadId){
-  if(location.hash.split('/')[2]==='comments')rankingMode='comments';
-  const request=++rankingRequest,comments=rankingMode==="comments";
-  if(renderedRankingMode===rankingMode&&rankingRows.has(rankingMode)){
-    const login=location.hash.split('/')[1];
-    (comments?renderCommentContributor:renderContributor)(login?decodeURIComponent(login):null,rankingRows.get(rankingMode));
-    highlightContributor(login);
-    return;
-  }
-  for(const [id,active] of [["rankSolves",!comments],["rankComments",comments]])$(id).setAttribute("aria-pressed",String(active));
-  $("rankingColumn").textContent=comments?"Comments":"Solves";
-  document.querySelector("#leaderboardView .information-deck").textContent=comments?"Contributors ranked by comments and replies across the atlas.":"Contributors to the challenge, ranked by number of solves.";
-  $('leaderboardRetry').hidden=true;$('leaderboardRows').innerHTML='';$('leaderboardMessage').hidden=false;
-  $('leaderboardMessage').innerHTML='<p>Loading the leaderboard…</p>';
-  try{
-    if(!state.leaderboard)state.leaderboard=fetch('leaderboard/credits.json').then(response=>{if(!response.ok)throw new Error('Leaderboard unavailable.');return response.json();}).catch(error=>{state.leaderboard=null;throw error;});
-    const data=await state.leaderboard,rows=comments?(await fetch("leaderboard/comment-counts.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw Error("Comment counts unavailable");return r.json()})).rows:HodgeLeaderboard.rank(data,state.records);
-    if(loadId!==state.loadId||request!==rankingRequest)return;
-    rankingRows.set(rankingMode,rows);renderedRankingMode=rankingMode;
+function paintRanking(rows,comments){
     $('leaderboardRows').innerHTML=rows.map(row=>{const account=accountFor(row.githubLogin);return `<tr id="contributor-${escape(row.githubLogin.toLowerCase())}" tabindex="-1"><td class="leaderboard-rank">${row.rank}</td><td><a class="github-account" href="${'#leaderboard/'+encodeURIComponent(row.githubLogin)+(comments?'/comments':'')}" aria-label="View ${comments?'comments by':'constructions by'} ${escape(account.name)}">${avatar(account)}<span><strong>${escape(account.name)}</strong><span class="account-handle">@${escape(account.githubLogin)}</span></span><span class="account-arrow" aria-hidden="true">↗</span></a></td><td class="leaderboard-score">${row.score}<span>${comments?(row.score===1?'comment':'comments'):(row.score===1?'solve':'solves')}</span></td></tr>`;}).join('');
-    const highlighted=location.hash.split('/')[1];(comments?renderCommentContributor:renderContributor)(highlighted?decodeURIComponent(highlighted):null,rows);
-    highlightContributor(highlighted);
+}
+let rankingSignature='',refreshingRanking=false;
+async function renderLeaderboard(loadId,{refresh=false,quiet=false}={}){
+  if(location.hash.split('/')[2]==='comments')rankingMode='comments';
+  const request=++rankingRequest,mode=rankingMode,comments=mode==='comments',login=location.hash.split('/')[1];
+  const selected=login?decodeURIComponent(login):null;
+  const renderDetails=async rows=>{
+    if(comments)await renderCommentContributor(selected,rows,{refresh});
+    else{++commentRequest;commentPanelKey='';renderContributor(selected,rows);}
+  };
+  for(const [id,active] of [['rankSolves',!comments],['rankComments',comments]])$(id).setAttribute('aria-pressed',String(active));
+  $('rankingColumn').textContent=comments?'Comments':'Solves';
+  document.querySelector('.leaderboard-table').setAttribute('aria-label',comments?'GitHub accounts ranked by comments':'GitHub accounts ranked by known constructions');
+  document.querySelector('#leaderboardView .information-deck').textContent=comments?'Contributors ranked by comments and replies across the atlas.':'Contributors to the challenge, ranked by number of solves.';
+  const cached=rankingRows.get(mode);
+  if(cached){
+    $('leaderboardMessage').hidden=cached.length>0;
+    if(renderedRankingMode!==mode){paintRanking(cached,comments);rankingSignature='';renderedRankingMode=mode;}
+    const details=renderDetails(cached);highlightContributor(login,{scroll:false});await details;
+    if(request!==rankingRequest||loadId!==state.loadId)return;
+    highlightContributor(login,{scroll:!quiet});
+    $('leaderboardMessage').hidden=cached.length>0;
+    if(!refresh)return;
+  }else{
+    $('leaderboardRows').innerHTML='';$('contributorDetails').hidden=true;
+    $('leaderboardMessage').hidden=false;$('leaderboardMessage').innerHTML='<p>Loading the leaderboard…</p>';
+  }
+  $('leaderboardRetry').hidden=true;
+  try{
+    let rows;
+    if(comments){
+      rows=(await HodgeAccount.request('/api/comment-leaderboard')).rows;
+      for(const account of rows)state.accounts.set(account.githubLogin.toLowerCase(),account);
+    }else{
+      state.leaderboard ||= fetch('leaderboard/credits.json').then(response=>{if(!response.ok)throw Error('Leaderboard unavailable.');return response.json();}).catch(error=>{state.leaderboard=null;throw error;});
+      rows=HodgeLeaderboard.rank(await state.leaderboard,state.records);
+      // A profile outage does not hide accepted solve credit.
+      try{await loadProfiles(rows.map(row=>row.githubLogin));}catch{}
+    }
+    if(loadId!==state.loadId||request!==rankingRequest)return;
+    rankingRows.set(mode,rows);renderedRankingMode=mode;
+    const signature=JSON.stringify([mode,rows,rows.map(row=>accountFor(row.githubLogin))]);
+    if(signature!==rankingSignature){paintRanking(rows,comments);rankingSignature=signature;}
     $('leaderboardMessage').hidden=rows.length>0;
-    if(!rows.length)$('leaderboardMessage').innerHTML='<span class="leaderboard-empty-mark" aria-hidden="true">✳</span><h2>The first solve starts the board.</h2><p>GitHub accounts will appear here as constructions are credited.</p>';
+    if(!rows.length)$('leaderboardMessage').textContent=comments?'No discussion comments yet.':'The first solve starts the board.';
+    // Cached selections were already refreshed above; a deleted last comment may remove its row.
+    if(!cached||!rows.some(row=>row.githubLogin.toLowerCase()===selected?.toLowerCase())){
+      const details=renderDetails(rows);highlightContributor(login,{scroll:false});await details;
+      if(loadId!==state.loadId||request!==rankingRequest)return;
+      highlightContributor(login,{scroll:!quiet});
+    }else highlightContributor(login,{scroll:false});
+    if(loadId!==state.loadId||request!==rankingRequest)return;
+    $('leaderboardMessage').hidden=rows.length>0;
+    if(!rows.length)$('leaderboardMessage').textContent=comments?'No discussion comments yet.':'The first solve starts the board.';
   }catch(error){
-    state.leaderboard=null;if(loadId!==state.loadId)return;
-    console.error(error);$('leaderboardMessage').innerHTML='<h2>The leaderboard could not be loaded.</h2><p>Please try again.</p>';$('leaderboardRetry').hidden=false;
+    if(loadId!==state.loadId||request!==rankingRequest)return;
+    $('leaderboardMessage').hidden=false;
+    $('leaderboardMessage').textContent=cached?'The leaderboard could not be refreshed.':'The leaderboard could not be loaded.';
+    $('leaderboardRetry').hidden=false;
   }
 }
+async function refreshCommentRanking(){
+  if(document.hidden||state.page!=='leaderboard'||rankingMode!=='comments'||refreshingRanking)return;
+  refreshingRanking=true;
+  try{await renderLeaderboard(state.loadId,{refresh:true,quiet:true});}finally{refreshingRanking=false;}
+}
+setInterval(refreshCommentRanking,30000);
+window.addEventListener('focus',refreshCommentRanking);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshCommentRanking();});
+document.addEventListener('hodge-session-change',()=>{
+  ++rankingRequest;++commentRequest;rankingRows.delete('comments');contributorComments.clear();
+  state.accounts.clear();commentPanelKey='';rankingSignature='';
+  if(state.page==='leaderboard')renderLeaderboard(state.loadId,{refresh:true,quiet:true});
+});
 async function route(){
   const id=++state.loadId;const hash=location.hash.replace(/^#/,'');const caseId=hash.startsWith('case/')?decodeURIComponent(hash.split('/')[1]):null;
   const chapterId=hash.startsWith('technical-information/')?decodeURIComponent(hash.split('/')[1]):null;
@@ -390,7 +473,7 @@ async function main(){
   try{state.renderer=HodgeRenderer.create($('surface'),{onStatus,onModeChange:mode=>{if(state.exploring!==(mode==='free'))setExploring(mode==='free',true);}});}catch(error){console.error(error);onStatus({state:'error',message:'WebGL2 unavailable'});}
   $('exploreToggle').addEventListener('click',()=>setExploring(!state.exploring));
   for(const [id,mode] of [['rankSolves','solves'],['rankComments','comments']])$(id).addEventListener('click',()=>{rankingMode=mode;history.replaceState(history.state,'','#leaderboard');renderLeaderboard(state.loadId)});
-  $('leaderboardRetry').addEventListener('click',()=>renderLeaderboard(state.loadId));
+  $('leaderboardRetry').addEventListener('click',()=>renderLeaderboard(state.loadId,{refresh:true}));
   $('caseSearch').addEventListener('input',()=>{buildIndex();$('caseSearch').scrollIntoView({block:'nearest'});});
   $('clearCaseSearch').addEventListener('click',()=>{$('caseSearch').value='';buildIndex();$('caseSearch').focus();});
   $('menuButton').addEventListener('click',()=>openDrawer(!document.body.classList.contains('drawer-open')));

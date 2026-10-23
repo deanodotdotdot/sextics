@@ -42,7 +42,6 @@ class ContentUpdates(unittest.TestCase):
         self.write('docs/index.json', json.dumps({'schemaVersion':1,'pages':[],
             'overview':{'source':'docs/overview.md','content':'docs/overview.html'}}))
         self.write('docs/overview.md', r'An overview with \(F^{q+1}\).')
-        self.write('leaderboard/accounts.json', '{"accounts": []}')
         self.write('index.html', '<main></main>')
         self.write('assets/renderer.js', '// Renderer fixture')
         self.run_build()

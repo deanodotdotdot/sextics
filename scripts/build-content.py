@@ -156,7 +156,7 @@ digest = hashlib.sha256()
 for path in sorted(outputs):
     digest.update(str(path.relative_to(ROOT)).encode())
     digest.update(outputs[path].encode())
-for path in sorted({ROOT / 'index.html', ROOT / 'docs/index.json', ROOT / 'leaderboard/accounts.json', *ROOT.glob('assets/*.js'), *ROOT.glob('assets/*.css'), *ROOT.glob('data/*/witness.json'), *ROOT.glob('data/*/provenance.json')}):
+for path in sorted({ROOT / 'index.html', ROOT / 'docs/index.json', *ROOT.glob('assets/*.js'), *ROOT.glob('assets/*.css'), *ROOT.glob('data/*/witness.json'), *ROOT.glob('data/*/provenance.json')}):
     digest.update(path.read_bytes())
 # Delete only known generated exports, after every source has passed the build.
 # Removing a solution must also retire its old downloadable explanation.

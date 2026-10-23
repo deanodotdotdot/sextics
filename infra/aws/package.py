@@ -20,7 +20,7 @@ def package(source, site, output, static_only=False):
             dest=public/relative;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(file,dest)
     digest=None
     if not static_only:
-        runtime_files=['auth.mjs','shared-auth.mjs','dynamo-store.mjs','lambda-bridge.mjs','lambda.mjs','github.mjs','server.mjs','package.json','package-lock.json']
+        runtime_files=['auth.mjs','shared-auth.mjs','dynamo-store.mjs','lambda-bridge.mjs','lambda.mjs','github.mjs','comment-leaderboard.mjs','server.mjs','package.json','package-lock.json']
         if not (source/'server/node_modules/@aws-sdk/client-dynamodb').is_dir():
             raise ValueError('Install the pinned server dependencies before packaging Lambda.')
         archive=output/'lambda.zip'
