@@ -268,7 +268,7 @@ async function renderCommentContributor(login,rows,{refresh=false}={}){
   const key=row.githubLogin.toLowerCase(),cached=contributorComments.get(key);
   if(commentPanelKey!==key){
     paintCommentContributor(login,[{...row,comments:cached?.comments||[]}]);commentPanelKey=key;
-    if(!cached)panel.querySelector('.comment-contribution-list').textContent='Loading comments…';
+    if(!cached)panel.querySelector('.comment-contribution-list').innerHTML='<p class="comment-load-status" role="status">Loading comments…</p>';
   }
   if(!refresh&&cached&&Date.now()-cached.time<15000)return;
   try{

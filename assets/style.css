@@ -463,6 +463,8 @@ dialog.participate-dialog{max-width:760px;max-height:88dvh;padding:34px 38px;ove
 
 .leaderboard-switch{display:flex;gap:4px;margin:0 0 18px}.leaderboard-switch button{font:inherit;padding:8px 18px;border:1px solid var(--line,#394358);border-radius:5px;background:transparent;color:inherit;cursor:pointer}.leaderboard-switch button[aria-pressed="true"]{background:#27364d}.leaderboard-switch button:hover{background:#202c40}
 
+.comment-load-status{margin:0;padding-bottom:24px}
+
 .comment-contribution{position:relative;display:block;border-top:1px solid var(--line);padding:18px 0;text-decoration:none;color:inherit}.comment-contribution:hover>a>strong,.comment-contribution:focus-within>a>strong{color:#a7bed7}.comment-contribution>a>strong{font:18px/1.4 var(--serif);color:#ced8e4}.comment-contribution small{display:block;color:#8c9eb4;margin-top:6px}.comment-contribution p{font-size:14px;line-height:1.6;color:#a7b5c8;margin:8px 0 0}
 
 .comment-contribution>a{text-decoration:none}.comment-preview{margin-top:12px}.comment-preview p{font-size:inherit;color:inherit}.comment-preview strong{font:inherit;font-weight:bold;color:inherit}
