@@ -93,11 +93,9 @@ for rid in catalogue['instanceIds']:
         record['pullRequest'] = dict(pull_request)
         record['formalStatus'] = 'proved'
         record['evidenceKind'] = 'explicit-certificate' if 'D' in witness else 'existence-proof'
-        record['certificate'] = dict(solution['witness'])
-        if 'D' in record['certificate']:
-            record['D'] = polynomial(record['certificate'].pop('D')['expression'])
+        if 'D' in witness:
+            record['D'] = polynomial(witness['D']['expression'])
             record['render']['divisorTerms'] = [[float(Fraction(c)), m] for c,m in record['D']['terms']]
-        record['witnessAvailability'] = solution['witnessAvailability']
         record['leanVerification'] = solution['proof']
         display_divisor = ROOT / 'slices/divisors' / f'{rid}.json'
         if display_divisor.is_file():
@@ -115,7 +113,6 @@ for rid in catalogue['instanceIds']:
         emit(ATLAS / rid / 'solution.html', render(prose(local_path(solution['explanation'], folder)), root=ROOT, source_path=local_path(solution['explanation'], folder)))
     if record['formalStatus'] == 'unproved':
         require(not (ROOT / 'slices/divisors' / f'{rid}.json').exists(), f'{rid}: display divisor requires an accepted proof')
-        record['witnessAvailability'] = 'missing'
     dump(ATLAS / rid / 'record.json', record)
     summary = {k: record[k] for k in ['id', 'title', 'formalStatus', 'evidenceKind', 'category', 'q']}
     summary['path'] = f'assets/atlas/{rid}/record.json'

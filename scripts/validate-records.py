@@ -157,10 +157,6 @@ def main():
         )
         for source in record.get("sources", []):
             require((ROOT / source["path"]).is_file(), f"{rid}: missing research source")
-        if record.get("certificate", {}).get("packet"):
-            require(
-                (ROOT / record["certificate"]["packet"]).is_file(), f"{rid}: missing witness packet"
-            )
 
     print(
         f"Validated {len(ids)} records: {proved} accepted Lean proofs, {len(ids)-proved} open targets."
