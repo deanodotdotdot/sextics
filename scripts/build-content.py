@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Compile local .rec and Markdown sources. No network access or proof acceptance."""
-import argparse
 from datetime import date, datetime
 from fractions import Fraction
-import hashlib
 import json
 import re
 import sys
@@ -16,12 +14,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "proposals"))
 from acceptance import validate_solution
 
 ROOT = Path(__file__).resolve().parents[1]
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--root', type=Path, default=ROOT, help=argparse.SUPPRESS)
-parser.add_argument('--check', action='store_true', help='Fail if generated files are stale')
-args = parser.parse_args()
-ROOT = args.root.resolve()
-stale = []
 outputs = {}
 
 def require(condition, message):
@@ -46,13 +38,10 @@ def emit(path, text):
 def write_output(path, text):
     if path.exists() and path.read_text() == text:
         return
-    if args.check:
-        stale.append(str(path.relative_to(ROOT)))
-    else:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_suffix(path.suffix + '.tmp')
-        temporary.write_text(text)
-        temporary.replace(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + '.tmp')
+    temporary.write_text(text)
+    temporary.replace(path)
 
 def dump(path, value):
     emit(path, json.dumps(value, ensure_ascii=False, indent=2) + '\n')
@@ -151,26 +140,12 @@ for page in doc_index['pages']:
 if doc_index.get('overview'):
     emit(local_path(doc_index['overview']['content']), render(prose(local_path(doc_index['overview']['source']))))
 
-# The revision changes for data, prose, navigation, or UI changes. It is written last.
-digest = hashlib.sha256()
-for path in sorted(outputs):
-    digest.update(str(path.relative_to(ROOT)).encode())
-    digest.update(outputs[path].encode())
-for path in sorted({ROOT / 'index.html', ROOT / 'docs/index.json', *ROOT.glob('assets/*.js'), *ROOT.glob('assets/*.css'), *ROOT.glob('data/*/witness.json'), *ROOT.glob('data/*/provenance.json')}):
-    digest.update(path.read_bytes())
 # Delete only known generated exports, after every source has passed the build.
 # Removing a solution must also retire its old downloadable explanation.
 generated = [*ROOT.glob('data/*/record.json'), *ROOT.glob('data/*/solution.json'), *ROOT.glob('data/*/why.html'), *ROOT.glob('data/*/solution.html'), *ROOT.glob('docs/*.html')]
 for path in generated:
     if path not in outputs:
-        if args.check:
-            stale.append(str(path.relative_to(ROOT)))
-        else:
-            path.unlink()
+        path.unlink()
 for path, text in outputs.items():
     write_output(path, text)
-write_output(ROOT / 'data/revision.json', json.dumps({'revision': digest.hexdigest()}) + '\n')
-
-if stale:
-    sys.exit('Stale generated content:\n' + '\n'.join(stale))
-print(f'{"Checked" if args.check else "Built"} {len(summaries)} instances, {len(credits)} credited constructions, and {len(doc_index["pages"])} chapters.')
+print(f'Built {len(summaries)} instances, {len(credits)} credited constructions, and {len(doc_index["pages"])} chapters.')

@@ -14,7 +14,7 @@ Treat the shared formal library as the Lean counterpart of the book: retain orga
 
 `docs/index.json` and its Markdown sources define the expandable technical chapters. The content builder renders bundled KaTeX and local HTML. `assets/` contains local runtime scripts, styles, fonts, and meshes. Navigation is parsed by `assets/routes.js`; `leaderboard-view.js` owns ranking requests and rendering, and `discussion-drafts.js` owns drafts across panel mounts. The app and renderer consume `formalStatus` for accepted proof status, independently of available divisor data. `slices/` saves per-instance planes and cameras. The atlas and mathematical content are static; sign-in and discussions use the backend API.
 
-The loopback preview watches content and UI files, rebuilds valid edits, and refreshes the browser while preserving its route. It defers refresh during free-camera exploration. Changes on `main` trigger `.github/workflows/deploy-website.yml`, which publishes the static website. Backend deployments are documented in `infra/aws/README.md`.
+Changes on `main` trigger `.github/workflows/deploy-website.yml`, which publishes the static website. Backend deployments are documented in `infra/aws/README.md`.
 
 ## Catalogue curation
 
@@ -56,7 +56,7 @@ The checker generates `HodgeTarget` from the base record, and optional `HodgeWit
 
 Candidate code receives no networking, credentials, or repository write access. Protected target artifacts, candidate artifacts, and the final trusted wrapper have separate write permissions. Linux uses Docker; local macOS checking uses `sandbox-exec`. The pinned toolchain, dependencies, verifier, and OS remain trusted components. Verification fails if isolation is unavailable.
 
-The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed. Maintenance PRs have no solve to verify and use Repository checks for code validation. CI does not request approval or inspect GitHub reviews.
+The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed. Maintenance PRs build the public release; shared Lean changes recheck affected accepted proofs. CI does not request approval or inspect GitHub reviews.
 
 ### Merge permissions
 
@@ -73,8 +73,6 @@ merge parents and source files. A changed head or base requires fresh verificati
 before merging. This retry cannot turn a failed or unchecked proof into an acceptance.
 
 Use a **merge commit**, preserving the checked head as its second parent. Merge only against the checked base. Squash/rebase merges and base drift fail publication. When merging through GitHub CLI or an owner script, bind the merge request to the reviewed head SHA. Do not merge another solve until the previous publication commit has landed and the next proof has been checked against current main.
-
-`preview` mode is available for infrastructure experiments, but its receipts cannot be published as accepted solves.
 
 ### Trusted publication
 
@@ -93,24 +91,16 @@ Existing acceptance receipts and their historical authorization fields are prese
 
 The atlas and leaderboard read generated files and need no GitHub service at runtime. Sign-in and discussions use the backend API. The publisher never awards credit from editable claimed identities, an unmerged proof, or a status flag. After acceptance, edit `solution.md` as ordinary reviewed documentation. The site renders the current explanation; the original submission remains in Git history and its acceptance record. Editorial changes do not require another Lean run or a new acceptance record. Changes to the target, Lean sources, proof manifest, or witness require renewed verification.
 
-### Local checks
+### Release validation
 
-```sh
-python3 scripts/proposals/test_check.py
-python3 scripts/proposals/test_lean.py
-```
-
-The first checks file boundaries, schema, attribution, workflow status, and publication evidence. The second exercises the real Lean/sandbox path, including a small valid certificate and deliberately invalid inputs. These verifier regression tests belong to infrastructure changes; solve PRs run their actual submitted proof, not the regression suite. See [CONTRIBUTING.md](CONTRIBUTING.md#local-verification) for the contributor's local verification recipe.
-
-The unprivileged Repository checks workflow runs the content, browser-state,
-renderer, backend and packaging suites on every PR. It validates generated records
-and links before packaging the public artifact. `validate-records.py` also checks
-that exact expressions agree with their sparse coefficient data; this runs during
-maintenance and publication, never in visitors' browsers. These checks do not grant
-formal acceptance. Proof infrastructure changes additionally run the sandbox tests.
+The Repository build workflow builds and validates the actual published content
+and packages the public artifact. `validate-records.py` checks the exact records,
+saved slices, and referenced assets; `check-content.py` renders formulas and checks
+local links. The build generates current files directly, without a committed
+revision hash or a stale-output gate. These checks do not grant formal acceptance.
 For shared Lean changes, `scripts/check-library.py --base <commit>` builds and
-sequentially replays changed modules and their dependents, then rechecks affected
-accepted applications against their protected targets.
+replays changed modules and their dependents, then rechecks affected accepted
+applications against their protected targets.
 
 ## Visualization maintenance
 
@@ -140,17 +130,17 @@ The numerical surface is obtained from `z = diag(1 or i) B u`, where the columns
 
 Meshes are generated offline. The repository ships the saved planes, cameras, and rendered mesh assets. When replacing a mesh, update its instance record and saved slice together, then delete manifests and buffers no longer selected by any instance or the homepage. Git history retains earlier versions; do not keep unused meshes in the checkout. Equal-polynomial instances should share a slice unless an intentional presentation difference is documented.
 
-Check finite values, normals, index bounds, projected extent, edge lengths, and polynomial residuals. Reject non-real phase restrictions rather than silently taking a real part. Compare refinements around narrow joins: a finite grid can miss small features. Use exact or direct polynomial evaluation to cross-check compact denominator evaluators. Renderer safety and denominator evaluation are exercised by `scripts/test-surface.cjs` and `scripts/test-divisor.cjs`; numerical checks remain presentation diagnostics.
+Check finite values, normals, index bounds, projected extent, edge lengths, and polynomial residuals. Reject non-real phase restrictions rather than silently taking a real part. Compare refinements around narrow joins: a finite grid can miss small features. Use exact or direct polynomial evaluation to cross-check compact denominator evaluators.
 
-A solve can prove the existential contract without the optional `witness.json` export. Such a proof still earns credit; its denominator must be extracted separately before it can be highlighted. A maintenance change may add `data/<id>/display-divisor.json`, citing the relevant definitions and supplying an exact polynomial program. This presentation file does not modify the accepted proof, receipt, witness, or credit. It must not describe an arbitrary geometric curve as the certificate divisor. One reflection's program is compared symbolically with the accepted `fullD` by `python3 scripts/test-divisor-programs.py`.
+A solve can prove the existential contract without the optional `witness.json` export. Such a proof still earns credit; its denominator must be extracted separately before it can be highlighted. A maintenance change may add `data/<id>/display-divisor.json`, citing the relevant definitions and supplying an exact polynomial program. This presentation file does not modify the accepted proof, receipt, witness, or credit. It must not describe an arbitrary geometric curve as the certificate divisor.
 
 Quadric contact · broken reflections has no denominator overlay. Its former numerical factors are retained in `data/quadric-contact-broken/fixed-slice-divisor.json` for offline investigation, alongside the construction in `display-divisor.md`. The exporter writes only that offline file. Restoring the overlay requires an exact display formula; the browser and content builder no longer accept numerical slice-factor exports.
 
-The pole-two holdout export is specified in `data/holdout-q2/display-divisor.md`. It supplies an explicit nonminimal clearing for the two endpoint certificates, then exports 27 conjugate-paired line factors and two coordinate factors on a fixed-ratio slice. Regenerate it with `scripts/export-holdout-q2-divisor.py`; run `scripts/test-holdout-q2-divisor.py` to check the extraction, degree bounds, and numerical norm comparisons. The twelve targets sharing the central holdout sextic now use a different common plane and camera. The old factors are preserved in `data/holdout-q2/fixed-slice-divisor.json`, but the pole-two divisor overlay is disabled: those coefficients must not be applied to a different slice without re-extraction.
+The pole-two holdout export is specified in `data/holdout-q2/display-divisor.md`. It supplies an explicit nonminimal clearing for the two endpoint certificates, then exports 27 conjugate-paired line factors and two coordinate factors on a fixed-ratio slice. Regenerate it with `scripts/export-holdout-q2-divisor.py`. The twelve targets sharing the central holdout sextic now use a different common plane and camera. The old factors are preserved in `data/holdout-q2/fixed-slice-divisor.json`, but the pole-two divisor overlay is disabled: those coefficients must not be applied to a different slice without re-extraction.
 
 All displayed denominators use per-pixel evaluation. Literal polynomials are compiled into multivariate Horner expressions; compact programs retain their arithmetic structure. The fragment shader evaluates each factor and its six ambient derivatives after the inverse stereographic map. Homogeneous coordinate rescaling reduces underflow; dividing by the gradient norm and using pixel derivatives gives curves a consistent antialiased width. Products and powers are displayed as the union of their factors' zero sets, without multiplicity. There is no vertex-sampling fallback. Generated expressions have a 4,096-node budget and run inside the existing visualization worker; context-loss handling and graphics timeouts remain active. Large formulas may still cost more on slower hardware.
 
-`scripts/test-divisor.cjs` compares the generated expressions with independent direct polynomial arithmetic, including all saved divisors and every coordinate phase choice for the two large programs. `scripts/test-divisor-programs.py` checks the extracted One reflection and Hessian-trace formulas against their accepted Lean definitions. Numerical rendering does not replace the surface mesh with an exact surface. A divisor need not intersect a chosen real slice; absence of a bright curve does not imply missing certificate data.
+Numerical rendering does not replace the surface mesh with an exact surface. A divisor need not intersect a chosen real slice; absence of a bright curve does not imply missing certificate data.
 
 When a literal denominator becomes an exact power on a special slice, a display program may declare `sliceIdentity: {"power": n}`. The content builder checks the polynomial identity `D(Bu) = g(Bu)^n` exactly, with the saved coordinate phases, before displaying `g = 0`. It rejects an incorrect identity or a denominator that vanishes on the entire slice. This removes interpolation artifacts from repeated factors without changing the divisor's support or the accepted witness. Hesse · radial quartic uses `X2 = X0`, where `D = (X0^2 + Y2^2/3)^2`; its displayed square root is only valid on this section.
 

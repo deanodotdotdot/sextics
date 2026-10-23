@@ -65,8 +65,7 @@ def package(source, site, output, static_only=False):
                 "leaderboard/credits.json",
             ]:
                 z.write(site / name, name)
-            for name in ["assets/routes.js", "infra/aws/public-files.json"]:
-                z.write(source / name, name)
+            z.write(source / "assets/routes.js", "assets/routes.js")
         digest = hashlib.sha256(archive.read_bytes()).hexdigest()
     manifest = {
         "lambdaSha256": digest,

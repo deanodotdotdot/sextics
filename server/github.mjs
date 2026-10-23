@@ -9,9 +9,8 @@ export class ServiceError extends Error {
 }
 
 export class GitHub {
-  constructor(config, request = fetch) {
+  constructor(config) {
     this.config = config;
-    this.request = request;
     this.activeRequests = 0;
     this.waiters = [];
   }
@@ -23,7 +22,7 @@ export class GitHub {
       await new Promise((resolve) => this.waiters.push(resolve));
     } else this.activeRequests++;
     try {
-      const response = await this.request(`https://api.github.com${path}`, {
+      const response = await fetch(`https://api.github.com${path}`, {
         method,
         redirect: 'error',
         signal: AbortSignal.timeout(20000),
@@ -70,7 +69,7 @@ export class GitHub {
   }
 
   async exchange(code, verifier, redirectUri) {
-    const response = await this.request('https://github.com/login/oauth/access_token', {
+    const response = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       redirect: 'error',
       signal: AbortSignal.timeout(20000),

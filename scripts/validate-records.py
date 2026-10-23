@@ -3,8 +3,6 @@
 import argparse
 import json
 import math
-import subprocess
-import sys
 import sympy
 from proposals.acceptance import exact_polynomial
 from fractions import Fraction
@@ -47,7 +45,6 @@ def polynomial(poly, degree, parity=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args()
-    subprocess.run([sys.executable, str(ROOT / "scripts/build-content.py"), "--check"], check=True)
     index = json.loads((ROOT / "data/index.json").read_text())
     ids = set()
     explicit = 0

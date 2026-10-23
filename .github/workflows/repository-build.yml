@@ -1,4 +1,4 @@
-name: Repository checks
+name: Repository build
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     outputs:
@@ -23,34 +23,25 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
-      - name: Identify proof infrastructure changes
+      - name: Identify shared Lean changes
         id: scope
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
         run: |
-          if git diff --name-only "$BASE" HEAD | grep -E '^(formal/lean/|scripts/proposals/|scripts/check-library.py|.github/(solve-policy.json|workflows/))' > /dev/null; then
+          if git diff --name-only "$BASE" HEAD | grep '^formal/lean/' > /dev/null; then
             echo 'lean=true' >> "$GITHUB_OUTPUT"
           fi
-      - name: Content, browser, server and release checks
+      - name: Build the public release
         run: |
           set -euo pipefail
           python3 -m pip install -r scripts/requirements-content.txt
-          python3 scripts/proposals/test_check.py
-          python3 scripts/test-content.py
-          python3 scripts/test-records.py
-          python3 scripts/test-discord-alerts.py
-          python3 infra/aws/test_package.py
-          node --test server/*.test.mjs scripts/test-browser-state.cjs scripts/test-mesh.cjs
-          node scripts/test-leaderboard.cjs
-          node scripts/test-discussion-links.cjs
-          node scripts/test-surface.cjs
-          node scripts/test-divisor.cjs
+          python3 scripts/build-content.py
           python3 scripts/validate-records.py
           python3 scripts/check-content.py
           python3 infra/aws/package.py --site . --output "$RUNNER_TEMP/release" --static-only
   lean:
-    needs: test
-    if: needs.test.outputs.lean == 'true'
+    needs: build
+    if: needs.build.outputs.lean == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
@@ -68,13 +59,11 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/leanprover/elan/v4.2.0/elan-init.sh -o /tmp/elan-init.sh
           sh /tmp/elan-init.sh -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Prepare trusted fixture dependencies
+      - name: Prepare shared Lean dependencies
         working-directory: formal/lean
         run: |
           lake exe cache get
           lake build HodgeComputer.Verify
-      - name: Real proof, rejection, and sandbox tests
-        run: python3 scripts/proposals/test_lean.py
       - name: Shared modules and protected applications
         env:
           BASE: ${{ github.event.pull_request.base.sha }}

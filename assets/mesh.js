@@ -1,6 +1,6 @@
 /* Saved mesh decoding and validation, independent of GPU resource lifetime. */
 ((root) => {
-  async function validateDynamicMesh(buffer, indexBuffer, meta, shouldContinue = () => true) {
+  async function validateDynamicMesh(buffer, indexBuffer, meta, shouldContinue) {
     const STRIDE = 9;
     if (!(buffer instanceof ArrayBuffer) || !(indexBuffer instanceof ArrayBuffer))
       throw new Error('Missing geometry buffers.');
@@ -212,7 +212,5 @@
       }
     };
   }
-  const api = { create, validateDynamicMesh };
-  if (typeof module !== 'undefined' && module.exports) module.exports = api;
-  else root.HodgeMeshes = api;
+  root.HodgeMeshes = { create };
 })(globalThis);

@@ -18,7 +18,7 @@ def is_public(name):
             for part in path.parts
         )
         and (str(path) in POLICY["files"] or path.parts[0] in POLICY["roots"])
-        and path.suffix.lower() in POLICY["mime"]
+        and path.suffix.lower() in POLICY["extensions"]
     )
 
 

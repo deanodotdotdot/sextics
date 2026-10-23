@@ -125,17 +125,17 @@ def send(webhook, message):
 
 
 def wait_for_site(site):
-    expected = json.loads((site / 'data/revision.json').read_text())
+    expected = json.loads((site / 'data/index.json').read_text())
     for attempt in range(40):
         try:
-            with urllib.request.urlopen(f'{SITE}/data/revision.json?announcement={time.time_ns()}',
+            with urllib.request.urlopen(f'{SITE}/data/index.json?announcement={time.time_ns()}',
                                         timeout=10) as response:
                 if json.load(response) == expected:
                     return
         except (OSError, ValueError):
             pass
         time.sleep(3)
-    raise RuntimeError('The deployed revision is not visible yet; retry deployment to send pending alerts')
+    raise RuntimeError('The deployed atlas is not visible yet; retry deployment to send pending alerts')
 
 
 def announce(index, state, site, deliver, save):

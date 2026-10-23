@@ -1,5 +1,5 @@
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
-import { createService } from './server.mjs';
+import { createHandler } from './server.mjs';
 import { Auth } from './auth.mjs';
 import { DynamoStore } from './dynamo-store.mjs';
 import { bridge } from './lambda-bridge.mjs';
@@ -11,14 +11,13 @@ async function initialize() {
     new GetSecretValueCommand({ SecretId: process.env.HODGE_APP_SECRET })
   );
   const appConfig = JSON.parse(secret.SecretString);
-  const service = await createService({
+  const handler = await createHandler({
     root: process.env.LAMBDA_TASK_ROOT,
     origin,
     appConfig,
-    auth: new Auth(origin, new DynamoStore(process.env.HODGE_SESSION_TABLE)),
-    apiOnly: true
+    auth: new Auth(origin, new DynamoStore(process.env.HODGE_SESSION_TABLE))
   });
-  return bridge(service.handler);
+  return bridge(handler);
 }
 export async function handler(event) {
   try {
