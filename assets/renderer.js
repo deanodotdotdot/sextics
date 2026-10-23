@@ -1,38 +1,40 @@
 /* WebGL surface renderer used by the visualization worker. */
-(()=>{
-"use strict";
-function shader(gl, type, source) {
-  const s = gl.createShader(type);
-  if (!s) throw new Error('The graphics device could not allocate a shader.');
-  gl.shaderSource(s, source);
-  gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-    const info = gl.getShaderInfoLog(s);
-    gl.deleteShader(s);
-    throw new Error('Shader compilation failed: ' + info);
+(() => {
+  'use strict';
+  function shader(gl, type, source) {
+    const s = gl.createShader(type);
+    if (!s) throw new Error('The graphics device could not allocate a shader.');
+    gl.shaderSource(s, source);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      const info = gl.getShaderInfoLog(s);
+      gl.deleteShader(s);
+      throw new Error('Shader compilation failed: ' + info);
+    }
+    return s;
   }
-  return s;
-}
 
-function program(gl, vsSource, fsSource) {
-  const p = gl.createProgram(), compiled = [];
-  if (!p) throw new Error('The graphics device could not allocate a program.');
-  try {
-    compiled.push(shader(gl, gl.VERTEX_SHADER, vsSource));
-    compiled.push(shader(gl, gl.FRAGMENT_SHADER, fsSource));
-    for (const s of compiled) gl.attachShader(p, s);
-    gl.linkProgram(p);
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('Shader link failed: ' + gl.getProgramInfoLog(p));
-    return p;
-  } catch (error) {
-    gl.deleteProgram(p);
-    throw error;
-  } finally {
-    for (const s of compiled) gl.deleteShader(s);
+  function program(gl, vsSource, fsSource) {
+    const p = gl.createProgram(),
+      compiled = [];
+    if (!p) throw new Error('The graphics device could not allocate a program.');
+    try {
+      compiled.push(shader(gl, gl.VERTEX_SHADER, vsSource));
+      compiled.push(shader(gl, gl.FRAGMENT_SHADER, fsSource));
+      for (const s of compiled) gl.attachShader(p, s);
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS))
+        throw new Error('Shader link failed: ' + gl.getProgramInfoLog(p));
+      return p;
+    } catch (error) {
+      gl.deleteProgram(p);
+      throw error;
+    } finally {
+      for (const s of compiled) gl.deleteShader(s);
+    }
   }
-}
 
-const VS = `#version 300 es
+  const VS = `#version 300 es
 precision highp float;
 precision highp int;
 layout(location=0) in vec3 aPosition;
@@ -52,7 +54,7 @@ void main() {
   gl_Position = uProjection * uView * world;
 }`;
 
-const FS = `#version 300 es
+  const FS = `#version 300 es
 precision highp float;
 precision highp int;
 in vec3 vPosition;
@@ -260,24 +262,24 @@ void main() {
   outColor = (uRenderPass == 2) ? vec4(color*alpha,alpha) : vec4(color,1.0);
 }`;
 
-// Six-layer front-to-back depth peeling, with a separately depth-tested opaque
-// background. No triangle sorting and no front/back-face grouping. RGBA8 and
-// depth textures are core WebGL 2; half-float is an optional precision upgrade.
-const PEEL_FULLSCREEN_VS = `#version 300 es
+  // Six-layer front-to-back depth peeling, with a separately depth-tested opaque
+  // background. No triangle sorting and no front/back-face grouping. RGBA8 and
+  // depth textures are core WebGL 2; half-float is an optional precision upgrade.
+  const PEEL_FULLSCREEN_VS = `#version 300 es
 precision highp float;
 precision highp int;
 void main() {
   vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
   gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
 }`;
-const PEEL_COPY_FS = `#version 300 es
+  const PEEL_COPY_FS = `#version 300 es
 precision highp float;
 precision highp int;
 uniform highp sampler2D uLayer;
 out vec4 outColor;
 void main() { outColor = texelFetch(uLayer, ivec2(gl_FragCoord.xy), 0); }
 `;
-const PEEL_RESOLVE_FS = `#version 300 es
+  const PEEL_RESOLVE_FS = `#version 300 es
 precision highp float;
 precision highp int;
 uniform highp sampler2D uFront;
@@ -293,543 +295,1333 @@ void main() {
   outColor = vec4(composed.rgb / max(composed.a, 1e-7), composed.a);
 }`;
 
-function createDepthPeeler(gl, surfaceProgram) {
-  const hasHalfFloat = !!(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'));
-  const copyProgram = program(gl, PEEL_FULLSCREEN_VS, PEEL_COPY_FS);
-  const resolveProgram = program(gl, PEEL_FULLSCREEN_VS, PEEL_RESOLVE_FS);
-  const fullscreenVao = gl.createVertexArray();
-  const passLoc = gl.getUniformLocation(surfaceProgram, 'uRenderPass');
-  const prevLoc = gl.getUniformLocation(surfaceProgram, 'uHasPreviousDepth');
-  const opaqueSampler = gl.getUniformLocation(surfaceProgram, 'uOpaqueDepth');
-  const prevSampler = gl.getUniformLocation(surfaceProgram, 'uPreviousDepth');
-  const accSampler = gl.getUniformLocation(surfaceProgram, 'uAccumulated');
-  let targets = null;
-  const zero = new Float32Array([0,0,0,0]);
-  const one = new Float32Array([1]);
-  function bindTexture(unit, texture) {
-    gl.activeTexture(gl.TEXTURE0 + unit);gl.bindTexture(gl.TEXTURE_2D, texture);
-  }
-  function releaseTargets() {
-    if(!targets)return;
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-    for(let i=0;i<3;i++)bindTexture(i,null);
-    targets.framebuffers.forEach(f=>gl.deleteFramebuffer(f));
-    targets.textures.forEach(t=>gl.deleteTexture(t));targets=null;
-  }
-  function allocate(width,height,useHalf) {
-    const textures=[],framebuffers=[];
-    function texture(internalFormat) {
-      const t=gl.createTexture();if(!t)throw new Error('Unable to allocate a transparency texture.');
-      textures.push(t);gl.bindTexture(gl.TEXTURE_2D,t);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-      gl.texStorage2D(gl.TEXTURE_2D,1,internalFormat,width,height);return t;
+  function createDepthPeeler(gl, surfaceProgram) {
+    const hasHalfFloat = !!(
+      gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float')
+    );
+    const copyProgram = program(gl, PEEL_FULLSCREEN_VS, PEEL_COPY_FS);
+    const resolveProgram = program(gl, PEEL_FULLSCREEN_VS, PEEL_RESOLVE_FS);
+    const fullscreenVao = gl.createVertexArray();
+    const passLoc = gl.getUniformLocation(surfaceProgram, 'uRenderPass');
+    const prevLoc = gl.getUniformLocation(surfaceProgram, 'uHasPreviousDepth');
+    const opaqueSampler = gl.getUniformLocation(surfaceProgram, 'uOpaqueDepth');
+    const prevSampler = gl.getUniformLocation(surfaceProgram, 'uPreviousDepth');
+    const accSampler = gl.getUniformLocation(surfaceProgram, 'uAccumulated');
+    let targets = null;
+    const zero = new Float32Array([0, 0, 0, 0]);
+    const one = new Float32Array([1]);
+    function bindTexture(unit, texture) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
     }
-    function framebuffer(color,depth=null) {
-      const f=gl.createFramebuffer();if(!f)throw new Error('Unable to allocate a transparency framebuffer.');
-      framebuffers.push(f);gl.bindFramebuffer(gl.FRAMEBUFFER,f);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,color,0);
-      if(depth)gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.TEXTURE_2D,depth,0);
-      gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
-      if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw new Error('Depth-peeling framebuffer is not supported.');
-      return f;
+    function releaseTargets() {
+      if (!targets) return;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      for (let i = 0; i < 3; i++) bindTexture(i, null);
+      targets.framebuffers.forEach((f) => gl.deleteFramebuffer(f));
+      targets.textures.forEach((t) => gl.deleteTexture(t));
+      targets = null;
     }
-    try {
-      // One shared layer-color target, two ping-pong depth targets, a fixed
-      // opaque background, and a premultiplied accumulation buffer.
-      const opaqueColor=texture(gl.RGBA8),opaqueDepth=texture(gl.DEPTH_COMPONENT24);
-      const layerColor=texture(gl.RGBA8),depth0=texture(gl.DEPTH_COMPONENT24),depth1=texture(gl.DEPTH_COMPONENT24);
-      const accumulation=texture(useHalf?gl.RGBA16F:gl.RGBA8);
-      const opaqueFbo=framebuffer(opaqueColor,opaqueDepth);
-      const peelFbo=[framebuffer(layerColor,depth0),framebuffer(layerColor,depth1)];
-      const accumulationFbo=framebuffer(accumulation);
-      const err=gl.getError();if(err!==gl.NO_ERROR)throw new Error('Transparency allocation failed (WebGL '+err+').');
-      return {width,height,opaqueColor,opaqueDepth,layerColor,depth:[depth0,depth1],accumulation,
-        opaqueFbo,peelFbo,accumulationFbo,textures,framebuffers,useHalf};
-    } catch(error) {
-      gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.bindTexture(gl.TEXTURE_2D,null);
-      framebuffers.forEach(f=>gl.deleteFramebuffer(f));textures.forEach(t=>gl.deleteTexture(t));throw error;
+    function allocate(width, height, useHalf) {
+      const textures = [],
+        framebuffers = [];
+      function texture(internalFormat) {
+        const t = gl.createTexture();
+        if (!t) throw new Error('Unable to allocate a transparency texture.');
+        textures.push(t);
+        gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texStorage2D(gl.TEXTURE_2D, 1, internalFormat, width, height);
+        return t;
+      }
+      function framebuffer(color, depth = null) {
+        const f = gl.createFramebuffer();
+        if (!f) throw new Error('Unable to allocate a transparency framebuffer.');
+        framebuffers.push(f);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, color, 0);
+        if (depth)
+          gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depth, 0);
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE)
+          throw new Error('Depth-peeling framebuffer is not supported.');
+        return f;
+      }
+      try {
+        // One shared layer-color target, two ping-pong depth targets, a fixed
+        // opaque background, and a premultiplied accumulation buffer.
+        const opaqueColor = texture(gl.RGBA8),
+          opaqueDepth = texture(gl.DEPTH_COMPONENT24);
+        const layerColor = texture(gl.RGBA8),
+          depth0 = texture(gl.DEPTH_COMPONENT24),
+          depth1 = texture(gl.DEPTH_COMPONENT24);
+        const accumulation = texture(useHalf ? gl.RGBA16F : gl.RGBA8);
+        const opaqueFbo = framebuffer(opaqueColor, opaqueDepth);
+        const peelFbo = [framebuffer(layerColor, depth0), framebuffer(layerColor, depth1)];
+        const accumulationFbo = framebuffer(accumulation);
+        const err = gl.getError();
+        if (err !== gl.NO_ERROR)
+          throw new Error('Transparency allocation failed (WebGL ' + err + ').');
+        return {
+          width,
+          height,
+          opaqueColor,
+          opaqueDepth,
+          layerColor,
+          depth: [depth0, depth1],
+          accumulation,
+          opaqueFbo,
+          peelFbo,
+          accumulationFbo,
+          textures,
+          framebuffers,
+          useHalf
+        };
+      } catch (error) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        framebuffers.forEach((f) => gl.deleteFramebuffer(f));
+        textures.forEach((t) => gl.deleteTexture(t));
+        throw error;
+      }
     }
-  }
-  function ensureTargets(width,height) {
-    if(targets&&targets.width===width&&targets.height===height)return;
-    releaseTargets();
-    const bytesPerPixel=hasHalfFloat?28:24;
-    if(width*height*bytesPerPixel>256*1024*1024)throw new Error('Transparency exceeds the 256 MiB render-target budget.');
-    try{targets=allocate(width,height,hasHalfFloat);}catch(error){
-      if(!hasHalfFloat)throw error;
-      for(let i=0;i<8&&gl.getError()!==gl.NO_ERROR;i++){} // drain the failed optional allocation
-      targets=allocate(width,height,false);
+    function ensureTargets(width, height) {
+      if (targets && targets.width === width && targets.height === height) return;
+      releaseTargets();
+      const bytesPerPixel = hasHalfFloat ? 28 : 24;
+      if (width * height * bytesPerPixel > 256 * 1024 * 1024)
+        throw new Error('Transparency exceeds the 256 MiB render-target budget.');
+      try {
+        targets = allocate(width, height, hasHalfFloat);
+      } catch (error) {
+        if (!hasHalfFloat) throw error;
+        for (let i = 0; i < 8 && gl.getError() !== gl.NO_ERROR; i++) {} // drain the failed optional allocation
+        targets = allocate(width, height, false);
+      }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      for (let i = 0; i < 3; i++) bindTexture(i, null);
     }
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);for(let i=0;i<3;i++)bindTexture(i,null);
-  }
-  const depthOnlyLoc=gl.getUniformLocation(surfaceProgram,'uDepthOnly');
-  function drawWithPrepass(drawSurface) {
-    gl.uniform1i(depthOnlyLoc,1);gl.colorMask(false,false,false,false);
-    gl.depthFunc(gl.LEQUAL);gl.depthMask(true);drawSurface();
-    gl.uniform1i(depthOnlyLoc,0);gl.colorMask(true,true,true,true);
-    gl.depthFunc(gl.EQUAL);gl.depthMask(false);drawSurface();
-    gl.depthFunc(gl.LEQUAL);gl.depthMask(true);
-  }
-  function render(width,height,vao,drawSurface,layers=6,usePrepass=false) {
-    const drawLayer=()=>usePrepass?drawWithPrepass(drawSurface):drawSurface();
-    ensureTargets(width,height);
-    const t=targets;
-    gl.viewport(0,0,width,height);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);
-    gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);
-    gl.colorMask(true,true,true,true);
-    gl.useProgram(surfaceProgram);gl.bindVertexArray(vao);
-    gl.uniform1i(opaqueSampler,0);gl.uniform1i(prevSampler,1);gl.uniform1i(accSampler,2);
-    for(let i=0;i<3;i++)bindTexture(i,null);
+    const depthOnlyLoc = gl.getUniformLocation(surfaceProgram, 'uDepthOnly');
+    function drawWithPrepass(drawSurface) {
+      gl.uniform1i(depthOnlyLoc, 1);
+      gl.colorMask(false, false, false, false);
+      gl.depthFunc(gl.LEQUAL);
+      gl.depthMask(true);
+      drawSurface();
+      gl.uniform1i(depthOnlyLoc, 0);
+      gl.colorMask(true, true, true, true);
+      gl.depthFunc(gl.EQUAL);
+      gl.depthMask(false);
+      drawSurface();
+      gl.depthFunc(gl.LEQUAL);
+      gl.depthMask(true);
+    }
+    function render(width, height, vao, drawSurface, layers = 6, usePrepass = false) {
+      const drawLayer = () => (usePrepass ? drawWithPrepass(drawSurface) : drawSurface());
+      ensureTargets(width, height);
+      const t = targets;
+      gl.viewport(0, 0, width, height);
+      gl.disable(gl.CULL_FACE);
+      gl.disable(gl.BLEND);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthFunc(gl.LEQUAL);
+      gl.depthMask(true);
+      gl.colorMask(true, true, true, true);
+      gl.useProgram(surfaceProgram);
+      gl.bindVertexArray(vao);
+      gl.uniform1i(opaqueSampler, 0);
+      gl.uniform1i(prevSampler, 1);
+      gl.uniform1i(accSampler, 2);
+      for (let i = 0; i < 3; i++) bindTexture(i, null);
 
-    // Correctly depth-test the portions outside the fade sphere first.
-    gl.bindFramebuffer(gl.FRAMEBUFFER,t.opaqueFbo);
-    gl.clearBufferfv(gl.COLOR,0,zero);gl.clearBufferfv(gl.DEPTH,0,one);
-    gl.uniform1i(passLoc,1);gl.uniform1i(prevLoc,0);drawLayer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER,t.accumulationFbo);
-    gl.clearBufferfv(gl.COLOR,0,zero);
+      // Correctly depth-test the portions outside the fade sphere first.
+      gl.bindFramebuffer(gl.FRAMEBUFFER, t.opaqueFbo);
+      gl.clearBufferfv(gl.COLOR, 0, zero);
+      gl.clearBufferfv(gl.DEPTH, 0, one);
+      gl.uniform1i(passLoc, 1);
+      gl.uniform1i(prevLoc, 0);
+      drawLayer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, t.accumulationFbo);
+      gl.clearBufferfv(gl.COLOR, 0, zero);
 
-    for(let layer=0;layer<layers;layer++) {
-      const current=layer&1;
-      gl.bindFramebuffer(gl.FRAMEBUFFER,t.peelFbo[current]);
-      gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.disable(gl.BLEND);
-      gl.clearBufferfv(gl.COLOR,0,zero);gl.clearBufferfv(gl.DEPTH,0,one);
-      gl.useProgram(surfaceProgram);gl.bindVertexArray(vao);
-      bindTexture(0,t.opaqueDepth);
-      bindTexture(1,layer?t.depth[current^1]:t.opaqueDepth);
-      bindTexture(2,t.accumulation);
-      gl.uniform1i(passLoc,2);gl.uniform1i(prevLoc,layer?1:0);drawLayer();
+      for (let layer = 0; layer < layers; layer++) {
+        const current = layer & 1;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, t.peelFbo[current]);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(true);
+        gl.disable(gl.BLEND);
+        gl.clearBufferfv(gl.COLOR, 0, zero);
+        gl.clearBufferfv(gl.DEPTH, 0, one);
+        gl.useProgram(surfaceProgram);
+        gl.bindVertexArray(vao);
+        bindTexture(0, t.opaqueDepth);
+        bindTexture(1, layer ? t.depth[current ^ 1] : t.opaqueDepth);
+        bindTexture(2, t.accumulation);
+        gl.uniform1i(passLoc, 2);
+        gl.uniform1i(prevLoc, layer ? 1 : 0);
+        drawLayer();
 
-      // Accumulate this nearest remaining layer IN FRONT-TO-BACK ORDER.
-      // premultiplied out = prior + (1-prior.alpha) * thisLayer
-      gl.bindFramebuffer(gl.FRAMEBUFFER,t.accumulationFbo);
-      gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.enable(gl.BLEND);
-      gl.blendEquation(gl.FUNC_ADD);
-      gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA,gl.ONE,gl.ONE_MINUS_DST_ALPHA,gl.ONE);
-      gl.useProgram(copyProgram);gl.bindVertexArray(fullscreenVao);
-      bindTexture(0,t.layerColor);bindTexture(1,null);bindTexture(2,null);
-      gl.uniform1i(gl.getUniformLocation(copyProgram,'uLayer'),0);
-      gl.drawArrays(gl.TRIANGLES,0,3);
+        // Accumulate this nearest remaining layer IN FRONT-TO-BACK ORDER.
+        // premultiplied out = prior + (1-prior.alpha) * thisLayer
+        gl.bindFramebuffer(gl.FRAMEBUFFER, t.accumulationFbo);
+        gl.disable(gl.DEPTH_TEST);
+        gl.depthMask(false);
+        gl.enable(gl.BLEND);
+        gl.blendEquation(gl.FUNC_ADD);
+        gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.ONE, gl.ONE_MINUS_DST_ALPHA, gl.ONE);
+        gl.useProgram(copyProgram);
+        gl.bindVertexArray(fullscreenVao);
+        bindTexture(0, t.layerColor);
+        bindTexture(1, null);
+        bindTexture(2, null);
+        gl.uniform1i(gl.getUniformLocation(copyProgram, 'uLayer'), 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.disable(gl.BLEND);
+      gl.disable(gl.DEPTH_TEST);
+      gl.depthMask(true);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(resolveProgram);
+      gl.bindVertexArray(fullscreenVao);
+      bindTexture(0, t.accumulation);
+      bindTexture(1, t.opaqueColor);
+      bindTexture(2, null);
+      gl.uniform1i(gl.getUniformLocation(resolveProgram, 'uFront'), 0);
+      gl.uniform1i(gl.getUniformLocation(resolveProgram, 'uBackground'), 1);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      for (let i = 0; i < 3; i++) bindTexture(i, null);
+      gl.useProgram(surfaceProgram);
+      gl.bindVertexArray(vao);
+      gl.uniform1i(passLoc, 0);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthMask(true);
+      return t.useHalf ? '16-bit accumulation' : '8-bit accumulation';
     }
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-    gl.disable(gl.BLEND);gl.disable(gl.DEPTH_TEST);gl.depthMask(true);
-    gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-    gl.useProgram(resolveProgram);gl.bindVertexArray(fullscreenVao);
-    bindTexture(0,t.accumulation);bindTexture(1,t.opaqueColor);bindTexture(2,null);
-    gl.uniform1i(gl.getUniformLocation(resolveProgram,'uFront'),0);
-    gl.uniform1i(gl.getUniformLocation(resolveProgram,'uBackground'),1);
-    gl.drawArrays(gl.TRIANGLES,0,3);
-    for(let i=0;i<3;i++)bindTexture(i,null);
-    gl.useProgram(surfaceProgram);gl.bindVertexArray(vao);
-    gl.uniform1i(passLoc,0);gl.enable(gl.DEPTH_TEST);gl.depthMask(true);
-    return t.useHalf?'16-bit accumulation':'8-bit accumulation';
+    return {
+      render,
+      releaseTargets,
+      dispose() {
+        releaseTargets();
+        gl.deleteProgram(copyProgram);
+        gl.deleteProgram(resolveProgram);
+        gl.deleteVertexArray(fullscreenVao);
+      }
+    };
   }
-  return {render, releaseTargets,
-    dispose(){releaseTargets();gl.deleteProgram(copyProgram);gl.deleteProgram(resolveProgram);gl.deleteVertexArray(fullscreenVao);}
-  };
-}
 
-/* Camera-only math: a unit quaternion maps camera-local right/up/back into
+  /* Camera-only math: a unit quaternion maps camera-local right/up/back into
    world coordinates. Free dragging composes rotations in this local frame,
    never converts back to Euler angles, and never resets the up vector.
    Reference: Ken Shoemake's quaternion/trackball construction; no dependency. */
-const ScreenTrackball = Object.freeze({
-  normalize(q) {
-    const n=Math.hypot(q[0],q[1],q[2],q[3]);
-    if(!Number.isFinite(n)||n<1e-15)throw new Error('Invalid camera orientation.');
-    return q.map(x=>x/n);
-  },
-  multiply(a,b) {
-    const [x,y,z,w]=a,[X,Y,Z,W]=b;
-    return [w*X+x*W+y*Z-z*Y,w*Y-x*Z+y*W+z*X,w*Z+x*Y-y*X+z*W,w*W-x*X-y*Y-z*Z];
-  },
-  fromYawPitch(yaw,pitch) {
-    // Rz(yaw + pi/2) Rx(pi/2 - pitch): matches the previous initial camera.
-    const z=.5*(yaw+Math.PI/2),x=.5*(Math.PI/2-pitch);
-    return this.normalize(this.multiply([0,0,Math.sin(z),Math.cos(z)],[Math.sin(x),0,0,Math.cos(x)]));
-  },
-  basis(q) {
-    const [x,y,z,w]=q;
-    return {
-      right:[1-2*(y*y+z*z),2*(x*y+w*z),2*(x*z-w*y)],
-      up:[2*(x*y-w*z),1-2*(x*x+z*z),2*(y*z+w*x)],
-      back:[2*(x*z+w*y),2*(y*z-w*x),1-2*(x*x+y*y)]
-    };
-  },
-  drag(q,dx,dy,gainX=.0047,gainY=.0042) {
-    // Positive pointer dx moves the visible/front part of the object right;
-    // positive dy moves it down. The same rule holds upside down or rolled.
-    const x=-dy*gainY,y=-dx*gainX,angle=Math.hypot(x,y);
-    if(angle<1e-15)return q.slice();
-    const s=Math.sin(angle/2)/angle;
-    return this.normalize(this.multiply(q,[x*s,y*s,0,Math.cos(angle/2)]));
-  },
-  slerp(a,b,t) {
-    // Shortest path only for damping/reset/mode transitions, not drag integration.
-    let end=b,d=a.reduce((s,x,i)=>s+x*b[i],0);
-    if(d<0){end=b.map(x=>-x);d=-d;}
-    d=Math.max(-1,Math.min(1,d));t=Math.max(0,Math.min(1,t));
-    if(d>.9995)return this.normalize(a.map((x,i)=>x+(end[i]-x)*t));
-    const angle=Math.acos(d),denom=Math.sin(angle);
-    const u=Math.sin((1-t)*angle)/denom,v=Math.sin(t*angle)/denom;
-    return this.normalize(a.map((x,i)=>u*x+v*end[i]));
-  },
-  pan(center,dx,dy,q,distance,fov,height) {
-    // Translation in the view plane: exact pixel tracking for points at the
-    // target plane's depth. No world-up vector or yaw/pitch sign test.
-    const {right,up}=this.basis(q),s=2*distance*Math.tan(fov/2)/Math.max(1,height);
-    return center.map((c,i)=>c-right[i]*dx*s+up[i]*dy*s);
-  },
-  angles(q) {
-    // Diagnostic only. Euler values do not drive the free camera.
-    const b=this.basis(q).back;
-    return {yaw:Math.atan2(b[1],b[0]),pitch:Math.atan2(b[2],Math.hypot(b[0],b[1]))};
-  }
-});
-
-function mat4Identity() {
-  return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
-}
-function perspective(fovy, aspect, near, far) {
-  const f = 1/Math.tan(fovy/2), nf = 1/(near-far);
-  return new Float32Array([
-    f/aspect,0,0,0,
-    0,f,0,0,
-    0,0,(far+near)*nf,-1,
-    0,0,2*far*near*nf,0
-  ]);
-}
-function lookAt(eye, center, up) {
-  let zx=eye[0]-center[0], zy=eye[1]-center[1], zz=eye[2]-center[2];
-  let zn=Math.hypot(zx,zy,zz); zx/=zn; zy/=zn; zz/=zn;
-  let xx=up[1]*zz-up[2]*zy, xy=up[2]*zx-up[0]*zz, xz=up[0]*zy-up[1]*zx;
-  let xn=Math.hypot(xx,xy,xz); xx/=xn; xy/=xn; xz/=xn;
-  const yx=zy*xz-zz*xy, yy=zz*xx-zx*xz, yz=zx*xy-zy*xx;
-  return new Float32Array([
-    xx,yx,zx,0,
-    xy,yy,zy,0,
-    xz,yz,zz,0,
-    -(xx*eye[0]+xy*eye[1]+xz*eye[2]),
-    -(yx*eye[0]+yy*eye[1]+yz*eye[2]),
-    -(zx*eye[0]+zy*eye[1]+zz*eye[2]),1
-  ]);
-}
-
-function bindBuffer(gl, location, data, size, type, normalized=false) {
-  const b = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,b);
-  gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(location);
-  gl.vertexAttribPointer(location,size,type,normalized,0,0);
-  return b;
-}
-
-
-
-async function validateDynamicMesh(buffer,indexBuffer,meta,shouldContinue=()=>true){
-  const STRIDE=9;
-  if(!(buffer instanceof ArrayBuffer)||!(indexBuffer instanceof ArrayBuffer))throw new Error('Missing geometry buffers.');
-  if(meta?.format!=='indexed-p3-n3-phase2-d1-v3'||meta.stride!==STRIDE)throw new Error('Unrecognized vertex layout.');
-  if(!Number.isInteger(meta.vertexCount)||meta.vertexCount<3||meta.vertexCount>2000000)throw new Error('Vertex budget exceeded.');
-  if(!Number.isInteger(meta.triangleCount)||meta.triangleCount<1||meta.triangleCount>4000000)throw new Error('Triangle budget exceeded.');
-  if(buffer.byteLength!==meta.vertexCount*STRIDE*4||indexBuffer.byteLength!==meta.triangleCount*3*4)throw new Error('Geometry buffer length mismatch.');
-  if(buffer.byteLength+indexBuffer.byteLength>128*1024*1024)throw new Error('Geometry memory budget exceeded.');
-  if(!Number.isFinite(meta.displayScale)||meta.displayScale<=0||!Array.isArray(meta.centerOriginal)||meta.centerOriginal.length!==3||!meta.centerOriginal.every(Number.isFinite))throw new Error('Invalid mesh transform.');
-  if(!Number.isFinite(meta.edgeBound)||meta.edgeBound<=0)throw new Error('Missing triangle bound.');
-  const v=new Float32Array(buffer),ix=new Uint32Array(indexBuffer);
-  // Compact-domain meshes may extend beyond the usual normalized box.
-  const positionBound=meta.samplingMode==='sphere'?Math.min(4,Number(meta.positionBound)||1.01):1.01;
-  const yieldUI=()=>new Promise(resolve=>setTimeout(resolve,0));
-  for(let start=0;start<meta.vertexCount;start+=8192){
-    if(!shouldContinue())throw new Error('Cancelled');
-    for(let n=start;n<Math.min(meta.vertexCount,start+8192);n++){
-      const o=n*STRIDE;
-      for(let j=0;j<STRIDE;j++)if(!Number.isFinite(v[o+j]))throw new Error('Non-finite mesh attribute rejected.');
-      if(Math.max(Math.abs(v[o]),Math.abs(v[o+1]),Math.abs(v[o+2]))>positionBound)throw new Error('Corrupt position data rejected.');
-      if(Math.abs(Math.hypot(v[o+3],v[o+4],v[o+5])-1)>.015)throw new Error('Corrupt normal data rejected.');
-    }
-    await yieldUI();
-  }
-  const bound=meta.edgeBound+1e-5;
-  for(let start=0;start<ix.length;start+=24576){
-    if(!shouldContinue())throw new Error('Cancelled');
-    for(let q=start;q<Math.min(ix.length,start+24576);q+=3){
-      for(let j=0;j<3;j++){
-        const a=ix[q+j],b=ix[q+(j+1)%3];
-        if(a>=meta.vertexCount||b>=meta.vertexCount)throw new Error('Triangle index out of range.');
-        const i=a*STRIDE,k=b*STRIDE;
-        if(Math.hypot(v[i]-v[k],v[i+1]-v[k+1],v[i+2]-v[k+2])>bound)throw new Error('Corrupt triangle extent rejected.');
+  const ScreenTrackball = Object.freeze({
+    normalize(q) {
+      const n = Math.hypot(q[0], q[1], q[2], q[3]);
+      if (!Number.isFinite(n) || n < 1e-15) throw new Error('Invalid camera orientation.');
+      return q.map((x) => x / n);
+    },
+    multiply(a, b) {
+      const [x, y, z, w] = a,
+        [X, Y, Z, W] = b;
+      return [
+        w * X + x * W + y * Z - z * Y,
+        w * Y - x * Z + y * W + z * X,
+        w * Z + x * Y - y * X + z * W,
+        w * W - x * X - y * Y - z * Z
+      ];
+    },
+    fromYawPitch(yaw, pitch) {
+      // Rz(yaw + pi/2) Rx(pi/2 - pitch): matches the previous initial camera.
+      const z = 0.5 * (yaw + Math.PI / 2),
+        x = 0.5 * (Math.PI / 2 - pitch);
+      return this.normalize(
+        this.multiply([0, 0, Math.sin(z), Math.cos(z)], [Math.sin(x), 0, 0, Math.cos(x)])
+      );
+    },
+    basis(q) {
+      const [x, y, z, w] = q;
+      return {
+        right: [1 - 2 * (y * y + z * z), 2 * (x * y + w * z), 2 * (x * z - w * y)],
+        up: [2 * (x * y - w * z), 1 - 2 * (x * x + z * z), 2 * (y * z + w * x)],
+        back: [2 * (x * z + w * y), 2 * (y * z - w * x), 1 - 2 * (x * x + y * y)]
+      };
+    },
+    drag(q, dx, dy, gainX = 0.0047, gainY = 0.0042) {
+      // Positive pointer dx moves the visible/front part of the object right;
+      // positive dy moves it down. The same rule holds upside down or rolled.
+      const x = -dy * gainY,
+        y = -dx * gainX,
+        angle = Math.hypot(x, y);
+      if (angle < 1e-15) return q.slice();
+      const s = Math.sin(angle / 2) / angle;
+      return this.normalize(this.multiply(q, [x * s, y * s, 0, Math.cos(angle / 2)]));
+    },
+    slerp(a, b, t) {
+      // Shortest path only for damping/reset/mode transitions, not drag integration.
+      let end = b,
+        d = a.reduce((s, x, i) => s + x * b[i], 0);
+      if (d < 0) {
+        end = b.map((x) => -x);
+        d = -d;
       }
+      d = Math.max(-1, Math.min(1, d));
+      t = Math.max(0, Math.min(1, t));
+      if (d > 0.9995) return this.normalize(a.map((x, i) => x + (end[i] - x) * t));
+      const angle = Math.acos(d),
+        denom = Math.sin(angle);
+      const u = Math.sin((1 - t) * angle) / denom,
+        v = Math.sin(t * angle) / denom;
+      return this.normalize(a.map((x, i) => u * x + v * end[i]));
+    },
+    pan(center, dx, dy, q, distance, fov, height) {
+      // Translation in the view plane: exact pixel tracking for points at the
+      // target plane's depth. No world-up vector or yaw/pitch sign test.
+      const { right, up } = this.basis(q),
+        s = (2 * distance * Math.tan(fov / 2)) / Math.max(1, height);
+      return center.map((c, i) => c - right[i] * dx * s + up[i] * dy * s);
+    },
+    angles(q) {
+      // Diagnostic only. Euler values do not drive the free camera.
+      const b = this.basis(q).back;
+      return { yaw: Math.atan2(b[1], b[0]), pitch: Math.atan2(b[2], Math.hypot(b[0], b[1])) };
     }
-    await yieldUI();
+  });
+
+  function mat4Identity() {
+    return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   }
-  return true;
-}
+  function perspective(fovy, aspect, near, far) {
+    const f = 1 / Math.tan(fovy / 2),
+      nf = 1 / (near - far);
+    return new Float32Array([
+      f / aspect,
+      0,
+      0,
+      0,
+      0,
+      f,
+      0,
+      0,
+      0,
+      0,
+      (far + near) * nf,
+      -1,
+      0,
+      0,
+      2 * far * near * nf,
+      0
+    ]);
+  }
+  function lookAt(eye, center, up) {
+    let zx = eye[0] - center[0],
+      zy = eye[1] - center[1],
+      zz = eye[2] - center[2];
+    let zn = Math.hypot(zx, zy, zz);
+    zx /= zn;
+    zy /= zn;
+    zz /= zn;
+    let xx = up[1] * zz - up[2] * zy,
+      xy = up[2] * zx - up[0] * zz,
+      xz = up[0] * zy - up[1] * zx;
+    let xn = Math.hypot(xx, xy, xz);
+    xx /= xn;
+    xy /= xn;
+    xz /= xn;
+    const yx = zy * xz - zz * xy,
+      yy = zz * xx - zx * xz,
+      yz = zx * xy - zy * xx;
+    return new Float32Array([
+      xx,
+      yx,
+      zx,
+      0,
+      xy,
+      yy,
+      zy,
+      0,
+      xz,
+      yz,
+      zz,
+      0,
+      -(xx * eye[0] + xy * eye[1] + xz * eye[2]),
+      -(yx * eye[0] + yy * eye[1] + yz * eye[2]),
+      -(zx * eye[0] + zy * eye[1] + zz * eye[2]),
+      1
+    ]);
+  }
 
-
-
-
-const SCRIPT_BASE=new URL('.',typeof document!=='undefined'?document.currentScript?.src||location.href:location.href);
-function create(canvas,options={}){
-  // In production this core runs only in a dedicated worker. The host forwards
-  // sizes and input; no graphics API is called by the page's UI thread.
-  const {view:window,page:document,reducedMotion:reduced}=options.host;
-  const assetBase=options.assetBase?new URL(options.assetBase,location.href):SCRIPT_BASE;
-  const onStatus=typeof options.onStatus==='function'?options.onStatus:()=>{};
-  const onModeChange=typeof options.onModeChange==='function'?options.onModeChange:()=>{};
-  const gl=canvas.getContext('webgl2',{alpha:true,antialias:true,premultipliedAlpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance',failIfMajorPerformanceCaveat:true});
-  if(!gl)throw new Error('WebGL 2 is required for the mathematical surface.');
-  gl.disable(gl.DITHER);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
-  let p=null,programSource=null;const U={};
-  function useDivisorShader(pixel){
-    if(pixel.source!==programSource){
-      const next=program(gl,VS,FS.replace('// DIVISOR_EXPRESSION',pixel.source));
-      if(depthPeeler){depthPeeler.dispose();depthPeeler=null;}
-      if(p)gl.deleteProgram(p);p=next;programSource=pixel.source;
-      for(const name of ['Model','View','Projection','Camera','Time','OriginalCenter','DisplayScale','ComplexScale','DivisorStrength','ProjectionBox','DivisorMode','ContactProjection','TranslucencyEnabled','TransNear','TransFar','TransMinAlpha','RenderPass'])U[name]=gl.getUniformLocation(p,'u'+name);
-      U.DivisorPlane=gl.getUniformLocation(p,'uDivisorPlane[0]');
+  async function validateDynamicMesh(buffer, indexBuffer, meta, shouldContinue = () => true) {
+    const STRIDE = 9;
+    if (!(buffer instanceof ArrayBuffer) || !(indexBuffer instanceof ArrayBuffer))
+      throw new Error('Missing geometry buffers.');
+    if (meta?.format !== 'indexed-p3-n3-phase2-d1-v3' || meta.stride !== STRIDE)
+      throw new Error('Unrecognized vertex layout.');
+    if (!Number.isInteger(meta.vertexCount) || meta.vertexCount < 3 || meta.vertexCount > 2000000)
+      throw new Error('Vertex budget exceeded.');
+    if (
+      !Number.isInteger(meta.triangleCount) ||
+      meta.triangleCount < 1 ||
+      meta.triangleCount > 4000000
+    )
+      throw new Error('Triangle budget exceeded.');
+    if (
+      buffer.byteLength !== meta.vertexCount * STRIDE * 4 ||
+      indexBuffer.byteLength !== meta.triangleCount * 3 * 4
+    )
+      throw new Error('Geometry buffer length mismatch.');
+    if (buffer.byteLength + indexBuffer.byteLength > 128 * 1024 * 1024)
+      throw new Error('Geometry memory budget exceeded.');
+    if (
+      !Number.isFinite(meta.displayScale) ||
+      meta.displayScale <= 0 ||
+      !Array.isArray(meta.centerOriginal) ||
+      meta.centerOriginal.length !== 3 ||
+      !meta.centerOriginal.every(Number.isFinite)
+    )
+      throw new Error('Invalid mesh transform.');
+    if (!Number.isFinite(meta.edgeBound) || meta.edgeBound <= 0)
+      throw new Error('Missing triangle bound.');
+    const v = new Float32Array(buffer),
+      ix = new Uint32Array(indexBuffer);
+    // Compact-domain meshes may extend beyond the usual normalized box.
+    const positionBound =
+      meta.samplingMode === 'sphere' ? Math.min(4, Number(meta.positionBound) || 1.01) : 1.01;
+    const yieldUI = () => new Promise((resolve) => setTimeout(resolve, 0));
+    for (let start = 0; start < meta.vertexCount; start += 8192) {
+      if (!shouldContinue()) throw new Error('Cancelled');
+      for (let n = start; n < Math.min(meta.vertexCount, start + 8192); n++) {
+        const o = n * STRIDE;
+        for (let j = 0; j < STRIDE; j++)
+          if (!Number.isFinite(v[o + j])) throw new Error('Non-finite mesh attribute rejected.');
+        if (Math.max(Math.abs(v[o]), Math.abs(v[o + 1]), Math.abs(v[o + 2])) > positionBound)
+          throw new Error('Corrupt position data rejected.');
+        if (Math.abs(Math.hypot(v[o + 3], v[o + 4], v[o + 5]) - 1) > 0.015)
+          throw new Error('Corrupt normal data rejected.');
+      }
+      await yieldUI();
     }
-    gl.useProgram(p);gl.uniformMatrix4fv(U.Model,false,mat4Identity());
-  }
-  let activeVao=null,activeBuffers=[],activeCount=0,activeMeta=null,record=null;
-  let job=0,busy=false,destroyed=false,contextLost=false,graphicsFault=false,needsDraw=true;
-  let depthPeeler=null,depthPeelerFailed=false,frameFence=null,frameId=0,fenceStarted=0,frameJob=0,awaitingFirstFrame=false,lastFrameTick=performance.now();
-  const listeners=[];
-  const FOV=42*Math.PI/180,minDistance=.035,maxDistance=12;
-  let baseYaw=.710,basePitch=.455,baseDistance=3.22,baseCenter=[0,0,0];
-  let homeOrientation=ScreenTrackball.fromYawPitch(baseYaw,basePitch),homeOffset=[0,0,0,1];
-  let cameraMode='parallax',cameraOrientation=homeOrientation.slice(),orbitOrientation=homeOrientation.slice();
-  let cameraDistance=baseDistance,orbitDistance=baseDistance,cameraCenter=[0,0,0],orbitCenter=[0,0,0];
-  let targetX=0,targetY=0,currentX=0,currentY=0,drag=null,touchGesture=null,last=performance.now(),lastDraw=0;
-  const touches=new Map(),clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),clone3=v=>v.slice();
-  function listen(target,name,fn,opts){target.addEventListener(name,fn,opts);listeners.push(()=>target.removeEventListener(name,fn,opts));}
-  function status(state,message,meta){onStatus({state,message,meta:meta||undefined});}
-  function cancel(){job++;busy=false;awaitingFirstFrame=false;}
-  function stop(message){
-    if(graphicsFault||destroyed)return;
-    graphicsFault=true;cancel();cancelAnimationFrame(frameId);
-    // Never delete or reuse handles from a lost/restored context. The owner
-    // terminates the worker and discards this canvas. Any background recovery
-    // starts a fresh worker and context, with none of these handles.
-    activeVao=null;activeBuffers=[];activeCount=0;frameFence=null;depthPeeler=null;
-    status('error',message);options.onFatal?.(message);
-  }
-  function usable(){
-    if(destroyed||contextLost||graphicsFault)return false;
-    if(gl.isContextLost()){contextLost=true;stop('The graphics context was lost.');return false;}
+    const bound = meta.edgeBound + 1e-5;
+    for (let start = 0; start < ix.length; start += 24576) {
+      if (!shouldContinue()) throw new Error('Cancelled');
+      for (let q = start; q < Math.min(ix.length, start + 24576); q += 3) {
+        for (let j = 0; j < 3; j++) {
+          const a = ix[q + j],
+            b = ix[q + ((j + 1) % 3)];
+          if (a >= meta.vertexCount || b >= meta.vertexCount)
+            throw new Error('Triangle index out of range.');
+          const i = a * STRIDE,
+            k = b * STRIDE;
+          if (Math.hypot(v[i] - v[k], v[i + 1] - v[k + 1], v[i + 2] - v[k + 2]) > bound)
+            throw new Error('Corrupt triangle extent rejected.');
+        }
+      }
+      await yieldUI();
+    }
     return true;
   }
-  function clearMesh(){if(!usable())return;if(activeVao)gl.deleteVertexArray(activeVao);for(const b of activeBuffers)gl.deleteBuffer(b);activeVao=null;activeBuffers=[];activeCount=0;}
-  function hasCertificate(selected){return selected.certificateAvailable===true||selected.evidenceKind==='explicit-certificate'||selected.status==='solved';}
-  function upload(mesh,selected){
-    if(!usable())return;
-    const {meta,buffer,indexBuffer}=mesh;
-    const vao=gl.createVertexArray(),vbo=gl.createBuffer(),ebo=gl.createBuffer();
-    if(!vao||!vbo||!ebo)throw new Error('The graphics device could not allocate a mesh.');
-    gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(buffer),gl.STATIC_DRAW);
-    for(const [location,size,offset] of [[0,3,0],[1,3,12],[2,2,24]]){gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,size,gl.FLOAT,false,36,offset);}
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ebo);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint32Array(indexBuffer),gl.STATIC_DRAW);
-    if(!usable())return;
-    if(gl.getError()!==gl.NO_ERROR){gl.deleteVertexArray(vao);gl.deleteBuffer(vbo);gl.deleteBuffer(ebo);throw new Error('Surface upload failed.');}
-    clearMesh();activeVao=vao;activeBuffers=[vbo,ebo];activeCount=meta.triangleCount*3;
-    const hasD=hasCertificate(selected)&&!!(selected.render?.divisorTerms?.length||selected.render?.divisorProgram);
-    const whole=meta.samplingMode==='sphere'&&meta.projectionBox===0,projectionBox=whole?0:10;
-    activeMeta={...meta,divisorVisible:hasD,projectionBox,xray:{enabled:true,reach:2.0,layers:6},cameraDefault:{yaw:baseYaw,pitch:basePitch,distance:baseDistance,center:baseCenter.slice()},sliceDescription:whole?'The compact real slice, stereographically projected without a box cutoff.':'A real two-dimensional section of X, on a fixed phase-rotated real four-plane; stereographic projection in [−10, 10]³.'};
-    const r=selected.render||{},pixel=HodgeDivisor.fragment(hasD?(r.divisorProgram||r.divisorTerms):null,meta.phaseSigns,meta.planeMatrix);
-    useDivisorShader(pixel);
-    gl.uniform3fv(U.OriginalCenter,new Float32Array(meta.centerOriginal));gl.uniform1f(U.DisplayScale,meta.displayScale);gl.uniform1f(U.ComplexScale,Math.max(1e-20,meta.complexScale||1));gl.uniform1f(U.ProjectionBox,projectionBox);gl.uniform1f(U.DivisorStrength,hasD?1:0);gl.uniform1f(U.DivisorMode,1);gl.uniform1i(U.ContactProjection,meta.pairId==='contact46006'?1:0);
-    gl.uniform4fv(U.DivisorPlane,new Float32Array(meta.planeMatrix.flat()));
-    activeMeta.divisorEvaluation='per-pixel polynomial';activeMeta.divisorOperations=pixel.operations;
-    options.onLabel?.((selected.title||'Sextic fourfold')+' — real slice of F = 0'+(hasD?', with certificate divisor highlighted':''));
-    needsDraw=true;awaitingFirstFrame=true;
-  }
-  function unpackDeltaPlanes(buffer, elementBytes, stride) {
-    const bytes=new Uint8Array(buffer);
-    if(bytes.length%(elementBytes*stride)!==0)throw new Error('Invalid delta-packed mesh stream.');
-    const count=bytes.length/elementBytes,output=new Uint8Array(bytes.length);
-    // Restore byte order, then the exact unsigned modular differences.
-    for(let byte=0;byte<elementBytes;byte++)
-      for(let i=0;i<count;i++)output[i*elementBytes+byte]=bytes[byte*count+i];
-    const values=elementBytes===2?new Uint16Array(output.buffer):new Uint32Array(output.buffer);
-    for(let i=stride;i<count;i++)values[i]+=values[i-stride];
-    return output.buffer;
-  }
-  async function ungzip(url){
-    const response=await fetch(url);if(!response.ok)throw new Error('Missing local mesh asset: '+url.pathname);
-    const bytes=await response.arrayBuffer();
-    // Most static servers send .gz as application/octet-stream. Also accept
-    // servers which have already decompressed a Content-Encoding:gzip response.
-    if(new Uint8Array(bytes)[0]!==31||new Uint8Array(bytes)[1]!==139)return bytes;
-    if(typeof DecompressionStream==='undefined')throw new Error('This browser cannot decompress the baked mesh.');
-    return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
-  }
-  let bakedPromise=null;
-  async function baked(){
-    if(!bakedPromise)bakedPromise=(async()=>{
-      const response=await fetch(new URL('meshes/contact46006.json',assetBase));if(!response.ok)throw new Error('Missing baked mesh metadata.');const meta=await response.json();
-      const [position,normal,complex,indexBuffer]=await Promise.all(['position','normal','complex','index'].map(k=>ungzip(new URL('meshes/contact46006-'+k+'.bin.gz',assetBase))));
-      const pos=new Uint16Array(position),nrm=new Int16Array(normal),cpx=new Int16Array(complex),data=new Float32Array(meta.vertexCount*9);
-      for(let i=0;i<meta.vertexCount;i++){
-        for(let j=0;j<3;j++){data[9*i+j]=meta.positionMin[j]+(meta.positionMax[j]-meta.positionMin[j])*pos[3*i+j]/65535;data[9*i+3+j]=nrm[3*i+j]/32767;}
-        data[9*i+6]=cpx[2*i]/32767;data[9*i+7]=cpx[2*i+1]/32767;data[9*i+8]=0;
-      }
-      return {buffer:data.buffer,indexBuffer,meta:{...meta,pairId:'contact46006',phaseSigns:[1,1,1,1,1,1],format:'indexed-p3-n3-phase2-d1-v3',stride:9}};
-    })();
-    return bakedPromise;
-  }
-  // Retain the most recently decoded saved mesh while moving among front pages.
-  // The HTTP cache still handles subsequent visits after this worker is released.
-  let savedMeshURL=null,savedMeshPromise=null;
-  function savedMesh(path){
-    const url=new URL(path,assetBase).href;
-    if(url!==savedMeshURL){
-      savedMeshURL=url;
-      savedMeshPromise=(async()=>{
-        const response=await fetch(url);if(!response.ok)throw new Error('Missing saved slice.');
-        const manifest=await response.json(),root=new URL('.',url);
-        let buffer,indexBuffer;
-        if(['quantized-p3-n3-phase2-v1','quantized-p3-n3-phase2-delta-v1'].includes(manifest.encoding)){
-          const parts=await Promise.all(['position','normal','complex','indices'].map(k=>ungzip(new URL(manifest[k],root))));
-          if(manifest.encoding==='quantized-p3-n3-phase2-delta-v1'){
-            for(let i=0;i<4;i++)parts[i]=unpackDeltaPlanes(parts[i],i===3?4:2,i<2?3:i===2?2:1);
-          }
-          const pos=new Uint16Array(parts[0]),normal=new Int16Array(parts[1]),phase=new Int16Array(parts[2]),n=manifest.meta.vertexCount;
-          if(!Number.isInteger(n)||n<3||n>2000000||pos.length!==3*n||normal.length!==3*n||phase.length!==2*n)throw new Error('Invalid packed mesh.');
-          const data=new Float32Array(n*9);
-          for(let i=0;i<n;i++){
-            for(let j=0;j<3;j++){
-              data[9*i+j]=manifest.positionMin[j]+(manifest.positionMax[j]-manifest.positionMin[j])*pos[3*i+j]/65535;
-              data[9*i+3+j]=normal[3*i+j]/32767;
-            }
-            data[9*i+6]=phase[2*i]/32767*manifest.complexScale;data[9*i+7]=phase[2*i+1]/32767*manifest.complexScale;
-          }
-          buffer=data.buffer;indexBuffer=parts[3];
-        }else{
-          [buffer,indexBuffer]=await Promise.all([ungzip(new URL(manifest.vertices,root)),ungzip(new URL(manifest.indices,root))]);
+
+  const SCRIPT_BASE = new URL(
+    '.',
+    typeof document !== 'undefined' ? document.currentScript?.src || location.href : location.href
+  );
+  function create(canvas, options = {}) {
+    // In production this core runs only in a dedicated worker. The host forwards
+    // sizes and input; no graphics API is called by the page's UI thread.
+    const { view: window, page: document, reducedMotion: reduced } = options.host;
+    const assetBase = options.assetBase ? new URL(options.assetBase, location.href) : SCRIPT_BASE;
+    const onStatus = typeof options.onStatus === 'function' ? options.onStatus : () => {};
+    const onModeChange =
+      typeof options.onModeChange === 'function' ? options.onModeChange : () => {};
+    const gl = canvas.getContext('webgl2', {
+      alpha: true,
+      antialias: true,
+      premultipliedAlpha: false,
+      preserveDrawingBuffer: false,
+      powerPreference: 'high-performance',
+      failIfMajorPerformanceCaveat: true
+    });
+    if (!gl) throw new Error('WebGL 2 is required for the mathematical surface.');
+    gl.disable(gl.DITHER);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.disable(gl.CULL_FACE);
+    gl.clearColor(0, 0, 0, 0);
+    let p = null,
+      programSource = null;
+    const U = {};
+    function useDivisorShader(pixel) {
+      if (pixel.source !== programSource) {
+        const next = program(gl, VS, FS.replace('// DIVISOR_EXPRESSION', pixel.source));
+        if (depthPeeler) {
+          depthPeeler.dispose();
+          depthPeeler = null;
         }
-        await validateDynamicMesh(buffer,indexBuffer,manifest.meta,usable);
-        return {buffer,indexBuffer,meta:manifest.meta};
-      })();
-      savedMeshPromise.catch(()=>{if(savedMeshURL===url){savedMeshURL=null;savedMeshPromise=null;}});
-    }
-    return savedMeshPromise;
-  }
-  async function setCase(selected){
-    if(!usable())return;
-    cancel();const id=job;record=selected;busy=true;activeCount=0;needsDraw=true;
-    status('loading','Preparing the saved slice…');
-    try{
-      const r=selected.render||{};
-      const saved=r.camera||{yaw:.710,pitch:.455,distance:3.22,center:[0,0,0]};
-      if(!Number.isFinite(saved.yaw)||!Number.isFinite(saved.pitch)||!Number.isFinite(saved.distance)||saved.distance<minDistance||saved.distance>maxDistance||!Array.isArray(saved.center)||saved.center.length!==3||!saved.center.every(Number.isFinite))throw new Error('Invalid saved camera.');
-      baseYaw=saved.yaw;basePitch=saved.pitch;baseDistance=saved.distance;baseCenter=saved.center.slice();
-      const baseOrientation=ScreenTrackball.fromYawPitch(baseYaw,basePitch);
-      if(saved.orientation!==undefined&&(!Array.isArray(saved.orientation)||saved.orientation.length!==4||!saved.orientation.every(Number.isFinite)))throw new Error('Invalid saved camera orientation.');
-      homeOrientation=saved.orientation===undefined?baseOrientation:ScreenTrackball.normalize(saved.orientation);
-      // Retain the saved camera's roll during background motion and mode changes.
-      homeOffset=ScreenTrackball.normalize(ScreenTrackball.multiply(baseOrientation.map((v,i)=>i<3?-v:v),homeOrientation));
-      resetCamera();
-      if(r.bakedHome){
-        const mesh=await baked();if(id!==job||!usable())return;
-        busy=false;upload(mesh,selected);return;
+        if (p) gl.deleteProgram(p);
+        p = next;
+        programSource = pixel.source;
+        for (const name of [
+          'Model',
+          'View',
+          'Projection',
+          'Camera',
+          'Time',
+          'OriginalCenter',
+          'DisplayScale',
+          'ComplexScale',
+          'DivisorStrength',
+          'ProjectionBox',
+          'DivisorMode',
+          'ContactProjection',
+          'TranslucencyEnabled',
+          'TransNear',
+          'TransFar',
+          'TransMinAlpha',
+          'RenderPass'
+        ])
+          U[name] = gl.getUniformLocation(p, 'u' + name);
+        U.DivisorPlane = gl.getUniformLocation(p, 'uDivisorPlane[0]');
       }
-      if(r.mesh){
-        const mesh=await savedMesh(r.mesh);
-        if(id!==job||!usable())return;
-        busy=false;upload(mesh,selected);return;
-      }
-      if(r.pairId==='contact46006'&&!r.terms&&(r.seed===undefined||r.seed===245646)){
-        const mesh=await baked();if(id!==job||!usable())return;
-        busy=false;upload(mesh,selected);return;
-      }
-      throw new Error('This instance has no saved slice.');
-    }catch(error){if(id===job&&usable()){busy=false;status('error',error.message||String(error));}throw error;}
-  }
-  function freezeVisibleCamera(){orbitOrientation=cameraOrientation.slice();orbitDistance=cameraDistance;orbitCenter=clone3(cameraCenter);}
-  function resetCamera(){orbitOrientation=homeOrientation.slice();orbitDistance=baseDistance;orbitCenter=baseCenter.slice();cameraOrientation=homeOrientation.slice();cameraDistance=baseDistance;cameraCenter=baseCenter.slice();targetX=targetY=currentX=currentY=0;drag=null;touches.clear();touchGesture=null;needsDraw=true;}
-  function setMode(mode){
-    cameraMode=mode==='free'?'free':'parallax';drag=null;touches.clear();touchGesture=null;targetX=targetY=currentX=currentY=0;
-    if(cameraMode==='free')freezeVisibleCamera();
-    // Keep the visible pose on return; the frame loop eases rotation, zoom and pan back to parallax.
-    needsDraw=true;onModeChange(cameraMode);
-  }
-  function beginDrag(pointerId,action,x,y){freezeVisibleCamera();return {pointerId,action,x,y,orientation:orbitOrientation.slice(),center:clone3(orbitCenter),distance:orbitDistance};}
-  function pannedCenter(center,dx,dy,orientation,distance){return ScreenTrackball.pan(center,dx,dy,orientation,distance,FOV,canvas.clientHeight);}
-  listen(window,'pointermove',e=>{if(cameraMode==='parallax'&&!reduced){targetX=2*e.clientX/window.innerWidth-1;targetY=2*e.clientY/window.innerHeight-1;}},{passive:true});
-  listen(window,'parallax',e=>{if(cameraMode==='parallax'&&!reduced&&Number.isFinite(e.x)&&Number.isFinite(e.y)){targetX=clamp(e.x,-1,1);targetY=clamp(e.y,-1,1);needsDraw=true;}},{passive:true});
-  listen(window,'pointerleave',()=>{targetX=targetY=0;},{passive:true});
-  listen(window,'blur',()=>{targetX=targetY=0;drag=null;touches.clear();touchGesture=null;},{passive:true});
-  listen(canvas,'contextmenu',e=>{if(cameraMode==='free')e.preventDefault();});
-  listen(canvas,'dblclick',e=>{if(cameraMode==='free'){e.preventDefault();resetCamera();}},{passive:false});
-  listen(canvas,'wheel',e=>{if(cameraMode!=='free')return;e.preventDefault();orbitDistance=clamp(orbitDistance*Math.exp(e.deltaY*.00135),minDistance,maxDistance);needsDraw=true;},{passive:false});
-  listen(canvas,'pointerdown',e=>{
-    if(cameraMode!=='free')return;e.preventDefault();canvas.setPointerCapture?.(e.pointerId);
-    if(e.pointerType==='touch'){
-      touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      if(touches.size===1){drag=beginDrag(e.pointerId,'orbit',e.clientX,e.clientY);touchGesture=null;}
-      else if(touches.size===2){freezeVisibleCamera();const pts=[...touches.values()];touchGesture={mx:(pts[0].x+pts[1].x)/2,my:(pts[0].y+pts[1].y)/2,separation:Math.max(8,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y)),distance:orbitDistance,center:clone3(orbitCenter),orientation:orbitOrientation.slice()};drag=null;}return;
+      gl.useProgram(p);
+      gl.uniformMatrix4fv(U.Model, false, mat4Identity());
     }
-    drag=beginDrag(e.pointerId,e.button===2||e.button===1||e.shiftKey||e.altKey||e.ctrlKey||e.metaKey?'pan':'orbit',e.clientX,e.clientY);
-  },{passive:false});
-  listen(canvas,'pointermove',e=>{
-    if(cameraMode!=='free')return;
-    if(e.pointerType==='touch'&&touches.has(e.pointerId)){
-      touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      if(touches.size>=2&&touchGesture){e.preventDefault();const pts=[...touches.values()].slice(0,2),mx=(pts[0].x+pts[1].x)/2,my=(pts[0].y+pts[1].y)/2,separation=Math.max(8,Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y));orbitDistance=clamp(touchGesture.distance*touchGesture.separation/separation,minDistance,maxDistance);orbitCenter=pannedCenter(touchGesture.center,mx-touchGesture.mx,my-touchGesture.my,touchGesture.orientation,touchGesture.distance);cameraCenter=clone3(orbitCenter);cameraDistance=orbitDistance;needsDraw=true;return;}
+    let activeVao = null,
+      activeBuffers = [],
+      activeCount = 0,
+      activeMeta = null,
+      record = null;
+    let job = 0,
+      busy = false,
+      destroyed = false,
+      contextLost = false,
+      graphicsFault = false,
+      needsDraw = true;
+    let depthPeeler = null,
+      depthPeelerFailed = false,
+      frameFence = null,
+      frameId = 0,
+      fenceStarted = 0,
+      frameJob = 0,
+      awaitingFirstFrame = false,
+      lastFrameTick = performance.now();
+    const listeners = [];
+    const FOV = (42 * Math.PI) / 180,
+      minDistance = 0.035,
+      maxDistance = 12;
+    let baseYaw = 0.71,
+      basePitch = 0.455,
+      baseDistance = 3.22,
+      baseCenter = [0, 0, 0];
+    let homeOrientation = ScreenTrackball.fromYawPitch(baseYaw, basePitch),
+      homeOffset = [0, 0, 0, 1];
+    let cameraMode = 'parallax',
+      cameraOrientation = homeOrientation.slice(),
+      orbitOrientation = homeOrientation.slice();
+    let cameraDistance = baseDistance,
+      orbitDistance = baseDistance,
+      cameraCenter = [0, 0, 0],
+      orbitCenter = [0, 0, 0];
+    let targetX = 0,
+      targetY = 0,
+      currentX = 0,
+      currentY = 0,
+      drag = null,
+      touchGesture = null,
+      last = performance.now(),
+      lastDraw = 0;
+    const touches = new Map(),
+      clamp = (x, a, b) => Math.max(a, Math.min(b, x)),
+      clone3 = (v) => v.slice();
+    function listen(target, name, fn, opts) {
+      target.addEventListener(name, fn, opts);
+      listeners.push(() => target.removeEventListener(name, fn, opts));
     }
-    if(!drag||drag.pointerId!==e.pointerId)return;e.preventDefault();const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-    if(drag.action==='orbit'){orbitOrientation=ScreenTrackball.drag(orbitOrientation,dx,dy);cameraOrientation=orbitOrientation.slice();drag.x=e.clientX;drag.y=e.clientY;}else{orbitCenter=pannedCenter(drag.center,dx,dy,drag.orientation,drag.distance);cameraCenter=clone3(orbitCenter);}needsDraw=true;
-  },{passive:false});
-  function endPointer(e){if(e.pointerType==='touch'){touches.delete(e.pointerId);if(touches.size===1){const [id,pt]=touches.entries().next().value;drag=beginDrag(id,'orbit',pt.x,pt.y);touchGesture=null;}else if(!touches.size){drag=null;touchGesture=null;}}else if(drag?.pointerId===e.pointerId)drag=null;try{canvas.releasePointerCapture?.(e.pointerId);}catch(_){}}
-  listen(canvas,'pointerup',endPointer,{passive:true});listen(canvas,'pointercancel',endPointer,{passive:true});listen(canvas,'lostpointercapture',e=>{if(drag?.pointerId===e.pointerId)drag=null;},{passive:true});
-  listen(window,'keydown',e=>{if(e.textInput)return;if(e.key==='Escape'&&cameraMode==='free')setMode('parallax');if((e.key==='r'||e.key==='R')&&cameraMode==='free'&&!e.metaKey&&!e.ctrlKey)resetCamera();});
-  listen(canvas,'webglcontextlost',()=>{contextLost=true;stop('The graphics context was lost.');});
-  function resize(){if(!usable())return;const w0=Math.max(1,canvas.clientWidth),h0=Math.max(1,canvas.clientHeight),budget=window.innerWidth<760?1_500_000:3_000_000,dpr=Math.min(window.devicePixelRatio||1,2,Math.sqrt(budget/(w0*h0))),w=Math.max(1,Math.floor(w0*dpr)),h=Math.max(1,Math.floor(h0*dpr));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);needsDraw=true;}}
-  listen(window,'resize',resize,{passive:true});listen(document,'visibilitychange',()=>{needsDraw=true;lastFrameTick=fenceStarted=performance.now();});resize();
-  function frame(now){
-    const delayed=now-lastFrameTick>5000;lastFrameTick=now;
-    if(!usable())return;frameId=requestAnimationFrame(frame);if(document.hidden)return;
-    // Animation callbacks can resume before the forwarded visibility event.
-    // Sleep/background time must not consume the GPU's response deadline.
-    if(delayed)fenceStarted=now;
-    if(now-lastDraw<(busy?180:16.0)&&!needsDraw)return;
-    if(frameFence){
-      const state=gl.clientWaitSync(frameFence,0,0);
-      if(!usable())return;
-      if(state===gl.TIMEOUT_EXPIRED){
-        if(now-fenceStarted>5000)stop('The graphics device stopped responding.');
+    function status(state, message, meta) {
+      onStatus({ state, message, meta: meta || undefined });
+    }
+    function cancel() {
+      job++;
+      busy = false;
+      awaitingFirstFrame = false;
+    }
+    function stop(message) {
+      if (graphicsFault || destroyed) return;
+      graphicsFault = true;
+      cancel();
+      cancelAnimationFrame(frameId);
+      // Never delete or reuse handles from a lost/restored context. The owner
+      // terminates the worker and discards this canvas. Any background recovery
+      // starts a fresh worker and context, with none of these handles.
+      activeVao = null;
+      activeBuffers = [];
+      activeCount = 0;
+      frameFence = null;
+      depthPeeler = null;
+      status('error', message);
+      options.onFatal?.(message);
+    }
+    function usable() {
+      if (destroyed || contextLost || graphicsFault) return false;
+      if (gl.isContextLost()) {
+        contextLost = true;
+        stop('The graphics context was lost.');
+        return false;
+      }
+      return true;
+    }
+    function clearMesh() {
+      if (!usable()) return;
+      if (activeVao) gl.deleteVertexArray(activeVao);
+      for (const b of activeBuffers) gl.deleteBuffer(b);
+      activeVao = null;
+      activeBuffers = [];
+      activeCount = 0;
+    }
+    function hasCertificate(selected) {
+      return (
+        selected.certificateAvailable === true ||
+        selected.evidenceKind === 'explicit-certificate' ||
+        selected.status === 'solved'
+      );
+    }
+    function upload(mesh, selected) {
+      if (!usable()) return;
+      const { meta, buffer, indexBuffer } = mesh;
+      const vao = gl.createVertexArray(),
+        vbo = gl.createBuffer(),
+        ebo = gl.createBuffer();
+      if (!vao || !vbo || !ebo) throw new Error('The graphics device could not allocate a mesh.');
+      gl.bindVertexArray(vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(buffer), gl.STATIC_DRAW);
+      for (const [location, size, offset] of [
+        [0, 3, 0],
+        [1, 3, 12],
+        [2, 2, 24]
+      ]) {
+        gl.enableVertexAttribArray(location);
+        gl.vertexAttribPointer(location, size, gl.FLOAT, false, 36, offset);
+      }
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(indexBuffer), gl.STATIC_DRAW);
+      if (!usable()) return;
+      if (gl.getError() !== gl.NO_ERROR) {
+        gl.deleteVertexArray(vao);
+        gl.deleteBuffer(vbo);
+        gl.deleteBuffer(ebo);
+        throw new Error('Surface upload failed.');
+      }
+      clearMesh();
+      activeVao = vao;
+      activeBuffers = [vbo, ebo];
+      activeCount = meta.triangleCount * 3;
+      const hasD =
+        hasCertificate(selected) &&
+        !!(selected.render?.divisorTerms?.length || selected.render?.divisorProgram);
+      const whole = meta.samplingMode === 'sphere' && meta.projectionBox === 0,
+        projectionBox = whole ? 0 : 10;
+      activeMeta = {
+        ...meta,
+        divisorVisible: hasD,
+        projectionBox,
+        xray: { enabled: true, reach: 2.0, layers: 6 },
+        cameraDefault: {
+          yaw: baseYaw,
+          pitch: basePitch,
+          distance: baseDistance,
+          center: baseCenter.slice()
+        },
+        sliceDescription: whole
+          ? 'The compact real slice, stereographically projected without a box cutoff.'
+          : 'A real two-dimensional section of X, on a fixed phase-rotated real four-plane; stereographic projection in [−10, 10]³.'
+      };
+      const r = selected.render || {},
+        pixel = HodgeDivisor.fragment(
+          hasD ? r.divisorProgram || r.divisorTerms : null,
+          meta.phaseSigns,
+          meta.planeMatrix
+        );
+      useDivisorShader(pixel);
+      gl.uniform3fv(U.OriginalCenter, new Float32Array(meta.centerOriginal));
+      gl.uniform1f(U.DisplayScale, meta.displayScale);
+      gl.uniform1f(U.ComplexScale, Math.max(1e-20, meta.complexScale || 1));
+      gl.uniform1f(U.ProjectionBox, projectionBox);
+      gl.uniform1f(U.DivisorStrength, hasD ? 1 : 0);
+      gl.uniform1f(U.DivisorMode, 1);
+      gl.uniform1i(U.ContactProjection, meta.pairId === 'contact46006' ? 1 : 0);
+      gl.uniform4fv(U.DivisorPlane, new Float32Array(meta.planeMatrix.flat()));
+      activeMeta.divisorEvaluation = 'per-pixel polynomial';
+      activeMeta.divisorOperations = pixel.operations;
+      options.onLabel?.(
+        (selected.title || 'Sextic fourfold') +
+          ' — real slice of F = 0' +
+          (hasD ? ', with certificate divisor highlighted' : '')
+      );
+      needsDraw = true;
+      awaitingFirstFrame = true;
+    }
+    function unpackDeltaPlanes(buffer, elementBytes, stride) {
+      const bytes = new Uint8Array(buffer);
+      if (bytes.length % (elementBytes * stride) !== 0)
+        throw new Error('Invalid delta-packed mesh stream.');
+      const count = bytes.length / elementBytes,
+        output = new Uint8Array(bytes.length);
+      // Restore byte order, then the exact unsigned modular differences.
+      for (let byte = 0; byte < elementBytes; byte++)
+        for (let i = 0; i < count; i++) output[i * elementBytes + byte] = bytes[byte * count + i];
+      const values =
+        elementBytes === 2 ? new Uint16Array(output.buffer) : new Uint32Array(output.buffer);
+      for (let i = stride; i < count; i++) values[i] += values[i - stride];
+      return output.buffer;
+    }
+    async function ungzip(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Missing local mesh asset: ' + url.pathname);
+      const bytes = await response.arrayBuffer();
+      // Most static servers send .gz as application/octet-stream. Also accept
+      // servers which have already decompressed a Content-Encoding:gzip response.
+      if (new Uint8Array(bytes)[0] !== 31 || new Uint8Array(bytes)[1] !== 139) return bytes;
+      if (typeof DecompressionStream === 'undefined')
+        throw new Error('This browser cannot decompress the baked mesh.');
+      return new Response(
+        new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))
+      ).arrayBuffer();
+    }
+    let bakedPromise = null;
+    async function baked() {
+      if (!bakedPromise)
+        bakedPromise = (async () => {
+          const response = await fetch(new URL('meshes/contact46006.json', assetBase));
+          if (!response.ok) throw new Error('Missing baked mesh metadata.');
+          const meta = await response.json();
+          const [position, normal, complex, indexBuffer] = await Promise.all(
+            ['position', 'normal', 'complex', 'index'].map((k) =>
+              ungzip(new URL('meshes/contact46006-' + k + '.bin.gz', assetBase))
+            )
+          );
+          const pos = new Uint16Array(position),
+            nrm = new Int16Array(normal),
+            cpx = new Int16Array(complex),
+            data = new Float32Array(meta.vertexCount * 9);
+          for (let i = 0; i < meta.vertexCount; i++) {
+            for (let j = 0; j < 3; j++) {
+              data[9 * i + j] =
+                meta.positionMin[j] +
+                ((meta.positionMax[j] - meta.positionMin[j]) * pos[3 * i + j]) / 65535;
+              data[9 * i + 3 + j] = nrm[3 * i + j] / 32767;
+            }
+            data[9 * i + 6] = cpx[2 * i] / 32767;
+            data[9 * i + 7] = cpx[2 * i + 1] / 32767;
+            data[9 * i + 8] = 0;
+          }
+          return {
+            buffer: data.buffer,
+            indexBuffer,
+            meta: {
+              ...meta,
+              pairId: 'contact46006',
+              phaseSigns: [1, 1, 1, 1, 1, 1],
+              format: 'indexed-p3-n3-phase2-d1-v3',
+              stride: 9
+            }
+          };
+        })();
+      return bakedPromise;
+    }
+    // Retain the most recently decoded saved mesh while moving among front pages.
+    // The HTTP cache still handles subsequent visits after this worker is released.
+    let savedMeshURL = null,
+      savedMeshPromise = null;
+    function savedMesh(path) {
+      const url = new URL(path, assetBase).href;
+      if (url !== savedMeshURL) {
+        savedMeshURL = url;
+        savedMeshPromise = (async () => {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error('Missing saved slice.');
+          const manifest = await response.json(),
+            root = new URL('.', url);
+          let buffer, indexBuffer;
+          if (
+            ['quantized-p3-n3-phase2-v1', 'quantized-p3-n3-phase2-delta-v1'].includes(
+              manifest.encoding
+            )
+          ) {
+            const parts = await Promise.all(
+              ['position', 'normal', 'complex', 'indices'].map((k) =>
+                ungzip(new URL(manifest[k], root))
+              )
+            );
+            if (manifest.encoding === 'quantized-p3-n3-phase2-delta-v1') {
+              for (let i = 0; i < 4; i++)
+                parts[i] = unpackDeltaPlanes(
+                  parts[i],
+                  i === 3 ? 4 : 2,
+                  i < 2 ? 3 : i === 2 ? 2 : 1
+                );
+            }
+            const pos = new Uint16Array(parts[0]),
+              normal = new Int16Array(parts[1]),
+              phase = new Int16Array(parts[2]),
+              n = manifest.meta.vertexCount;
+            if (
+              !Number.isInteger(n) ||
+              n < 3 ||
+              n > 2000000 ||
+              pos.length !== 3 * n ||
+              normal.length !== 3 * n ||
+              phase.length !== 2 * n
+            )
+              throw new Error('Invalid packed mesh.');
+            const data = new Float32Array(n * 9);
+            for (let i = 0; i < n; i++) {
+              for (let j = 0; j < 3; j++) {
+                data[9 * i + j] =
+                  manifest.positionMin[j] +
+                  ((manifest.positionMax[j] - manifest.positionMin[j]) * pos[3 * i + j]) / 65535;
+                data[9 * i + 3 + j] = normal[3 * i + j] / 32767;
+              }
+              data[9 * i + 6] = (phase[2 * i] / 32767) * manifest.complexScale;
+              data[9 * i + 7] = (phase[2 * i + 1] / 32767) * manifest.complexScale;
+            }
+            buffer = data.buffer;
+            indexBuffer = parts[3];
+          } else {
+            [buffer, indexBuffer] = await Promise.all([
+              ungzip(new URL(manifest.vertices, root)),
+              ungzip(new URL(manifest.indices, root))
+            ]);
+          }
+          await validateDynamicMesh(buffer, indexBuffer, manifest.meta, usable);
+          return { buffer, indexBuffer, meta: manifest.meta };
+        })();
+        savedMeshPromise.catch(() => {
+          if (savedMeshURL === url) {
+            savedMeshURL = null;
+            savedMeshPromise = null;
+          }
+        });
+      }
+      return savedMeshPromise;
+    }
+    async function setCase(selected) {
+      if (!usable()) return;
+      cancel();
+      const id = job;
+      record = selected;
+      busy = true;
+      activeCount = 0;
+      needsDraw = true;
+      status('loading', 'Preparing the saved slice…');
+      try {
+        const r = selected.render || {};
+        const saved = r.camera || { yaw: 0.71, pitch: 0.455, distance: 3.22, center: [0, 0, 0] };
+        if (
+          !Number.isFinite(saved.yaw) ||
+          !Number.isFinite(saved.pitch) ||
+          !Number.isFinite(saved.distance) ||
+          saved.distance < minDistance ||
+          saved.distance > maxDistance ||
+          !Array.isArray(saved.center) ||
+          saved.center.length !== 3 ||
+          !saved.center.every(Number.isFinite)
+        )
+          throw new Error('Invalid saved camera.');
+        baseYaw = saved.yaw;
+        basePitch = saved.pitch;
+        baseDistance = saved.distance;
+        baseCenter = saved.center.slice();
+        const baseOrientation = ScreenTrackball.fromYawPitch(baseYaw, basePitch);
+        if (
+          saved.orientation !== undefined &&
+          (!Array.isArray(saved.orientation) ||
+            saved.orientation.length !== 4 ||
+            !saved.orientation.every(Number.isFinite))
+        )
+          throw new Error('Invalid saved camera orientation.');
+        homeOrientation =
+          saved.orientation === undefined
+            ? baseOrientation
+            : ScreenTrackball.normalize(saved.orientation);
+        // Retain the saved camera's roll during background motion and mode changes.
+        homeOffset = ScreenTrackball.normalize(
+          ScreenTrackball.multiply(
+            baseOrientation.map((v, i) => (i < 3 ? -v : v)),
+            homeOrientation
+          )
+        );
+        resetCamera();
+        if (r.bakedHome) {
+          const mesh = await baked();
+          if (id !== job || !usable()) return;
+          busy = false;
+          upload(mesh, selected);
+          return;
+        }
+        if (r.mesh) {
+          const mesh = await savedMesh(r.mesh);
+          if (id !== job || !usable()) return;
+          busy = false;
+          upload(mesh, selected);
+          return;
+        }
+        if (
+          r.pairId === 'contact46006' &&
+          !r.terms &&
+          (r.seed === undefined || r.seed === 245646)
+        ) {
+          const mesh = await baked();
+          if (id !== job || !usable()) return;
+          busy = false;
+          upload(mesh, selected);
+          return;
+        }
+        throw new Error('This instance has no saved slice.');
+      } catch (error) {
+        if (id === job && usable()) {
+          busy = false;
+          status('error', error.message || String(error));
+        }
+        throw error;
+      }
+    }
+    function freezeVisibleCamera() {
+      orbitOrientation = cameraOrientation.slice();
+      orbitDistance = cameraDistance;
+      orbitCenter = clone3(cameraCenter);
+    }
+    function resetCamera() {
+      orbitOrientation = homeOrientation.slice();
+      orbitDistance = baseDistance;
+      orbitCenter = baseCenter.slice();
+      cameraOrientation = homeOrientation.slice();
+      cameraDistance = baseDistance;
+      cameraCenter = baseCenter.slice();
+      targetX = targetY = currentX = currentY = 0;
+      drag = null;
+      touches.clear();
+      touchGesture = null;
+      needsDraw = true;
+    }
+    function setMode(mode) {
+      cameraMode = mode === 'free' ? 'free' : 'parallax';
+      drag = null;
+      touches.clear();
+      touchGesture = null;
+      targetX = targetY = currentX = currentY = 0;
+      if (cameraMode === 'free') freezeVisibleCamera();
+      // Keep the visible pose on return; the frame loop eases rotation, zoom and pan back to parallax.
+      needsDraw = true;
+      onModeChange(cameraMode);
+    }
+    function beginDrag(pointerId, action, x, y) {
+      freezeVisibleCamera();
+      return {
+        pointerId,
+        action,
+        x,
+        y,
+        orientation: orbitOrientation.slice(),
+        center: clone3(orbitCenter),
+        distance: orbitDistance
+      };
+    }
+    function pannedCenter(center, dx, dy, orientation, distance) {
+      return ScreenTrackball.pan(center, dx, dy, orientation, distance, FOV, canvas.clientHeight);
+    }
+    listen(
+      window,
+      'pointermove',
+      (e) => {
+        if (cameraMode === 'parallax' && !reduced) {
+          targetX = (2 * e.clientX) / window.innerWidth - 1;
+          targetY = (2 * e.clientY) / window.innerHeight - 1;
+        }
+      },
+      { passive: true }
+    );
+    listen(
+      window,
+      'parallax',
+      (e) => {
+        if (cameraMode === 'parallax' && !reduced && Number.isFinite(e.x) && Number.isFinite(e.y)) {
+          targetX = clamp(e.x, -1, 1);
+          targetY = clamp(e.y, -1, 1);
+          needsDraw = true;
+        }
+      },
+      { passive: true }
+    );
+    listen(
+      window,
+      'pointerleave',
+      () => {
+        targetX = targetY = 0;
+      },
+      { passive: true }
+    );
+    listen(
+      window,
+      'blur',
+      () => {
+        targetX = targetY = 0;
+        drag = null;
+        touches.clear();
+        touchGesture = null;
+      },
+      { passive: true }
+    );
+    listen(canvas, 'contextmenu', (e) => {
+      if (cameraMode === 'free') e.preventDefault();
+    });
+    listen(
+      canvas,
+      'dblclick',
+      (e) => {
+        if (cameraMode === 'free') {
+          e.preventDefault();
+          resetCamera();
+        }
+      },
+      { passive: false }
+    );
+    listen(
+      canvas,
+      'wheel',
+      (e) => {
+        if (cameraMode !== 'free') return;
+        e.preventDefault();
+        orbitDistance = clamp(
+          orbitDistance * Math.exp(e.deltaY * 0.00135),
+          minDistance,
+          maxDistance
+        );
+        needsDraw = true;
+      },
+      { passive: false }
+    );
+    listen(
+      canvas,
+      'pointerdown',
+      (e) => {
+        if (cameraMode !== 'free') return;
+        e.preventDefault();
+        canvas.setPointerCapture?.(e.pointerId);
+        if (e.pointerType === 'touch') {
+          touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          if (touches.size === 1) {
+            drag = beginDrag(e.pointerId, 'orbit', e.clientX, e.clientY);
+            touchGesture = null;
+          } else if (touches.size === 2) {
+            freezeVisibleCamera();
+            const pts = [...touches.values()];
+            touchGesture = {
+              mx: (pts[0].x + pts[1].x) / 2,
+              my: (pts[0].y + pts[1].y) / 2,
+              separation: Math.max(8, Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y)),
+              distance: orbitDistance,
+              center: clone3(orbitCenter),
+              orientation: orbitOrientation.slice()
+            };
+            drag = null;
+          }
+          return;
+        }
+        drag = beginDrag(
+          e.pointerId,
+          e.button === 2 || e.button === 1 || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey
+            ? 'pan'
+            : 'orbit',
+          e.clientX,
+          e.clientY
+        );
+      },
+      { passive: false }
+    );
+    listen(
+      canvas,
+      'pointermove',
+      (e) => {
+        if (cameraMode !== 'free') return;
+        if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
+          touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          if (touches.size >= 2 && touchGesture) {
+            e.preventDefault();
+            const pts = [...touches.values()].slice(0, 2),
+              mx = (pts[0].x + pts[1].x) / 2,
+              my = (pts[0].y + pts[1].y) / 2,
+              separation = Math.max(8, Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y));
+            orbitDistance = clamp(
+              (touchGesture.distance * touchGesture.separation) / separation,
+              minDistance,
+              maxDistance
+            );
+            orbitCenter = pannedCenter(
+              touchGesture.center,
+              mx - touchGesture.mx,
+              my - touchGesture.my,
+              touchGesture.orientation,
+              touchGesture.distance
+            );
+            cameraCenter = clone3(orbitCenter);
+            cameraDistance = orbitDistance;
+            needsDraw = true;
+            return;
+          }
+        }
+        if (!drag || drag.pointerId !== e.pointerId) return;
+        e.preventDefault();
+        const dx = e.clientX - drag.x,
+          dy = e.clientY - drag.y;
+        if (drag.action === 'orbit') {
+          orbitOrientation = ScreenTrackball.drag(orbitOrientation, dx, dy);
+          cameraOrientation = orbitOrientation.slice();
+          drag.x = e.clientX;
+          drag.y = e.clientY;
+        } else {
+          orbitCenter = pannedCenter(drag.center, dx, dy, drag.orientation, drag.distance);
+          cameraCenter = clone3(orbitCenter);
+        }
+        needsDraw = true;
+      },
+      { passive: false }
+    );
+    function endPointer(e) {
+      if (e.pointerType === 'touch') {
+        touches.delete(e.pointerId);
+        if (touches.size === 1) {
+          const [id, pt] = touches.entries().next().value;
+          drag = beginDrag(id, 'orbit', pt.x, pt.y);
+          touchGesture = null;
+        } else if (!touches.size) {
+          drag = null;
+          touchGesture = null;
+        }
+      } else if (drag?.pointerId === e.pointerId) drag = null;
+      try {
+        canvas.releasePointerCapture?.(e.pointerId);
+      } catch (_) {}
+    }
+    listen(canvas, 'pointerup', endPointer, { passive: true });
+    listen(canvas, 'pointercancel', endPointer, { passive: true });
+    listen(
+      canvas,
+      'lostpointercapture',
+      (e) => {
+        if (drag?.pointerId === e.pointerId) drag = null;
+      },
+      { passive: true }
+    );
+    listen(window, 'keydown', (e) => {
+      if (e.textInput) return;
+      if (e.key === 'Escape' && cameraMode === 'free') setMode('parallax');
+      if ((e.key === 'r' || e.key === 'R') && cameraMode === 'free' && !e.metaKey && !e.ctrlKey)
+        resetCamera();
+    });
+    listen(canvas, 'webglcontextlost', () => {
+      contextLost = true;
+      stop('The graphics context was lost.');
+    });
+    function resize() {
+      if (!usable()) return;
+      const w0 = Math.max(1, canvas.clientWidth),
+        h0 = Math.max(1, canvas.clientHeight),
+        budget = window.innerWidth < 760 ? 1_500_000 : 3_000_000,
+        dpr = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(budget / (w0 * h0))),
+        w = Math.max(1, Math.floor(w0 * dpr)),
+        h = Math.max(1, Math.floor(h0 * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        gl.viewport(0, 0, w, h);
+        needsDraw = true;
+      }
+    }
+    listen(window, 'resize', resize, { passive: true });
+    listen(document, 'visibilitychange', () => {
+      needsDraw = true;
+      lastFrameTick = fenceStarted = performance.now();
+    });
+    resize();
+    function frame(now) {
+      const delayed = now - lastFrameTick > 5000;
+      lastFrameTick = now;
+      if (!usable()) return;
+      frameId = requestAnimationFrame(frame);
+      if (document.hidden) return;
+      // Animation callbacks can resume before the forwarded visibility event.
+      // Sleep/background time must not consume the GPU's response deadline.
+      if (delayed) fenceStarted = now;
+      if (now - lastDraw < (busy ? 180 : 16.0) && !needsDraw) return;
+      if (frameFence) {
+        const state = gl.clientWaitSync(frameFence, 0, 0);
+        if (!usable()) return;
+        if (state === gl.TIMEOUT_EXPIRED) {
+          if (now - fenceStarted > 5000) stop('The graphics device stopped responding.');
+          return;
+        }
+        gl.deleteSync(frameFence);
+        frameFence = null;
+        if (state === gl.WAIT_FAILED) {
+          stop('Graphics synchronization failed.');
+          return;
+        }
+        if (awaitingFirstFrame && frameJob === job) {
+          awaitingFirstFrame = false;
+          status('ready', 'Surface ready', activeMeta);
+        }
+      }
+      // Follow elapsed time during slow frames; cap only long suspension gaps.
+      const dt = Math.min(0.25, (now - last) / 1000);
+      last = now;
+      lastDraw = now;
+      resize();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      if (!activeCount || !activeVao) return;
+      // The camera below supplies the smoothing; filtering the input too adds lag.
+      currentX = targetX;
+      currentY = targetY;
+      const idle = reduced ? 0 : 0.01 * Math.sin(now * 0.00023),
+        idle2 = reduced ? 0 : 0.007 * Math.sin(now * 0.00017 + 1.7);
+      const desiredOrientation =
+        cameraMode === 'free'
+          ? orbitOrientation
+          : ScreenTrackball.normalize(
+              ScreenTrackball.multiply(
+                ScreenTrackball.fromYawPitch(
+                  baseYaw + 0.115 * currentX + idle,
+                  basePitch - 0.082 * currentY + idle2
+                ),
+                homeOffset
+              )
+            );
+      const desiredDistance = cameraMode === 'free' ? orbitDistance : baseDistance,
+        desiredCenter =
+          cameraMode === 'free'
+            ? orbitCenter
+            : [
+                baseCenter[0] + 0.038 * currentX,
+                baseCenter[1] - 0.026 * currentY,
+                baseCenter[2] + (reduced ? 0 : 0.008 * Math.sin(now * 0.00016))
+              ],
+        cameraEase = 1 - Math.exp(-dt * (cameraMode === 'free' ? 12 : 7));
+      cameraOrientation = ScreenTrackball.slerp(cameraOrientation, desiredOrientation, cameraEase);
+      cameraDistance += (desiredDistance - cameraDistance) * cameraEase;
+      for (let i = 0; i < 3; i++)
+        cameraCenter[i] += (desiredCenter[i] - cameraCenter[i]) * cameraEase;
+      const basis = ScreenTrackball.basis(cameraOrientation),
+        eye = cameraCenter.map((c, i) => c + cameraDistance * basis.back[i]);
+      gl.useProgram(p);
+      gl.bindVertexArray(activeVao);
+      gl.uniformMatrix4fv(U.View, false, lookAt(eye, cameraCenter, basis.up));
+      gl.uniformMatrix4fv(
+        U.Projection,
+        false,
+        perspective(
+          FOV,
+          canvas.width / canvas.height,
+          Math.max(0.0005, Math.min(0.035, cameraDistance * 0.025)),
+          40
+        )
+      );
+      gl.uniform3fv(U.Camera, new Float32Array(eye));
+      gl.uniform1f(U.Time, now / 1000);
+      gl.uniform1f(U.TranslucencyEnabled, depthPeelerFailed ? 0 : 1);
+      gl.uniform1f(U.TransNear, 0);
+      gl.uniform1f(U.TransFar, 2);
+      gl.uniform1f(U.TransMinAlpha, 0.18);
+      const draw = () => gl.drawElements(gl.TRIANGLES, activeCount, gl.UNSIGNED_INT, 0),
+        bounds = Math.max(1.01, activeMeta.positionBound || 0),
+        distanceToBounds = Math.hypot(...eye.map((c) => Math.max(0, Math.abs(c) - bounds)));
+      if (!depthPeelerFailed && distanceToBounds < 2) {
+        try {
+          if (!depthPeeler) depthPeeler = createDepthPeeler(gl, p);
+          depthPeeler.render(
+            canvas.width,
+            canvas.height,
+            activeVao,
+            draw,
+            6,
+            activeMeta.projectionBox === 0 && activeMeta.pairId === 'contact46006'
+          );
+        } catch (error) {
+          if (!usable()) return;
+          depthPeelerFailed = true;
+          if (depthPeeler) depthPeeler.dispose();
+          depthPeeler = null;
+          status(
+            'warning',
+            'X-ray is unavailable on this device; showing an opaque surface.',
+            activeMeta
+          );
+        }
+      }
+      if (depthPeelerFailed || distanceToBounds >= 2) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.useProgram(p);
+        gl.bindVertexArray(activeVao);
+        gl.uniform1i(U.RenderPass, 0);
+        gl.depthMask(true);
+        gl.enable(gl.DEPTH_TEST);
+        gl.disable(gl.BLEND);
+        gl.disable(gl.CULL_FACE);
+        draw();
+      }
+      if (!usable()) return;
+      frameJob = job;
+      fenceStarted = performance.now();
+      frameFence = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+      if (!frameFence) {
+        stop('Graphics synchronization is unavailable.');
         return;
       }
-      gl.deleteSync(frameFence);frameFence=null;
-      if(state===gl.WAIT_FAILED){stop('Graphics synchronization failed.');return;}
-      if(awaitingFirstFrame&&frameJob===job){
-        awaitingFirstFrame=false;status('ready','Surface ready',activeMeta);
-      }
+      gl.flush();
+      needsDraw = false;
     }
-    // Follow elapsed time during slow frames; cap only long suspension gaps.
-    const dt=Math.min(.25,(now-last)/1000);last=now;lastDraw=now;resize();
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-    if(!activeCount||!activeVao)return;
-    // The camera below supplies the smoothing; filtering the input too adds lag.
-    currentX=targetX;currentY=targetY;
-    const idle=reduced?0:.010*Math.sin(now*.00023),idle2=reduced?0:.007*Math.sin(now*.00017+1.7);
-    const desiredOrientation=cameraMode==='free'?orbitOrientation:ScreenTrackball.normalize(ScreenTrackball.multiply(ScreenTrackball.fromYawPitch(baseYaw+.115*currentX+idle,basePitch-.082*currentY+idle2),homeOffset));
-    const desiredDistance=cameraMode==='free'?orbitDistance:baseDistance,desiredCenter=cameraMode==='free'?orbitCenter:[baseCenter[0]+.038*currentX,baseCenter[1]-.026*currentY,baseCenter[2]+(reduced?0:.008*Math.sin(now*.00016))],cameraEase=1-Math.exp(-dt*(cameraMode==='free'?12:7));
-    cameraOrientation=ScreenTrackball.slerp(cameraOrientation,desiredOrientation,cameraEase);cameraDistance+=(desiredDistance-cameraDistance)*cameraEase;for(let i=0;i<3;i++)cameraCenter[i]+=(desiredCenter[i]-cameraCenter[i])*cameraEase;
-    const basis=ScreenTrackball.basis(cameraOrientation),eye=cameraCenter.map((c,i)=>c+cameraDistance*basis.back[i]);
-    gl.useProgram(p);gl.bindVertexArray(activeVao);gl.uniformMatrix4fv(U.View,false,lookAt(eye,cameraCenter,basis.up));gl.uniformMatrix4fv(U.Projection,false,perspective(FOV,canvas.width/canvas.height,Math.max(.0005,Math.min(.035,cameraDistance*.025)),40));gl.uniform3fv(U.Camera,new Float32Array(eye));gl.uniform1f(U.Time,now/1000);gl.uniform1f(U.TranslucencyEnabled,depthPeelerFailed?0:1);gl.uniform1f(U.TransNear,0);gl.uniform1f(U.TransFar,2);gl.uniform1f(U.TransMinAlpha,.18);
-    const draw=()=>gl.drawElements(gl.TRIANGLES,activeCount,gl.UNSIGNED_INT,0),bounds=Math.max(1.01,activeMeta.positionBound||0),distanceToBounds=Math.hypot(...eye.map(c=>Math.max(0,Math.abs(c)-bounds)));
-    if(!depthPeelerFailed&&distanceToBounds<2){try{if(!depthPeeler)depthPeeler=createDepthPeeler(gl,p);depthPeeler.render(canvas.width,canvas.height,activeVao,draw,6,activeMeta.projectionBox===0&&activeMeta.pairId==='contact46006');}catch(error){if(!usable())return;depthPeelerFailed=true;if(depthPeeler)depthPeeler.dispose();depthPeeler=null;status('warning','X-ray is unavailable on this device; showing an opaque surface.',activeMeta);}}
-    if(depthPeelerFailed||distanceToBounds>=2){gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);gl.useProgram(p);gl.bindVertexArray(activeVao);gl.uniform1i(U.RenderPass,0);gl.depthMask(true);gl.enable(gl.DEPTH_TEST);gl.disable(gl.BLEND);gl.disable(gl.CULL_FACE);draw();}
-    if(!usable())return;
-    frameJob=job;fenceStarted=performance.now();frameFence=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);
-    if(!frameFence){stop('Graphics synchronization is unavailable.');return;}
-    gl.flush();needsDraw=false;
+    frameId = requestAnimationFrame(frame);
+    return {
+      setCase,
+      setMode,
+      resetCamera,
+      getMeta: () => activeMeta,
+      getMode: () => cameraMode,
+      getCamera: () => ({
+        orientation: cameraOrientation.slice(),
+        distance: cameraDistance,
+        center: cameraCenter.slice(),
+        mode: cameraMode
+      }),
+      destroy() {
+        const valid = usable();
+        cancel();
+        cancelAnimationFrame(frameId);
+        listeners.forEach((f) => f());
+        if (valid) {
+          if (frameFence) gl.deleteSync(frameFence);
+          if (depthPeeler) depthPeeler.dispose();
+          clearMesh();
+          gl.deleteProgram(p);
+        }
+        destroyed = true;
+      }
+    };
   }
-  frameId=requestAnimationFrame(frame);
-  return {setCase,setMode,resetCamera,getMeta:()=>activeMeta,getMode:()=>cameraMode,getCamera:()=>({orientation:cameraOrientation.slice(),distance:cameraDistance,center:cameraCenter.slice(),mode:cameraMode}),destroy(){const valid=usable();cancel();cancelAnimationFrame(frameId);listeners.forEach(f=>f());if(valid){if(frameFence)gl.deleteSync(frameFence);if(depthPeeler)depthPeeler.dispose();clearMesh();gl.deleteProgram(p);}destroyed=true;}};
-}
-globalThis.HodgeSurfaceCore=Object.freeze({create,defaultView:Object.freeze({seed:245646,box:10,xray:true,xrayReach:2,mode:'parallax',yaw:.710,pitch:.455,distance:3.22})});
+  globalThis.HodgeSurfaceCore = Object.freeze({
+    create,
+    defaultView: Object.freeze({
+      seed: 245646,
+      box: 10,
+      xray: true,
+      xrayReach: 2,
+      mode: 'parallax',
+      yaw: 0.71,
+      pitch: 0.455,
+      distance: 3.22
+    })
+  });
 })();

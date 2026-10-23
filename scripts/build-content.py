@@ -23,7 +23,6 @@ args = parser.parse_args()
 ROOT = args.root.resolve()
 stale = []
 outputs = {}
-checked_replay_receipts = {}
 
 def require(condition, message):
     if not condition:
