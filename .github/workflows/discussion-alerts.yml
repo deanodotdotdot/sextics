@@ -3,8 +3,6 @@ name: Announce discussion comments
 on:
   discussion_comment:
     types: [created]
-  # Check the configuration without posting a test comment or Discord message.
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,7 +10,7 @@ permissions:
 # Different comments must not displace each other in a shared pending queue.
 # Repeated deliveries of the same comment share a lock and a durable sent marker.
 concurrency:
-  group: discord-comment-${{ github.event.comment.id || github.run_id }}
+  group: discord-comment-${{ github.event.comment.id }}
   cancel-in-progress: false
 
 jobs:
@@ -36,18 +34,6 @@ jobs:
             data/index.json
             leaderboard
           sparse-checkout-cone-mode: false
-      - name: Check announcement behavior
-        run: python3 scripts/test-discord-alerts.py
-      - name: Check webhook configuration
-        env:
-          DISCORD_SOLVE_WEBHOOK_URL: ${{ secrets.DISCORD_SOLVE_WEBHOOK_URL }}
-        run: |
-          python3 - <<'PY'
-          import os
-          if not os.environ.get('DISCORD_SOLVE_WEBHOOK_URL'):
-              raise SystemExit('DISCORD_SOLVE_WEBHOOK_URL is not configured.')
-          print('Discord webhook is configured.')
-          PY
       - name: Obtain short-lived notification storage credentials
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
@@ -55,15 +41,7 @@ jobs:
           aws-region: us-east-1
           role-duration-seconds: 900
           allowed-account-ids: '977936242184'
-      - name: Check notification storage
-        if: github.event_name == 'workflow_dispatch'
-        run: >-
-          aws s3api head-object
-          --bucket hodge-sextics-site-977936242184-us-east-1
-          --key notifications/discord-state.json
-          --query LastModified --output text
       - name: Announce the new comment
-        if: github.event_name == 'discussion_comment'
         env:
           DISCORD_SOLVE_WEBHOOK_URL: ${{ secrets.DISCORD_SOLVE_WEBHOOK_URL }}
         # The event is read from GITHUB_EVENT_PATH, never interpolated into shell code.

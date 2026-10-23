@@ -6,13 +6,13 @@ const random = () => randomBytes(32).toString('base64url');
 const valid = (value) => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value);
 const key = (type, value) => `${type}#${createHash('sha256').update(value).digest('hex')}`;
 
-export function equal(a, b) {
+function equal(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
   const left = Buffer.from(a),
     right = Buffer.from(b);
   return left.length === right.length && timingSafeEqual(left, right);
 }
-export function cookies(header = '') {
+function cookies(header = '') {
   return Object.fromEntries(
     header
       .split(';')
@@ -20,55 +20,21 @@ export function cookies(header = '') {
       .filter((parts) => parts.length === 2)
   );
 }
-export function returnPath(value) {
+function returnPath(value) {
   return typeof value === 'string' && value.startsWith('/#') && routes.parse(value.slice(1))
     ? value
     : '/#home';
 }
 
-// Same operations as DynamoStore. Consumption and claims are synchronous within
-// this process; the durable adapter implements them as conditional writes.
-export class MemoryStore {
-  rows = new Map();
-  put(pk, value) {
-    for (const [id, row] of this.rows) if (row.expires <= Date.now()) this.rows.delete(id);
-    const flow = pk.startsWith('flow#'),
-      prefix = flow ? 'flow#' : 'session#';
-    const count = [...this.rows.keys()].filter((id) => id.startsWith(prefix)).length;
-    if (count >= (flow ? 1000 : 5000))
-      throw new ServiceError(flow ? 429 : 503, 'Please try signing in again shortly.');
-    if (this.rows.has(pk)) throw new Error('Duplicate authentication key.');
-    this.rows.set(pk, structuredClone(value));
-  }
-  get(pk) {
-    return structuredClone(this.rows.get(pk) || null);
-  }
-  consume(pk) {
-    const row = this.get(pk);
-    this.rows.delete(pk);
-    return row;
-  }
-  remove(pk) {
-    this.rows.delete(pk);
-  }
-  claimPost(pk, now) {
-    const row = this.rows.get(pk);
-    if (!row || row.expires <= now || row.lastPost > now - 5000) return false;
-    row.lastPost = now;
-    return true;
-  }
-}
-
 export class Auth {
-  constructor(origin, store = new MemoryStore()) {
+  constructor(origin, store) {
     this.origin = origin;
     this.store = store;
-    this.secure = origin.startsWith('https:');
-    this.sessionName = this.secure ? '__Host-hodge_session' : 'hodge_session';
-    this.flowName = this.secure ? '__Host-hodge_oauth' : 'hodge_oauth';
+    this.sessionName = '__Host-hodge_session';
+    this.flowName = '__Host-hodge_oauth';
   }
   cookie(name, value, maxAge) {
-    return `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${this.secure ? '; Secure' : ''}`;
+    return `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}; Secure`;
   }
   async start(returnTo) {
     const state = random(),

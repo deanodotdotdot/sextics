@@ -103,7 +103,8 @@
       credits = null;
     let rankingSignature = '',
       detailsSignature = '',
-      refreshing = false;
+      refreshing = false,
+      scrollPending = false;
 
     function paint(rows) {
       const comments = current.mode === 'comments';
@@ -135,6 +136,7 @@
       else renderContributor(current.login, row ? [row] : []);
     }
     async function show(destination, { refresh = false, quiet = false } = {}) {
+      if (!quiet) scrollPending = !!destination.login;
       request?.abort();
       const pending = (request = new AbortController());
       current = destination;
@@ -209,7 +211,6 @@
           key = row?.githubLogin.toLowerCase();
         const cached = contributorComments.get(key);
         details(row, cached?.comments);
-        highlightContributor(login, { scroll: !quiet });
         if (!comments || !row || (!refresh && cached && Date.now() - cached.time < 15000)) return;
         if (!cached)
           $('contributorDetails').querySelector('.comment-contribution-list').innerHTML =
@@ -248,6 +249,11 @@
           ? 'The leaderboard could not be refreshed.'
           : 'The leaderboard could not be loaded.';
         $('leaderboardRetry').hidden = false;
+      } finally {
+        if (valid()) {
+          highlightContributor(login, { scroll: scrollPending });
+          scrollPending = false;
+        }
       }
     }
     async function refresh() {
@@ -262,6 +268,7 @@
     function leave() {
       request?.abort();
       current = null;
+      scrollPending = false;
     }
     for (const [id, mode] of [
       ['rankSolves', 'solves'],

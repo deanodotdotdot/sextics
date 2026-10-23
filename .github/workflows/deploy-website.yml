@@ -72,16 +72,15 @@ jobs:
         env:
           DISCORD_SOLVE_WEBHOOK_URL: ${{ secrets.DISCORD_SOLVE_WEBHOOK_URL }}
         run: python3 scripts/discord-alerts.py prepare --bucket hodge-sextics-site-977936242184-us-east-1 --site "$RUNNER_TEMP/sextics-release/public"
-      - name: Publish content, then announce its revision
+      - name: Publish content
         env:
           SITE_BUCKET: hodge-sextics-site-977936242184-us-east-1
           DISTRIBUTION: E2D78CDNFUIIQG
         run: |
           set -euo pipefail
           public="$RUNNER_TEMP/sextics-release/public"
-          aws s3 sync "$public/" "s3://$SITE_BUCKET/" --exclude index.html --exclude data/revision.json --cache-control 'public,max-age=60' --sse AES256 --only-show-errors
+          aws s3 sync "$public/" "s3://$SITE_BUCKET/" --exclude index.html --cache-control 'public,max-age=60' --sse AES256 --only-show-errors
           aws s3 cp "$public/index.html" "s3://$SITE_BUCKET/index.html" --cache-control 'public,max-age=60' --sse AES256 --only-show-errors
-          aws s3 cp "$public/data/revision.json" "s3://$SITE_BUCKET/data/revision.json" --cache-control 'public,max-age=60' --sse AES256 --only-show-errors
           python3 infra/aws/retire.py --bucket "$SITE_BUCKET" --manifest "$RUNNER_TEMP/sextics-release/build.json"
           aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION" --paths '/*' --query Invalidation.Id --output text
       - name: Announce published solves and new atlas entries

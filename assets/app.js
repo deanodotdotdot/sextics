@@ -558,61 +558,6 @@
     $('openCount').textContent = state.records.filter((r) => group(r) === 'open').length;
     $('solvedCount').textContent = state.records.filter(isProved).length;
   }
-  async function restorePreview() {
-    let saved;
-    try {
-      saved = JSON.parse(sessionStorage.getItem('hodge-preview-restore'));
-      sessionStorage.removeItem('hodge-preview-restore');
-    } catch {
-      return;
-    }
-    if (!saved || saved.hash !== location.hash) return;
-    $('caseSearch').value = saved.search || '';
-    buildIndex();
-    $('main').scrollTop = saved.scroll;
-    $('sidebarScroll').scrollTop = saved.sidebarScroll;
-    if (saved.solutionId && state.records.some((r) => r.id === saved.solutionId && isProved(r))) {
-      await showSolution(await getRecord(saved.solutionId));
-      $('infoDialog').scrollTop = saved.modalScroll;
-    }
-  }
-  async function startLivePreview() {
-    if (!['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname)) return;
-    let revision;
-    try {
-      const response = await fetch('data/revision.json', { cache: 'no-store' });
-      if (!response.ok) return;
-      revision = (await response.json()).revision;
-    } catch {
-      return;
-    }
-    let checking = false;
-    setInterval(async () => {
-      if (checking || state.exploring || document.hidden) return;
-      checking = true;
-      try {
-        const response = await fetch('data/revision.json', { cache: 'no-store' });
-        if (response.ok && (await response.json()).revision !== revision) {
-          sessionStorage.setItem(
-            'hodge-preview-restore',
-            JSON.stringify({
-              hash: location.hash,
-              scroll: $('main').scrollTop,
-              sidebarScroll: $('sidebarScroll').scrollTop,
-              search: $('caseSearch').value,
-              solutionId: state.solutionId,
-              modalScroll: $('infoDialog').scrollTop
-            })
-          );
-          location.reload();
-        }
-      } catch {
-        /* A stopped local preview can be restarted without a noisy error loop. */
-      } finally {
-        checking = false;
-      }
-    }, 2500);
-  }
   const leaderboard = HodgeLeaderboardView.create({
     records: () => state.records,
     accountFor,
@@ -728,7 +673,7 @@
       if (id !== state.loadId) return;
       console.error(error);
       $('caseView').innerHTML =
-        '<p class="eyebrow">The instance could not be loaded.</p><p>Serve this directory with the local preview command in README.md.</p>';
+        '<p class="eyebrow">The instance could not be loaded.</p><p>Please reload the page.</p>';
     }
   }
   function participationPrompt(record) {
@@ -929,31 +874,13 @@
       await loadCatalogue();
       HodgeDiscussion.startCounts();
       await route();
-      await restorePreview();
-      startLivePreview();
     } catch (error) {
       console.error(error);
       $('caseIndex').innerHTML =
-        '<p class="index-empty">The atlas could not be loaded. Use the local server command in README.md.</p>';
+        '<p class="index-empty">The atlas could not be loaded. Please reload the page.</p>';
       onStatus({ state: 'error', message: 'Surface unavailable' });
     }
     addEventListener('hashchange', route);
-    window.HODGE_ATLAS = {
-      get state() {
-        return {
-          current: state.current,
-          page: state.page,
-          exploring: state.exploring,
-          records: state.records.length,
-          groups: Object.fromEntries(
-            ['open', 'solved'].map((g) => [g, state.records.filter((r) => group(r) === g).length])
-          )
-        };
-      },
-      get renderer() {
-        return state.renderer;
-      }
-    };
   }
   main();
 })();

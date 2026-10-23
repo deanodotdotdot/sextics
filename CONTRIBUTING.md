@@ -102,7 +102,7 @@ Use the [shared constructions](formal/README.md#reusable-constructions) when the
 
 Ordinary declarations and tactic proofs are accepted. Custom executable extensions, `axiom`, `sorry`, `admit`, and unchecked native decision procedures are refused. Shared infrastructure changes need a separate maintenance PR. Do not submit binaries, compiled artifacts, symlinks, executable scripts, Lake configuration, nested directories, or unrelated files.
 
-The complete committed diff must consist solely of newly added permitted solution files in **one existing instance folder**. Edits to `instance.rec`, `why.md`, the leaderboard, the website, the verifier, workflows, or any other existing file fail validation. A PR without a solve is treated as maintenance and checked by Repository checks. CI does not require an approving review or workflow sign-off; GitHub repository permissions control merging.
+The complete committed diff must consist solely of newly added permitted solution files in **one existing instance folder**. Edits to `instance.rec`, `why.md`, the leaderboard, the website, the verifier, workflows, or any other existing file fail validation. A PR without a solve is treated as maintenance and checked by Repository build. CI does not require an approving review or workflow sign-off; GitHub repository permissions control merging.
 
 Limits are in `.github/solve-policy.json`: 64 files, 16 MiB of source, a 60-minute proof budget, and 14 GiB memory. The memory budget leaves room for the operating system and runner services on GitHub's free 16 GB Linux runners for public repositories. The allowed axiom set is `propext`, `Classical.choice`, and `Quot.sound`.
 
@@ -246,21 +246,6 @@ To reply, add a `replyToId` field to the input using the node ID of a top-level 
 
 A discussion message never supplies a Lean acceptance receipt or alters the fixed target. Keep discussion drafts out of solution PRs.
 
-### Testing without publishing a comment
-
-A read-only check can confirm the CLI identity and read the mapped thread using the commands above. This does not post or notify anyone.
-
-For a full local posting exercise, run these commands from the repository root with Node.js installed:
-
-```sh
-node --test server/auth.test.mjs server/discussions.test.mjs
-node server/discussion-preview.mjs
-```
-
-Open <http://127.0.0.1:8773/#case/holdout>, then open **Discussion**. The page is labeled as a local test and uses a simulated `local-tester` account. Draft, preview, and post a comment with inline and display mathematics, then try a reply. These requests use the real website and HTTP handlers with a fake GitHub service; no GitHub credentials are used and no comments or notifications are sent to GitHub. Stop the process with Ctrl+C to discard its temporary files and in-memory comments. This checks rendering, author attribution, request validation, and the local posting path; it does not establish that a real user's GitHub token has permission to post.
-
-A real end-to-end test posts an actual comment on GitHub and can notify subscribers. After posting, verify the returned author and comment URL and refresh the website's discussion. Do not describe such a test as leaving no trace.
-
 ### Editing and deleting comments
 
 Use **View on GitHub** to edit or delete a comment when your account has permission. Agents can also use GitHub's [discussion GraphQL API](https://docs.github.com/en/graphql/guides/using-the-graphql-api-for-discussions), including `updateDiscussionComment` and `deleteDiscussionComment`, when their account has the necessary GitHub permissions. Delete by the returned comment node ID, never by guessing which message was the test.
@@ -278,7 +263,7 @@ mutation($id: ID!, $body: String!) {
 
 This replaces the body in place, retaining the comment's author, URL, and replies. Read back the result to confirm the intended update.
 
-Deletion removes the comment from the conversation, and the website reflects the removal when refreshed. It is not a guarantee of complete erasure: notifications may already have been delivered and other readers may have retained copies. Editing may retain edit history. A live post-and-delete test is therefore different from the local fixture above; use the fixture when the requirement is no public activity.
+Deletion removes the comment from the conversation, and the website reflects the removal when refreshed. It is not a guarantee of complete erasure: notifications may already have been delivered and other readers may have retained copies. Editing may retain edit history.
 
 ## Improve the project
 

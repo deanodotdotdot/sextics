@@ -56,7 +56,7 @@ def validate_report(report, pr, run, merge):
 
 def publish(number):
     policy=json.loads((ROOT/'.github/solve-policy.json').read_text())
-    require(policy['mode']=='live', 'Publication is disabled in preview mode')
+    require(policy['mode']=='live', 'Invalid publication mode')
     pr=api(f'repos/{REPOSITORY}/pulls/{number}')
     require(pr.get('merged') is True, 'PR is not merged')
     merge=api(f'repos/{REPOSITORY}/commits/{pr["merge_commit_sha"]}')

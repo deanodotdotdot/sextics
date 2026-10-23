@@ -78,7 +78,7 @@ jobs:
           if [ "$(python3 scripts/proposals/classify.py --base "$BASE" --head "$HEAD")" = solve ]; then
             echo 'solve=true' >> "$GITHUB_OUTPUT"
           else
-            echo 'Maintenance PR: no solve to verify. See Repository checks for code validation.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Maintenance PR: no solve to verify. See Repository build for release validation.' >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Mark this exact commit pending
         env:
@@ -212,6 +212,6 @@ jobs:
           description='Proposal verification failed; see workflow details'
           if [ "$state" = success ]; then
             description='Lean verification passed'
-            if [ "$IS_SOLVE" != true ]; then description='No solve changes; see Repository checks'; fi
+            if [ "$IS_SOLVE" != true ]; then description='No solve changes; see Repository build'; fi
           fi
           gh api "repos/$REPO/statuses/$HEAD" -f state="$state" -f context=solve/lean -f description="$description" -f target_url="$RUN"

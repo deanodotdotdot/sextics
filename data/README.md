@@ -16,17 +16,15 @@ Keep `why.md` separate from the solution narrative and ongoing discussion. Open 
 
 Edit `solution.md` directly and rebuild the content. The site uses its current text. This does not change the accepted proof, contributor credit, or PR link, and does not require another Lean run. The original submission is retained in Git history. The target, Lean sources, proof manifest, and witness remain tied to the checked proof.
 
-## Generated files and local preview
+## Generated files
 
-Do not hand-edit `record.json`, `solution.json`, `why.html`, `solution.html`, `data/index.json`, `data/revision.json`, or `leaderboard/credits.json`. For authorized source maintenance, rebuild and validate:
+Do not hand-edit `record.json`, `solution.json`, `why.html`, `solution.html`, `data/index.json`, or `leaderboard/credits.json`. For authorized source maintenance, rebuild and validate:
 
 ```sh
 python3 scripts/build-content.py
 python3 scripts/validate-records.py
 python3 scripts/check-content.py
 ```
-
-`python3 scripts/preview.py` serves the local website, watches sources, and rebuilds valid changes. The browser retains its route, reading position, and open construction dialog; refresh is deferred during free-camera exploration. The static site reads generated local assets and has no external runtime dependency.
 
 ## Structured frontier checks
 

@@ -218,7 +218,7 @@ def main():
     parser.add_argument('--structure-only', action='store_true')
     args = parser.parse_args()
     policy = json.loads((ROOT/'.github/solve-policy.json').read_text())
-    require(policy['mode'] in ('preview', 'live'), 'Invalid submission mode')
+    require(policy['mode'] == 'live', 'Invalid submission mode')
     require(git('rev-parse','HEAD').decode().strip() == args.base, 'Run the checker from the trusted base checkout')
     rid, metadata, files, instance = read_proposal(args.base,args.head,args.author,policy)
     order, imports = module_order(files)

@@ -46,6 +46,5 @@
       }
     };
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { create };
-  else root.HodgeDrafts = { create };
+  root.HodgeDrafts = { create };
 })(globalThis);
