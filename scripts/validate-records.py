@@ -40,7 +40,6 @@ def main():
     parser.parse_args()
     index = json.loads((ROOT / "assets/atlas/index.json").read_text())
     ids = set()
-    explicit = 0
     proved = 0
     for summary in index["records"]:
         rid = summary["id"]
@@ -52,18 +51,13 @@ def main():
             (folder / "why.md").is_file() and (folder / "provenance.json").is_file(),
             f"{rid}: missing rationale or audit",
         )
-        require(
-            record["status"] == ("solved" if (folder / "solution.rec").exists() else "open"),
-            f"{rid}: status is not derived from solution",
-        )
-        require(summary["status"] == record["status"], f"{rid}: status index mismatch")
         require(record["id"] == rid, f"{rid}: mismatched ID")
         require(record["q"] in (1, 2), f"{rid}: invalid q")
         polynomial(record["F"], 6, 0)
         polynomial(record["A"], 6 * record["q"], 1)
-        available = record.get("certificateAvailable", False)
-        if available:
-            explicit += 1
+        if record["formalStatus"] == "proved":
+            proved += 1
+            require((folder / "acceptance.json").is_file(), f"{rid}: missing acceptance receipt")
             require(
                 record.get("evidenceKind") in ("explicit-certificate", "existence-proof"),
                 f"{rid}: inconsistent evidence kind",
@@ -82,16 +76,6 @@ def main():
                 not record["render"].get("divisorProgram"),
                 f"{rid}: open target has divisor rendering",
             )
-        if record.get("formalStatus") == "proved":
-            proved += 1
-            require(
-                (ROOT / "data" / rid / "acceptance.json").is_file(),
-                f"{rid}: missing acceptance receipt",
-            )
-        require(
-            record.get("formalStatus") == ("proved" if available else "unproved"),
-            f"{rid}: inconsistent formal status",
-        )
         render = record["render"]
         require(
             render.get("phaseSigns") and len(render["phaseSigns"]) == 6,
@@ -173,13 +157,9 @@ def main():
         )
         for source in record.get("sources", []):
             require((ROOT / source["path"]).is_file(), f"{rid}: missing research source")
-        if record.get("certificate", {}).get("packet"):
-            require(
-                (ROOT / record["certificate"]["packet"]).is_file(), f"{rid}: missing witness packet"
-            )
 
     print(
-        f"Validated {len(ids)} records: {explicit} accepted certificates, {len(ids)-explicit} open targets, {proved} accepted Lean proofs."
+        f"Validated {len(ids)} records: {proved} accepted Lean proofs, {len(ids)-proved} open targets."
     )
     print(
         "Exact coefficient encodings, degrees, parities, saved real slices, and local asset references passed."

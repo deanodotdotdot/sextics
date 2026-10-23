@@ -6,7 +6,6 @@ Solve PRs cannot write this module, acceptance records, or generated site record
 import ast
 import hashlib
 import json
-from pathlib import Path
 import re
 
 import yaml
@@ -101,40 +100,4 @@ def read_acceptance(root, instance_id):
     require(manifest['schemaVersion'] == 2 and manifest['instanceId'] == instance_id and
             manifest['theorem'] == proof['theorem'], 'Accepted theorem identity mismatch')
     require(proof.get('witnessChecked') is ('witness.json' in actual), 'Witness was not checked against Lean')
-    return receipt
-
-
-def solution_record(root, receipt):
-    """Derive all attribution, proof links, and displayed witness data from accepted inputs."""
-    instance_id = receipt['instanceId']
-    folder = root/'data'/instance_id
-    witness = {'proofSource': f'data/{instance_id}/Solution.lean'}
-    availability = 'lean-source'
-    if (folder/'witness.json').exists():
-        import sympy as s
-        raw = json.loads((folder/'witness.json').read_text())
-        variables = s.symbols('X0 X1 X2 Y0 Y1 Y2')
-        expression = exact_polynomial(raw['D'],variables)
-        polynomial = s.Poly(expression, *variables)
-        require(not polynomial.is_zero and polynomial.is_homogeneous and
-                polynomial.total_degree() == raw['d'], 'Invalid homogeneous denominator')
-        witness = {'D': {'expression':raw['D'], 'degree':raw['d']},
-                   'N':raw['N'], 'C':raw['Q'], 'strict':raw['Q']=='0'}
-        availability = 'literal'
-    return {'schemaVersion':2, 'instanceId':instance_id,
-            'solver':{'githubLogin':receipt['githubLogin']},
-            'evidenceStatus':'lean-accepted','creditOrigin':'contribution',
-            'submittedAt':receipt['submittedAt'],'acceptedAt':receipt['acceptedAt'],
-            'witnessAvailability':availability,'witness':witness,
-            'explanation':'solution.md','pullRequest':receipt['pullRequest'],
-            'proof':{'formalStatus':'proved','status':'accepted',
-                     'proofFile':f'data/{instance_id}/Solution.lean',
-                     'receipt':f'data/{instance_id}/acceptance.json',
-                     'theorem':receipt['verification']['theorem'],
-                     'checker':receipt['verification']['leanVersion']}}
-
-
-def validate_solution(root, instance_id, solution):
-    receipt = read_acceptance(root, instance_id)
-    require(solution == solution_record(root,receipt), 'Solution metadata differs from the accepted submission')
     return receipt

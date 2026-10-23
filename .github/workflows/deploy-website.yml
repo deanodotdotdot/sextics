@@ -7,7 +7,6 @@ on:
       - index.html
       - assets/**
       - data/**
-      - leaderboard/**
       - discussions/**
       - docs/**
       - scripts/build-content.py

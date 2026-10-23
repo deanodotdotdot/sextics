@@ -48,7 +48,7 @@ The manifest has exactly these fields when no JSON witness is submitted:
 
 With `witness.json`, add exactly one further field: `"witnessTheorem": "Submission.witness"`.
 
-The trusted publisher adds `acceptance.json` and derives `solution.rec`, the rendered content, the atlas status, and leaderboard credit **after** an eligible merge. Do not submit these files or manually edit generated JSON/HTML. Attribution, PR URLs, and acceptance dates come from the reviewed GitHub event, not editable manifest fields. After merging, the PR's separate `solve/publication` check reports whether acceptance and leaderboard updates were recorded, with a link to any failure. Website deployment follows successful publication.
+The trusted publisher adds `acceptance.json` and derives the rendered content, the atlas status, and leaderboard credit **after** an eligible merge. Do not submit these files or manually edit generated JSON/HTML. Attribution, PR URLs, and acceptance dates come from the reviewed GitHub event, not editable manifest fields. After merging, the PR's separate `solve/publication` check reports whether acceptance and leaderboard updates were recorded, with a link to any failure. Website deployment follows successful publication.
 
 ### Protected Lean statement
 

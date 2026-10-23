@@ -8,15 +8,16 @@ import sys
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-from public_files import is_public
+from public_files import is_public, is_safe_path
 
 MANIFEST_KEY = "deployment/public-files.json"
 
 
 def retired(previous, current):
-    for keys in (previous, current):
+    # The previous release establishes ownership even when a public root is removed.
+    for keys, valid in ((previous, is_safe_path), (current, is_public)):
         if not isinstance(keys, list) or any(
-            not isinstance(k, str) or not is_public(k) for k in keys
+            not isinstance(k, str) or not valid(k) for k in keys
         ):
             raise ValueError("Invalid public release manifest")
     return sorted(set(previous) - set(current))

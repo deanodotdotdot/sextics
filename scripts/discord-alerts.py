@@ -22,7 +22,7 @@ def snapshot(index):
     return {'schemaVersion': 1,
             'instances': sorted(r['id'] for r in records),
             'solves': sorted(r['id'] for r in records
-                             if r['status'] == 'solved' and r['formalStatus'] == 'proved')}
+                             if r['formalStatus'] == 'proved')}
 
 
 def validate_state(state):

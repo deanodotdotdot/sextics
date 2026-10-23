@@ -59,14 +59,18 @@ export async function createHandler({ root, origin, auth, appConfig }) {
   if (!Array.isArray(records)) throw new Error('Invalid instance catalogue.');
   const instanceIds = new Set(records);
   async function contributors() {
-    const response = await fetch(`${origin}/leaderboard/credits.json`, {
+    const response = await fetch(`${origin}/assets/atlas/index.json`, {
       cache: 'no-cache',
       redirect: 'error',
       signal: AbortSignal.timeout(5000)
     });
     if (!response.ok) throw new ServiceError(503, 'The published contributor list is unavailable.');
-    const credits = await response.json();
-    return new Set(credits.credits.map((credit) => credit.githubLogin.toLowerCase()));
+    const atlas = await response.json();
+    return new Set(
+      atlas.records
+        .filter((record) => record.formalStatus === 'proved')
+        .map((record) => record.credit.githubLogin.toLowerCase())
+    );
   }
   async function mappings() {
     let index;

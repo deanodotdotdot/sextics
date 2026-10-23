@@ -14,7 +14,7 @@ import zipfile
 
 import yaml
 
-from acceptance import REPOSITORY, read_acceptance, require, sha256, solution_record, statement_hash, accepted_sources
+from acceptance import REPOSITORY, read_acceptance, require, sha256, statement_hash, accepted_sources
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -108,11 +108,9 @@ def publish(number):
         # editorial changes are allowed by read_acceptance, including on retry.
         require(accepted_sources(folder)==report['sourceHashes'],
                 'Merged proposal differs from the checked sources')
-    solution=solution_record(ROOT,receipt)
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps(receipt,indent=2)+'\n')
     read_acceptance(ROOT,rid)
-    (ROOT/'data'/rid/'solution.rec').write_text(yaml.safe_dump(solution,sort_keys=False,allow_unicode=True))
     subprocess.run(['python3','scripts/build-content.py'],cwd=ROOT,check=True)
     subprocess.run(['python3','scripts/validate-records.py'],cwd=ROOT,check=True)
     subprocess.run(['python3','scripts/check-content.py'],cwd=ROOT,check=True)

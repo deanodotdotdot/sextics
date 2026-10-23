@@ -4,7 +4,7 @@
 
 A solve PR adds `proof.json`, `Solution.lean`, `solution.md`, optional `witness.json`, and optional flat Lean helpers to that same folder. It cannot edit existing files. See [the full proposal specification](../CONTRIBUTING.md).
 
-The trusted publisher adds `acceptance.json` after checking the successful workflow and merge. It derives `solution.rec`, including solver identity, accepted PR, theorem, and any exported exact denominator. `scripts/build-content.py` validates the acceptance bindings before generating solved status and credit. A hand-edited record, local compilation, or schema check cannot establish acceptance.
+The trusted publisher adds `acceptance.json` after checking the successful workflow and merge. `scripts/build-content.py` validates the acceptance bindings and reads any exported denominator directly from `witness.json` before generating solved status and credit. Solver identity, accepted PR, and theorem come from the acceptance receipt. A hand-edited record, local compilation, or schema check cannot establish acceptance.
 
 `.rec` files use YAML. Exact polynomial expressions use the variable order `X0, X1, X2, Y0, Y1, Y2`, rational coefficients, and `**` for powers. These files contain no rendering settings, display LaTeX, or expanded coefficient lists. The build derives coefficients from the exact expressions. Saved planes, cameras, and display divisors belong in `slices/`; curated typesetting belongs in `assets/atlas-presentation.json`. An accepted target must not be silently repurposed for another `(F,q,A)`.
 
@@ -18,7 +18,7 @@ Edit `solution.md` directly and rebuild the content. The site uses its current t
 
 ## Generated files
 
-The website build writes its index, per-instance JSON, and rendered explanations to `assets/atlas/`. This directory is disposable build output, including polynomial coefficient arrays; do not commit it. `leaderboard/credits.json` is also generated. For authorized source maintenance, rebuild and validate:
+The website build writes its index, per-instance JSON, and rendered explanations to `assets/atlas/`. This directory is disposable build output, including polynomial coefficient arrays; do not commit it. For authorized source maintenance, rebuild and validate:
 
 ```sh
 python3 scripts/build-content.py

@@ -94,7 +94,7 @@ push workflow. The deployment workflow therefore handles successful
 pushes to `main`. It always checks out current `main`, never the submitted proof
 branch or its artifacts. It does not run Lean again. Lambda code and new
 discussion mappings require an owner-operated backend deployment separately.
-Profile lookup reads contributor IDs from the published `leaderboard/credits.json`,
+Profile lookup reads accepted contributor IDs from the published `assets/atlas/index.json`,
 so accepting a new solver does not require a backend deployment.
 
 ## Discord announcements

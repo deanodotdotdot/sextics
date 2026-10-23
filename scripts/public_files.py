@@ -8,7 +8,7 @@ POLICY = json.loads(
 )
 
 
-def is_public(name):
+def is_safe_path(name):
     path = PurePosixPath(name)
     return (
         bool(path.parts)
@@ -17,6 +17,13 @@ def is_public(name):
             part and not part.startswith(".") and "\\" not in part and "\0" not in part
             for part in path.parts
         )
+    )
+
+
+def is_public(name):
+    path = PurePosixPath(name)
+    return (
+        is_safe_path(name)
         and (str(path) in POLICY["files"] or path.parts[0] in POLICY["roots"])
         and path.suffix.lower() in POLICY["extensions"]
     )
