@@ -12,76 +12,6 @@
     removeItem: (key) => sessionStorage.removeItem(key)
   });
   let current;
-  let discussionIndex = null,
-    linksReady;
-  function internalLink(href) {
-    if (!discussionIndex) return null;
-    try {
-      const url = new URL(href, location.href),
-        match = url.pathname.match(/^\/([^/]+\/[^/]+)\/discussions\/(\d+)\/?$/i);
-      if (
-        url.hostname === 'hodge.computer' &&
-        url.protocol === 'https:' &&
-        !url.port &&
-        !url.username &&
-        !url.password &&
-        ['/', '/index.html'].includes(url.pathname) &&
-        HodgeRoutes.parse(url.hash)
-      )
-        return url.hash;
-      if (
-        !['https:', 'http:'].includes(url.protocol) ||
-        url.hostname !== 'github.com' ||
-        url.username ||
-        url.password ||
-        url.port ||
-        !match ||
-        match[1].toLowerCase() !== discussionIndex.repository.toLowerCase()
-      )
-        return null;
-      const comment = url.hash.match(/^#discussioncomment-(\d+)$/);
-      if (url.hash && !comment && !/^#discussion-\d+$/.test(url.hash)) return null;
-      const entry = Object.entries(discussionIndex.instances).find(
-        ([, thread]) => String(thread.number) === match[2]
-      );
-      return entry
-        ? `#case/${encodeURIComponent(entry[0])}/discussion${comment ? '/' + comment[1] : ''}`
-        : null;
-    } catch {
-      return null;
-    }
-  }
-  function localizeLinks(root) {
-    const links = [
-      ...(root.matches?.('a[href]') ? [root] : []),
-      ...root.querySelectorAll('a[href]')
-    ];
-    for (const link of links) {
-      if (link.matches('.discussion-github,[data-github-original]')) continue;
-      const route = internalLink(link.href);
-      if (!route) continue;
-      link.href = route;
-      link.removeAttribute('target');
-      link.removeAttribute('rel');
-    }
-  }
-  function startLinks() {
-    return (linksReady ||= (async () => {
-      try {
-        const response = await fetch('discussions/index.json', { cache: 'no-cache' });
-        if (!response.ok) return;
-        discussionIndex = await response.json();
-        localizeLinks(document);
-        // Covers comments, replies, previews, and links in dynamically loaded prose.
-        new MutationObserver((changes) => {
-          for (const change of changes)
-            for (const node of change.addedNodes) if (node.nodeType === 1) localizeLinks(node);
-        }).observe(document.body, { childList: true, subtree: true });
-      } catch {
-        /* The original GitHub links remain usable if the mapping is unavailable. */
-      }
-    })());
-  }
   const counts = new Map();
   let countsLoading = false,
     countsUpdated = 0,
@@ -138,7 +68,6 @@
       n.target = '_blank';
       n.rel = 'noopener noreferrer';
       if (native) n.dataset.githubOriginal = '';
-      else localizeLinks(n);
     } catch {}
     return n;
   }
@@ -672,9 +601,6 @@
   window.HodgeDiscussion = {
     markup,
     mount,
-    startLinks,
-    internalLink,
-    localizeLinks,
     open: (number) => current?.open(number),
     unmount() {
       current?.destroy();
