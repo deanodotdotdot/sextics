@@ -11,23 +11,6 @@ witness:
   D:
     expression: X1 - X2
     degree: 1
-    terms:
-    - - '1'
-      - - 0
-        - 1
-        - 0
-        - 0
-        - 0
-        - 0
-    - - '-1'
-      - - 0
-        - 0
-        - 1
-        - 0
-        - 0
-        - 0
-    termCount: 2
-    latex: X_{1} - X_{2}
   N:
   - '0'
   - -2*X0*Y0

@@ -27,11 +27,7 @@ R5 = PolynomialRing(GF(5), names=R.variable_names())
 
 
 def exact_polynomial(record, name):
-    polynomial = R(record[name])
-    sparse = sum(QQ(c) * prod(z**e for z, e in zip(Z, powers))
-                 for c, powers in record['polynomialData'][name]['terms'])
-    assert polynomial == sparse, f'{record["id"]}: inconsistent {name} encodings'
-    return polynomial
+    return R(record[name])
 
 
 def center_dimension(F):

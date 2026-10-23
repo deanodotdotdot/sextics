@@ -1,6 +1,6 @@
 # Saved real slices and cameras
 
-Each `slices/<instance-id>.json` records the phase choices, orthonormal real four-plane, mesh, and camera used to visualize that instance. These settings must agree with `instance.rec` and the mesh manifest. The projected box is fixed at ±10, and x-ray reach is 2.0.
+Each `slices/<instance-id>.json` records the phase choices, orthonormal real four-plane, mesh, and camera used to visualize that instance. This is the sole source of those settings; the content builder copies them into browser records. The saved plane must match the selected mesh manifest. The projected box is fixed at ±10, and x-ray reach is 2.0.
 
 A camera has three fields: a unit quaternion `orientation` in `[x,y,z,w]` order, a `distance`, and a three-coordinate `center`. The quaternion maps the camera's right/up/back axes into world coordinates and is the sole saved orientation. Exploration and background parallax apply rotations directly to it; reset restores the saved pose.
 
@@ -15,7 +15,7 @@ Meshes sample the real section obtained by intersecting the chosen four-plane wi
 
 Validate finite values, normals, coordinate and index bounds, edge lengths, and polynomial residuals when replacing a mesh. `scripts/validate-records.py` checks consistency between the current records, saved slices, and mesh manifests. A finite grid can miss sufficiently thin features. Camera and slice choices are aesthetic decisions, independent of the mathematical target.
 
-Denominators are evaluated directly at each pixel, independently of the geometric mesh. Compact formulas and slice-specific factorizations can be supplied through `data/<id>/display-divisor.json`; see MAINTAINING.md. A factorization restricted to a saved plane must be regenerated if that plane or its coordinate phases change. Open instances have no displayed denominator.
+Denominators are evaluated directly at each pixel, independently of the geometric mesh. Compact formulas and slice-specific factorizations can be supplied through `slices/divisors/<id>.json`; see MAINTAINING.md. A factorization restricted to a saved plane must be regenerated if that plane or its coordinate phases change. Open instances have no displayed denominator.
 
 The homepage uses its separately saved Contact cone view in `home.json`. The Contact cone atlas entry uses `contact46006.json`.
 

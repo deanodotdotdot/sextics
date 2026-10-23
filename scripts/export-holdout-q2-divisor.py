@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export the exact fixed-section norm explained in display-divisor.md.
+"""Export the exact fixed-section norm explained in slices/divisors/holdout-q2.md.
 
 Requires python-flint. All coefficient arithmetic is rational; no line roots are
 approximated. The saved plane realizes alpha=23i/20, beta=3i/4 numerically.
@@ -113,12 +113,12 @@ def main():
     nodes, output = program(coefficients)
     display = {
         'schemaVersion': 1, 'kind': 'polynomial-program', 'degree': 56,
-        'source': {'path': 'display-divisor.md', 'definition': 'Exact fixed-section norm of the pole-two endpoint denominator'},
+        'source': {'path': 'slices/divisors/holdout-q2.md', 'definition': 'Exact fixed-section norm of the pole-two endpoint denominator'},
         'description': 'Same zero set as the explicit common clearing on alpha=23i/20, beta=3i/4; coefficients are exact rationals and sqrt(-3).',
         'sliceRestriction': {'planeMatrix': plane, 'phaseSigns': signs},
         'nodes': nodes, 'output': output, 'normalization': {'gradient': True},
     }
-    (FOLDER / 'display-divisor.json').write_text(json.dumps(display, indent=2)+'\n')
+    (ROOT / 'slices/divisors/holdout-q2.json').write_text(json.dumps(display, indent=2)+'\n')
     print(f'Wrote exact norm: {len(coefficients)} coefficients, {len(nodes)} program nodes.')
 
 

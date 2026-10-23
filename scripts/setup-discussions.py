@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import time
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = 'hodge-computer/sextics'
@@ -15,7 +16,7 @@ def plan():
     catalogue = json.loads((ROOT / 'data/catalogue.json').read_text())
     entries = []
     for instance_id in catalogue['instanceIds']:
-        record = json.loads((ROOT / 'data' / instance_id / 'record.json').read_text())
+        record = yaml.safe_load((ROOT / 'data' / instance_id / 'instance.rec').read_text())
         body = f'''<!-- hodge-instance:{instance_id} -->
 A shared conversation about **{record['title']}** and its fixed target $(F,q,A)$.
 

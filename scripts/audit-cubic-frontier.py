@@ -20,11 +20,7 @@ IDS = ('quadric-contact-residual', 'one-reflection-y2-sector', 'one-reflection-s
 
 
 def polynomial(record, name):
-    value = s.Poly(s.sympify(record[name]), *Z, domain=s.QQ)
-    encoded = sum(s.Rational(coef) * s.prod(v**e for v, e in zip(Z, powers))
-                  for coef, powers in record['polynomialData'][name]['terms'])
-    assert s.expand(value.as_expr() - encoded) == 0
-    return value
+    return s.Poly(s.sympify(record[name]), *Z, domain=s.QQ)
 
 
 def rank(columns):

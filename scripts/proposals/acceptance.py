@@ -115,10 +115,10 @@ def solution_record(root, receipt):
         raw = json.loads((folder/'witness.json').read_text())
         variables = s.symbols('X0 X1 X2 Y0 Y1 Y2')
         expression = exact_polynomial(raw['D'],variables)
-        terms = [[str(c),list(m)] for m,c in s.Poly(expression,*variables).terms() if c]
-        require(bool(terms) and all(sum(m)==raw['d'] for _,m in terms), 'Invalid homogeneous displayed denominator')
-        witness = {'D': {'expression':raw['D'], 'degree':raw['d'], 'terms':terms,
-                         'termCount':len(terms), 'latex':s.latex(expression)},
+        polynomial = s.Poly(expression, *variables)
+        require(not polynomial.is_zero and polynomial.is_homogeneous and
+                polynomial.total_degree() == raw['d'], 'Invalid homogeneous denominator')
+        witness = {'D': {'expression':raw['D'], 'degree':raw['d']},
                    'N':raw['N'], 'C':raw['Q'], 'strict':raw['Q']=='0'}
         availability = 'literal'
     return {'schemaVersion':2, 'instanceId':instance_id,

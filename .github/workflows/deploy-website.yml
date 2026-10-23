@@ -17,7 +17,7 @@ on:
       - scripts/requirements-content.txt
       - scripts/discord-alerts.py
       - infra/aws/**
-      - slices/home.json
+      - slices/**
       - scripts/public_files.py
       - .github/workflows/deploy-website.yml
   # Acceptance commits use GITHUB_TOKEN, so their pushes do not trigger this

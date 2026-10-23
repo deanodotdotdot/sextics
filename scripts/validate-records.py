@@ -3,8 +3,6 @@
 import argparse
 import json
 import math
-import sympy
-from proposals.acceptance import exact_polynomial
 from fractions import Fraction
 from pathlib import Path
 
@@ -23,7 +21,6 @@ def polynomial(poly, degree, parity=None):
     terms = poly.get("terms")
     require(bool(terms), "zero polynomial supplied as a target or denominator")
     seen = set()
-    encoded = {}
     for coefficient, powers in terms:
         require(isinstance(coefficient, str), "exact coefficient must be a rational string")
         require(Fraction(coefficient) != 0, "zero coefficient in sparse data")
@@ -36,16 +33,12 @@ def polynomial(poly, degree, parity=None):
             require(sum(powers[3:]) % 2 == parity, "wrong simultaneous Y parity")
         require(tuple(powers) not in seen, "duplicate monomial")
         seen.add(tuple(powers))
-        encoded[tuple(powers)] = sympy.Rational(coefficient)
-    variables = sympy.symbols("X0 X1 X2 Y0 Y1 Y2")
-    parsed = sympy.Poly(exact_polynomial(poly["expression"], variables), *variables).as_dict()
-    require(parsed == encoded, "exact expression and sparse terms disagree")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args()
-    index = json.loads((ROOT / "data/index.json").read_text())
+    index = json.loads((ROOT / "assets/atlas/index.json").read_text())
     ids = set()
     explicit = 0
     proved = 0
@@ -53,7 +46,7 @@ def main():
         rid = summary["id"]
         require(rid not in ids and "/" not in rid and ".." not in rid, "duplicate or unsafe ID")
         ids.add(rid)
-        record = json.loads((ROOT / "data" / rid / "record.json").read_text())
+        record = json.loads((ROOT / summary['path']).read_text())
         folder = ROOT / "data" / rid
         require(
             (folder / "why.md").is_file() and (folder / "provenance.json").is_file(),
@@ -166,11 +159,6 @@ def main():
         require(
             mesh.get("meta", {}).get("planeMatrix") == plane,
             f"{rid}: mesh does not match the saved plane",
-        )
-        slice_data = json.loads((ROOT / "slices" / f"{rid}.json").read_text())
-        require(
-            slice_data.get("planeMatrix") == plane and slice_data.get("camera") == camera,
-            f"{rid}: slice export does not match the record",
         )
         require(
             mesh.get("projectionBox", mesh.get("meta", {}).get("projectionBox")) == 10,
