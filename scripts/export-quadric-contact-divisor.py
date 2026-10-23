@@ -178,7 +178,7 @@ def main():
                'description': 'Support of the explicit nonminimal denominator on this fixed-parameter slice. Coefficients are numerical approximations to isolated algebraic roots; this is presentation data, not a new accepted proof package.',
                'planeMatrix': meta['planeMatrix'], 'phaseSigns': meta['phaseSigns'],
                'coordinateConvention': 'real-amplitudes', 'factors': factors, 'checks':checks}
-    (FOLDER / 'display-divisor.json').write_text(json.dumps(display, indent=2)+'\n')
+    (FOLDER / 'fixed-slice-divisor.json').write_text(json.dumps(display, indent=2)+'\n')
     print('Wrote', len(factors), 'per-pixel factors; all 27 lines and 16 independent norm checks passed.', flush=True)
 
 

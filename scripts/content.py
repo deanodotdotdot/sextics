@@ -5,6 +5,7 @@ import re
 from urllib.parse import quote, unquote, urlsplit
 
 import mistune
+from public_files import is_public
 
 
 def link_resolver(root, source_path, extra_files=()):
@@ -21,24 +22,22 @@ def link_resolver(root, source_path, extra_files=()):
         if url.scheme or url.netloc or not url.path:
             return link
         path = unquote(url.path)
-        # Existing atlas prose uses repository-root paths such as data/<id>/... .
-        # Ordinary Markdown paths are relative to the file containing the link.
-        local = (source.parent / path).resolve()
-        rooted = (root / path.lstrip('/')).resolve()
-        if not path.startswith('/') and exists(local):
-            target = local
-        elif exists(rooted):
-            if rooted.is_file():
-                return link
-            target = rooted
-        else:
+        # A leading slash selects the repository root; all other paths are
+        # relative to the source document, independent of which files exist.
+        target = ((root if path.startswith('/') else source.parent) / path.lstrip('/')).resolve()
+        if not exists(target):
             raise ValueError(f'{source_path}: missing local link {link}')
         relative = target.relative_to(root)
         parts = relative.parts
         if len(parts) == 3 and parts[0] == 'data' and parts[2] == 'why.md':
             return '#case/' + quote(parts[1])
-        # Source artifacts open on GitHub, where Markdown and Lean files are readable.
-        result = 'https://github.com/hodge-computer/sextics/blob/main/' + quote(relative.as_posix())
+        # Markdown and Lean sources open on GitHub for reading. Published data
+        # and media use a site URL, regardless of how the source link was written.
+        base = (
+            '/' if is_public(relative.as_posix()) and target.suffix not in {'.md', '.lean'}
+            else 'https://github.com/hodge-computer/sextics/blob/main/'
+        )
+        result = base + quote(relative.as_posix())
         if url.query:
             result += '?' + url.query
         if url.fragment:

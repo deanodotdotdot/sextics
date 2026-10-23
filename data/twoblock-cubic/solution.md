@@ -43,4 +43,4 @@ A-q\cdot\mathrm dF(v)+F\cdot\operatorname{div}v
 \]
 Here the normalized first equation vanishes and the second numerator is \(F\cdot C\), so the right-hand side is divisible by \(F^2\) in the localization away from \(F\). The accepted Lean proof establishes the exact identities, homogeneous degrees, nonzero denominator, and coprimality over \(\mathbb C\) for this tuple.
 
-The [exact witness](data/twoblock-cubic/witness.json) gives the denominator, all six numerators, and the quotient. The [Lean proof](data/twoblock-cubic/Solution.lean) checks the certificate and its side conditions.
+The [exact witness](witness.json) gives the denominator, all six numerators, and the quotient. The [Lean proof](Solution.lean) checks the certificate and its side conditions.

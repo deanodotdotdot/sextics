@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from content import render
-from divisors import validate_display, validate_slice_identity
+from divisors import validate_program, validate_slice_identity
 import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent / "proposals"))
 from acceptance import validate_solution
@@ -23,7 +23,6 @@ args = parser.parse_args()
 ROOT = args.root.resolve()
 stale = []
 outputs = {}
-checked_replay_receipts = {}
 
 def require(condition, message):
     if not condition:
@@ -86,16 +85,15 @@ for rid in catalogue['instanceIds']:
         witness = solution['witness']
         login = solution['solver']['githubLogin']
         require(re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?', login), f'{rid}: invalid GitHub identity')
-        pull_request = solution.get('pullRequest')
-        if pull_request is not None:
-            require(isinstance(pull_request, dict), f'{rid}: invalid pull request record')
-            require(isinstance(pull_request.get('url'), str) and re.fullmatch(
-                r'https://github\.com/hodge-computer/sextics/pull/[1-9][0-9]*', pull_request['url']),
-                f'{rid}: expected a pull request URL in hodge-computer/sextics')
-            for key in ('headCommit', 'mergeCommit'):
-                require(isinstance(pull_request.get(key), str) and re.fullmatch(r'[0-9a-f]{40}', pull_request[key]),
-                        f'{rid}: pull request {key} must be a full commit SHA')
-            record['pullRequest'] = dict(pull_request)
+        pull_request = solution['pullRequest']
+        require(isinstance(pull_request, dict), f'{rid}: invalid pull request record')
+        require(isinstance(pull_request.get('url'), str) and re.fullmatch(
+            r'https://github\.com/hodge-computer/sextics/pull/[1-9][0-9]*', pull_request['url']),
+            f'{rid}: expected a pull request URL in hodge-computer/sextics')
+        for key in ('headCommit', 'mergeCommit'):
+            require(isinstance(pull_request.get(key), str) and re.fullmatch(r'[0-9a-f]{40}', pull_request[key]),
+                    f'{rid}: pull request {key} must be a full commit SHA')
+        record['pullRequest'] = dict(pull_request)
         record['status'] = 'solved'
         record['formalStatus'] = 'proved'
         record['evidenceKind'] = 'explicit-certificate' if 'D' in witness else 'existence-proof'
@@ -108,7 +106,7 @@ for rid in catalogue['instanceIds']:
         record['leanVerification'] = solution['proof']
         display_divisor = folder / 'display-divisor.json'
         if display_divisor.is_file():
-            display = validate_display(json.loads(display_divisor.read_text()), folder, record['render'])
+            display = validate_program(json.loads(display_divisor.read_text()), folder)
             if 'D' in witness:
                 validate_slice_identity(display, witness['D'], record['render'], folder)
             else:
@@ -138,6 +136,8 @@ for rid in catalogue['instanceIds']:
     if 'credit' in record:
         summary['credit'] = record['credit']
     summaries.append(summary)
+home = json.loads((ROOT / 'slices/home.json').read_text())
+dump(ROOT / 'assets/home-scene.json', {key: home[key] for key in ['pairId', 'seed', 'mesh', 'camera']})
 dump(ROOT / 'data/index.json', {'schemaVersion': 2, 'records': summaries})
 dump(ROOT / 'leaderboard/credits.json', {'schemaVersion': 2, 'basis': 'accepted-proofs', 'credits': credits})
 

@@ -44,6 +44,7 @@ class ContentUpdates(unittest.TestCase):
         self.write('docs/overview.md', r'An overview with \(F^{q+1}\).')
         self.write('index.html', '<main></main>')
         self.write('assets/renderer.js', '// Renderer fixture')
+        self.write('slices/home.json', json.dumps({'pairId': 'example', 'seed': 1, 'mesh': 'meshes/example.json', 'camera': {}}))
         self.run_build()
 
     def write(self, relative, text):
@@ -157,12 +158,20 @@ class ContentUpdates(unittest.TestCase):
         self.receipt_fixture()
         self.write(f'data/{RID}/solution.md',
                    '[Motivation](why.md) and [proof](Solution.lean#L1).\n\n'
-                   '[data](data/test-example/witness.json)')
+                   '[data](witness.json)')
         self.run_build()
         rendered=(self.root/f'data/{RID}/solution.html').read_text()
         self.assertIn('href="#case/test-example"',rendered)
         self.assertIn('href="https://github.com/hodge-computer/sextics/blob/main/data/test-example/Solution.lean#L1"',rendered)
-        self.assertIn('href="data/test-example/witness.json"',rendered)
+        self.assertIn('href="/data/test-example/witness.json"',rendered)
+
+    def test_root_relative_source_links_go_to_github(self):
+        self.write('formal/README.md', 'Contract')
+        self.write('formal/lean/Example.lean', 'example : True := by trivial')
+        for target in ['/formal/README.md', '/formal/lean/Example.lean#L1']:
+            rendered = render('[source](' + target + ')', root=self.root,
+                              source_path=Path('data') / RID / 'solution.md')
+            self.assertIn('https://github.com/hodge-computer/sextics/blob/main/' + target.lstrip('/'), rendered)
 
     def test_preflight_resolves_added_files_before_checkout_and_rejects_missing_links(self):
         source=Path('data')/RID/'solution.md'
@@ -176,6 +185,15 @@ class ContentUpdates(unittest.TestCase):
         for link in ('missing.md','../../../../etc/passwd','%2e%2e/%2e%2e/%2e%2e/etc/passwd'):
             with self.subTest(link=link),self.assertRaisesRegex(ValueError,'missing local link'):
                 render('[bad]('+link+')',root=self.root,source_path=source,extra_files=[proof])
+
+    def test_local_links_never_guess_a_repository_root_path(self):
+        self.write('formal/README.md', 'Contract')
+        source = Path('data') / RID / 'solution.md'
+        with self.assertRaisesRegex(ValueError, 'missing local link'):
+            render('[contract](formal/README.md)', root=self.root, source_path=source)
+        self.write(f'data/{RID}/formal/README.md', 'Instance-specific note')
+        rendered = render('[note](formal/README.md)', root=self.root, source_path=source)
+        self.assertIn(f'/data/{RID}/formal/README.md', rendered)
 
     def test_explanation_preflight_reports_invalid_formula(self):
         path=self.root/'candidate-solution.html'
@@ -247,18 +265,18 @@ class ContentUpdates(unittest.TestCase):
         solution['solver']['githubLogin']='another-user';path.write_text(yaml.safe_dump(solution))
         self.assertIn('differs from the accepted',self.run_build(success=False).stderr)
 
-    def test_owner_merge_gates_initial_publication_and_credits_the_contributor(self):
+    def test_publication_uses_github_merge_permissions_and_credits_the_contributor(self):
         receipt=self.receipt_fixture(login='contributor')
         report=receipt['verification']; report['schemaVersion']=2
         pr=receipt['pullRequest']; folder=self.root/'data'/RID
         (folder/'acceptance.json').unlink(); (folder/'solution.rec').unlink()
-        self.write('.github/solve-policy.json',json.dumps({'mode':'live','owner':'benediamond'}))
+        self.write('.github/solve-policy.json',json.dumps({'mode':'live'}))
         archive=io.BytesIO()
         with zipfile.ZipFile(archive,'w') as bundle:
             bundle.writestr('report.json',json.dumps(report))
         responses={
             'pulls/123':{'merged':True,'merge_commit_sha':pr['mergeCommit'],
-                         'merged_by':{'login':'stranger'},
+                         'merged_by':{'login':'another-maintainer'},
                          'head':{'sha':pr['headCommit']},'user':{'login':'contributor'},
                          'created_at':receipt['submittedAt'],'merged_at':receipt['acceptedAt'],
                          'html_url':pr['url']},
@@ -274,21 +292,16 @@ class ContentUpdates(unittest.TestCase):
         def api(path,**kwargs):
             return responses[path.removeprefix('repos/hodge-computer/sextics/')]
         # Report authentication is covered in test_check.py; exercise the real
-        # owner gate, receipt creation, and content binding without compiling Lean.
+        # receipt creation and content binding without compiling Lean.
         with patch.object(publisher,'ROOT',self.root),patch.object(publisher,'api',api), \
              patch.object(publisher,'git',return_value=f'data/{RID}/proof.json\n'.encode()), \
              patch.object(publisher,'validate_report'), \
              patch.object(publisher.subprocess,'run',return_value=SimpleNamespace(returncode=0)):
-            with self.assertRaisesRegex(ValueError,'configured owner'):
-                publisher.publish(123)
-            self.assertFalse((folder/'acceptance.json').exists())
-            responses['pulls/123']['merged_by']['login']='benediamond'
             publisher.publish(123)
             accepted=self.read(f'data/{RID}/acceptance.json')
-            self.assertEqual(accepted['ownerAuthorization']['method'],'owner_merge')
-            self.assertEqual(accepted['ownerAuthorization']['mergeCommit'],pr['mergeCommit'])
+            self.assertNotIn('ownerAuthorization',accepted)
             self.assertEqual(accepted['githubLogin'],'contributor')
-            # Publication retries retain the already accepted approval evidence.
+            # Publication retries retain the already accepted evidence.
             publisher.publish(123)
             self.assertEqual(accepted,self.read(f'data/{RID}/acceptance.json'))
         self.run_build()

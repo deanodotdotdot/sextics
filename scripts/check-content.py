@@ -3,6 +3,7 @@
 from html.parser import HTMLParser
 import argparse
 from pathlib import Path
+from public_files import is_public
 import json
 import re
 import subprocess
@@ -56,7 +57,7 @@ for p,c in contents.items():
             if not page: errors.append(f'{p.name}: unknown chapter {link}')
             elif len(parts)>2 and '/'.join(parts[2:]) not in contents[ROOT/page['content']].ids:errors.append(f'{p.name}: missing chapter heading {link}')
         elif link.startswith('#') or not link:continue
-        elif not (ROOT/link.split('#')[0]).is_file():errors.append(f'{p.name}: missing local link {link}')
+        elif not is_public(link.split('#')[0].lstrip('/')) or not (ROOT/link.split('#')[0].lstrip('/')).is_file():errors.append(f'{p.name}: missing local link {link}')
 for p in (ROOT/'data').glob('*/record.json'):
     record=json.loads(p.read_text())
     for name in ('F','A','D'):

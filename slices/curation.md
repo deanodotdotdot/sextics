@@ -2,7 +2,7 @@
 
 Each `slices/<instance-id>.json` records the phase choices, orthonormal real four-plane, mesh, and camera used to visualize that instance. These settings must agree with `instance.rec` and the mesh manifest. The projected box is fixed at ±10, and x-ray reach is 2.0.
 
-A camera can include a unit quaternion `orientation` in `[x,y,z,w]` order to preserve a pose with roll. It takes precedence over the yaw/pitch pose, including when resetting the camera or returning from exploration. Yaw and pitch remain the reference angles for background parallax.
+A camera has three fields: a unit quaternion `orientation` in `[x,y,z,w]` order, a `distance`, and a three-coordinate `center`. The quaternion maps the camera's right/up/back axes into world coordinates and is the sole saved orientation. Exploration and background parallax apply rotations directly to it; reset restores the saved pose.
 
 Meshes sample the real section obtained by intersecting the chosen four-plane with the unit sphere and the sextic, then stereographically projecting into three dimensions. Their positions and normals are floating-point presentation data. They do not prove smoothness, topology, or certificate validity.
 
@@ -10,7 +10,7 @@ Validate finite values, normals, coordinate and index bounds, edge lengths, and 
 
 Denominators are evaluated directly at each pixel, independently of the geometric mesh. Compact formulas and slice-specific factorizations can be supplied through `data/<id>/display-divisor.json`; see MAINTAINING.md. A factorization restricted to a saved plane must be regenerated if that plane or its coordinate phases change. Open instances have no displayed denominator.
 
-The homepage and Contact cone 46006 atlas entry share the canonical view described in `home.json`: the 256³ mesh, seed 245646, yaw 0.710, pitch 0.455, and distance 3.22.
+The homepage uses its separately saved Contact cone view in `home.json`. The Contact cone atlas entry uses `contact46006.json`.
 
 Equal-sextic targets share the same geometric section and camera: the two Fermat targets, the two cross-block Two ties targets, the coupled Fano reflection and its complementary-character target, and the cyclic triple cover and its complementary-character target. Their accepted denominators, when available, are evaluated independently. Special sections used to expose repeated-factor divisors are checked by the exact `sliceIdentity` mechanism described in MAINTAINING.md.
 

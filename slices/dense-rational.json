@@ -51,8 +51,6 @@
   "triangleCount": 45180,
   "validated": true,
   "camera": {
-    "yaw": 0.71,
-    "pitch": 0.455,
     "orientation": [
       -0.37052816935827065,
       0.7000593553379532,

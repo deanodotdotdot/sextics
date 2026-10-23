@@ -51,13 +51,17 @@
   "triangleCount": 70822,
   "validated": true,
   "camera": {
-    "yaw": 0,
-    "pitch": -1.0078130481598793,
     "distance": 3.01333,
     "center": [
       0,
       0,
       0
+    ],
+    "orientation": [
+      0.6792765759737831,
+      0.679276575973783,
+      0.19642640691448116,
+      0.19642640691448118
     ]
   },
   "bakedHome": false

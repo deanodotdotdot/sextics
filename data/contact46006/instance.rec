@@ -62,8 +62,6 @@ render:
   triangleCount: 76644
   bakedHome: false
   camera:
-    yaw: 0.71
-    pitch: 0.455
     orientation:
     - -0.6262536483416825
     - -0.7157248613792839

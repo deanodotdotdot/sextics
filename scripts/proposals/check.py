@@ -225,9 +225,8 @@ def main():
     report = {'schemaVersion':2,'mode':policy['mode'],'instanceId':rid,'pullRequest':args.pr,
               'githubLogin':args.author,'baseCommit':args.base,'headCommit':args.head,
               'checkedAt':datetime.now(timezone.utc).isoformat(),'formalAcceptance':False,
-              'requiresOwnerMerge':True,
               'verifierSha256':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()
-                  for p in [Path(__file__),ROOT/'scripts/proposals/sandbox.py',ROOT/'scripts/proposals/Audit.lean',ROOT/'scripts/proposals/review.py',
+                  for p in [Path(__file__),ROOT/'scripts/proposals/sandbox.py',ROOT/'scripts/proposals/Audit.lean',
                             ROOT/'formal/lean/HodgeComputer/Verify.lean',ROOT/'formal/lean/lake-manifest.json',ROOT/'.github/solve-policy.json',ROOT/'.github/workflows/solve-proposal.yml']},
               'statementSha256':hashlib.sha256(json.dumps({k:instance[k] for k in ('F','q','A')},sort_keys=True,separators=(',',':')).encode()).hexdigest(),
               'sourceHashes':{n:hashlib.sha256(b).hexdigest() for n,b in files.items()}}

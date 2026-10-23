@@ -1,0 +1,19 @@
+{
+  "pairId": "contact46006",
+  "seed": 245646,
+  "mesh": "meshes/contact46006-adaptive-round4-ordered-packed.json",
+  "camera": {
+    "distance": 1.532096540936717,
+    "center": [
+      0,
+      0,
+      0
+    ],
+    "orientation": [
+      -0.3457515492356953,
+      -0.648849719104112,
+      0.041786456405925244,
+      -0.6765380996519467
+    ]
+  }
+}

@@ -1,8 +1,8 @@
 /* Compile display polynomials into per-pixel value/gradient expressions.
    Floating point is presentation only; accepted proof data is never changed. */
-(()=>{
-'use strict';
-const GLSL = `
+(() => {
+  'use strict';
+  const GLSL = `
 struct DivJet { float v; vec3 a; vec3 b; };
 DivJet dc(float v) { return DivJet(v,vec3(0.0),vec3(0.0)); }
 DivJet da(DivJet x,DivJet y) { return DivJet(x.v+y.v,x.a+y.a,x.b+y.b); }
@@ -16,84 +16,178 @@ float divisorDistance(DivJet r,DivJet i,bool complexValue) {
   return (complexValue?length(vec2(r.v,i.v)/scale):r.v/scale)/norm;
 }
 `;
-function fragment(formula,signs,plane){
-  if(!formula||Array.isArray(formula)&&!formula.length)return {source:'float divisorField(vec3 a,vec3 b){return 1.0;}',operations:0,factors:0};
-  const nodes=[],keys=new Map();
-  function node(op,a,b){
-    const key=JSON.stringify([op,a,b]);if(keys.has(key))return keys.get(key);
-    if(nodes.length>=4096)throw new Error('Divisor expression exceeds the pixel shader budget.');
-    const n=nodes.length;nodes.push([op,a,b]);keys.set(key,n);return n;
-  }
-  const constant=v=>{if(!Number.isFinite(v))throw new Error('Non-finite divisor coefficient.');return node('c',v);};
-  const zero=constant(0),one=constant(1);
-  const cv=n=>nodes[n][0]==='c'?nodes[n][1]:null;
-  function add(a,b){if(a===zero)return b;if(b===zero)return a;if(cv(a)!==null&&cv(b)!==null)return constant(cv(a)+cv(b));return node('+',Math.min(a,b),Math.max(a,b));}
-  function mul(a,b){if(a===zero||b===zero)return zero;if(a===one)return b;if(b===one)return a;if(cv(a)!==null&&cv(b)!==null)return constant(cv(a)*cv(b));return node('*',Math.min(a,b),Math.max(a,b));}
-  const neg=a=>mul(constant(-1),a);
-  const ca=(a,b)=>[add(a[0],b[0]),add(a[1],b[1])];
-  const cm=(a,b)=>[add(mul(a[0],b[0]),neg(mul(a[1],b[1]))),add(mul(a[0],b[1]),mul(a[1],b[0]))];
-  function cp(a,n){let out=[one,zero];while(n){if(n&1)out=cm(out,a);n>>=1;if(n)a=cm(a,a);}return out;}
-  const variables=Array.from({length:6},(_,j)=>node('v',j));
-  const z=variables.map((v,j)=>signs[j]<0?[zero,v]:[v,zero]);
-  const factors=[];
-  function factor(v){if(cv(v[0])!==null&&cv(v[1])!==null){if(cv(v[0])===0&&cv(v[1])===0)throw new Error('Identically zero divisor factor.');return;}if(!factors.some(f=>f[0]===v[0]&&f[1]===v[1]))factors.push(v);}
-  function sparse(terms,phased=true){
-    if(!terms.length)return [zero,zero];
-    // Multivariate Horner form shares powers/products instead of expanding a
-    // six-variable derivative separately for every monomial.
-    function horner(list,j){
-      if(j===6)return list.reduce((out,[c])=>ca(out,c),[zero,zero]);
-      const groups=new Map();for(const [c,e] of list){if(!groups.has(e[j]))groups.set(e[j],[]);groups.get(e[j]).push([c,e]);}
-      const exponents=[...groups.keys()].sort((a,b)=>b-a);let power=exponents[0],out=horner(groups.get(power),j+1);
-      for(const e of exponents.slice(1)){out=ca(cm(out,cp(phased?z[j]:[variables[j],zero],power-e)),horner(groups.get(e),j+1));power=e;}
-      return cm(out,cp(phased?z[j]:[variables[j],zero],power));
+  function fragment(formula, signs) {
+    if (!formula || (Array.isArray(formula) && !formula.length))
+      return {
+        source: 'float divisorField(vec3 a,vec3 b){return 1.0;}',
+        operations: 0,
+        factors: 0
+      };
+    const nodes = [],
+      keys = new Map();
+    function node(op, a, b) {
+      const key = JSON.stringify([op, a, b]);
+      if (keys.has(key)) return keys.get(key);
+      if (nodes.length >= 4096)
+        throw new Error('Divisor expression exceeds the pixel shader budget.');
+      const n = nodes.length;
+      nodes.push([op, a, b]);
+      keys.set(key, n);
+      return n;
     }
-    const scale=Math.max(...terms.flatMap(([c])=>Array.isArray(c)?c.map(Math.abs):[Math.abs(c)]));
-    if(!Number.isFinite(scale)||scale===0)throw new Error('Invalid divisor coefficients.');
-    return horner(terms.map(([c,e])=>[[constant((Array.isArray(c)?c[0]:c)/scale),constant(Array.isArray(c)?c[1]/scale:0)],e]),0);
-  }
-  if(Array.isArray(formula)){
-    const common=variables.map((_,j)=>Math.min(...formula.map(([,e])=>e[j])));
-    for(let j=0;j<6;j++)if(common[j])factor(z[j]);
-    factor(sparse(formula.map(([c,e])=>[c,e.map((p,j)=>p-common[j])])));
-  }else if(formula.kind==='polynomial-program'){
-    const values=[];
-    for(const [op,a,b] of formula.nodes){
-      if(op==='variable')values.push(z[a]);
-      else if(op==='rational'){const [p,q='1']=a.split('/');values.push([constant(Number(p)/Number(q)),zero]);}
-      else if(op==='sqrt')values.push([constant(Math.sqrt(a)),zero]);
-      else if(op==='add')values.push(ca(values[a],values[b]));
-      else if(op==='mul')values.push(cm(values[a],values[b]));
-      else if(op==='pow')values.push(cp(values[a],b));
-      else throw new Error('Unknown divisor instruction.');
+    const constant = (v) => {
+      if (!Number.isFinite(v)) throw new Error('Non-finite divisor coefficient.');
+      return node('c', v);
+    };
+    const zero = constant(0),
+      one = constant(1);
+    const cv = (n) => (nodes[n][0] === 'c' ? nodes[n][1] : null);
+    function add(a, b) {
+      if (a === zero) return b;
+      if (b === zero) return a;
+      if (cv(a) !== null && cv(b) !== null) return constant(cv(a) + cv(b));
+      return node('+', Math.min(a, b), Math.max(a, b));
     }
-    // A product vanishes exactly where one of its factors does. Drawing the
-    // factors individually removes multiplicity/underflow, not any component.
-    function collect(n){const [op,a,b]=formula.nodes[n];if(op==='mul'){collect(a);collect(b);}else if(op==='pow')collect(a);else factor(values[n]);}
-    collect(formula.output);
-  }else if(formula.kind==='factored-slice'){
-    if(JSON.stringify(formula.planeMatrix)!==JSON.stringify(plane)||JSON.stringify(formula.phaseSigns)!==JSON.stringify(signs))throw new Error('Divisor factors do not match the saved slice.');
-    for(const terms of formula.factors)factor(sparse(terms,false));
-  }else throw new Error('Unsupported pixel divisor formula.');
-  const used=new Set();function visit(n){if(used.has(n))return;const [op,a,b]=nodes[n];if(op==='+'||op==='*'){visit(a);visit(b);}used.add(n);}
-  factors.flat().forEach(visit);visit(zero);
-  const literal=x=>{const s=String(x);return /[.e]/i.test(s)?s:s+'.0';};
-  const lines=[GLSL,'float divisorField(vec3 a,vec3 b) {'];
-  // All factors are homogeneous. Projectively rescaling the coordinates
-  // prevents degree-48/60 values from underflowing on small saved sections.
-  lines.push('float scale=max(max(max(abs(a.x),abs(a.y)),max(abs(a.z),abs(b.x))),max(abs(b.y),abs(b.z)));','a/=max(scale,1e-20); b/=max(scale,1e-20);');
-  for(const n of used){const [op,a,b]=nodes[n];let expr;
-    if(op==='c')expr=`dc(${literal(a)})`;
-    else if(op==='v'){const unit=[0,0,0,0,0,0];unit[a]=1;expr=`DivJet(${a<3?'a':'b'}[${a%3}],vec3(${unit.slice(0,3).map(literal)}),vec3(${unit.slice(3).map(literal)}))`;}
-    else expr=`${op==='+'?'da':'dm'}(d${a},d${b})`;
-    lines.push(`DivJet d${n}=${expr};`);
+    function mul(a, b) {
+      if (a === zero || b === zero) return zero;
+      if (a === one) return b;
+      if (b === one) return a;
+      if (cv(a) !== null && cv(b) !== null) return constant(cv(a) * cv(b));
+      return node('*', Math.min(a, b), Math.max(a, b));
+    }
+    const neg = (a) => mul(constant(-1), a);
+    const ca = (a, b) => [add(a[0], b[0]), add(a[1], b[1])];
+    const cm = (a, b) => [
+      add(mul(a[0], b[0]), neg(mul(a[1], b[1]))),
+      add(mul(a[0], b[1]), mul(a[1], b[0]))
+    ];
+    function cp(a, n) {
+      let out = [one, zero];
+      while (n) {
+        if (n & 1) out = cm(out, a);
+        n >>= 1;
+        if (n) a = cm(a, a);
+      }
+      return out;
+    }
+    const variables = Array.from({ length: 6 }, (_, j) => node('v', j));
+    const z = variables.map((v, j) => (signs[j] < 0 ? [zero, v] : [v, zero]));
+    const factors = [];
+    function factor(v) {
+      if (cv(v[0]) !== null && cv(v[1]) !== null) {
+        if (cv(v[0]) === 0 && cv(v[1]) === 0) throw new Error('Identically zero divisor factor.');
+        return;
+      }
+      if (!factors.some((f) => f[0] === v[0] && f[1] === v[1])) factors.push(v);
+    }
+    function sparse(terms) {
+      if (!terms.length) return [zero, zero];
+      // Multivariate Horner form shares powers/products instead of expanding a
+      // six-variable derivative separately for every monomial.
+      function horner(list, j) {
+        if (j === 6) return list.reduce((out, [c]) => ca(out, c), [zero, zero]);
+        const groups = new Map();
+        for (const [c, e] of list) {
+          if (!groups.has(e[j])) groups.set(e[j], []);
+          groups.get(e[j]).push([c, e]);
+        }
+        const exponents = [...groups.keys()].sort((a, b) => b - a);
+        let power = exponents[0],
+          out = horner(groups.get(power), j + 1);
+        for (const e of exponents.slice(1)) {
+          out = ca(cm(out, cp(z[j], power - e)), horner(groups.get(e), j + 1));
+          power = e;
+        }
+        return cm(out, cp(z[j], power));
+      }
+      const scale = Math.max(
+        ...terms.flatMap(([c]) => (Array.isArray(c) ? c.map(Math.abs) : [Math.abs(c)]))
+      );
+      if (!Number.isFinite(scale) || scale === 0) throw new Error('Invalid divisor coefficients.');
+      return horner(
+        terms.map(([c, e]) => [
+          [
+            constant((Array.isArray(c) ? c[0] : c) / scale),
+            constant(Array.isArray(c) ? c[1] / scale : 0)
+          ],
+          e
+        ]),
+        0
+      );
+    }
+    if (Array.isArray(formula)) {
+      const common = variables.map((_, j) => Math.min(...formula.map(([, e]) => e[j])));
+      for (let j = 0; j < 6; j++) if (common[j]) factor(z[j]);
+      factor(sparse(formula.map(([c, e]) => [c, e.map((p, j) => p - common[j])])));
+    } else if (formula.kind === 'polynomial-program') {
+      const values = [];
+      for (const [op, a, b] of formula.nodes) {
+        if (op === 'variable') values.push(z[a]);
+        else if (op === 'rational') {
+          const [p, q = '1'] = a.split('/');
+          values.push([constant(Number(p) / Number(q)), zero]);
+        } else if (op === 'sqrt') values.push([constant(Math.sqrt(a)), zero]);
+        else if (op === 'add') values.push(ca(values[a], values[b]));
+        else if (op === 'mul') values.push(cm(values[a], values[b]));
+        else if (op === 'pow') values.push(cp(values[a], b));
+        else throw new Error('Unknown divisor instruction.');
+      }
+      // A product vanishes exactly where one of its factors does. Drawing the
+      // factors individually removes multiplicity/underflow, not any component.
+      function collect(n) {
+        const [op, a, b] = formula.nodes[n];
+        if (op === 'mul') {
+          collect(a);
+          collect(b);
+        } else if (op === 'pow') collect(a);
+        else factor(values[n]);
+      }
+      collect(formula.output);
+    } else throw new Error('Unsupported pixel divisor formula.');
+    const used = new Set();
+    function visit(n) {
+      if (used.has(n)) return;
+      const [op, a, b] = nodes[n];
+      if (op === '+' || op === '*') {
+        visit(a);
+        visit(b);
+      }
+      used.add(n);
+    }
+    factors.flat().forEach(visit);
+    visit(zero);
+    const literal = (x) => {
+      const s = String(x);
+      return /[.e]/i.test(s) ? s : s + '.0';
+    };
+    const lines = [GLSL, 'float divisorField(vec3 a,vec3 b) {'];
+    // All factors are homogeneous. Projectively rescaling the coordinates
+    // prevents degree-48/60 values from underflowing on small saved sections.
+    lines.push(
+      'float scale=max(max(max(abs(a.x),abs(a.y)),max(abs(a.z),abs(b.x))),max(abs(b.y),abs(b.z)));',
+      'a/=max(scale,1e-20); b/=max(scale,1e-20);'
+    );
+    for (const n of used) {
+      const [op, a, b] = nodes[n];
+      let expr;
+      if (op === 'c') expr = `dc(${literal(a)})`;
+      else if (op === 'v') {
+        const unit = [0, 0, 0, 0, 0, 0];
+        unit[a] = 1;
+        expr = `DivJet(${a < 3 ? 'a' : 'b'}[${a % 3}],vec3(${unit.slice(0, 3).map(literal)}),vec3(${unit.slice(3).map(literal)}))`;
+      } else expr = `${op === '+' ? 'da' : 'dm'}(d${a},d${b})`;
+      lines.push(`DivJet d${n}=${expr};`);
+    }
+    lines.push('float distance=1e30,orientation=1.0;');
+    factors.forEach(([r, i], n) => {
+      const complex = r !== zero && i !== zero;
+      lines.push(
+        `float f${n}=divisorDistance(d${r === zero ? i : r},d${complex ? i : zero},${complex ? 'true' : 'false'});`,
+        `distance=min(distance,abs(f${n}));orientation*=sign(f${n});`
+      );
+    });
+    lines.push('return orientation*distance;', '}');
+    return { source: lines.join('\n'), operations: used.size, factors: factors.length };
   }
-  lines.push('float distance=1e30,orientation=1.0;');
-  factors.forEach(([r,i],n)=>{const complex=r!==zero&&i!==zero;
-    lines.push(`float f${n}=divisorDistance(d${r===zero?i:r},d${complex?i:zero},${complex?'true':'false'});`,`distance=min(distance,abs(f${n}));orientation*=sign(f${n});`);
-  });
-  lines.push('return orientation*distance;','}');
-  return {source:lines.join('\n'),operations:used.size,factors:factors.length};
-}
-globalThis.HodgeDivisor=Object.freeze({fragment});
+  globalThis.HodgeDivisor = Object.freeze({ fragment });
 })();

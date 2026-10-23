@@ -30,6 +30,12 @@ jobs:
         with:
           ref: main
           persist-credentials: false
+          sparse-checkout: |
+            scripts
+            discussions
+            data/index.json
+            leaderboard
+          sparse-checkout-cone-mode: false
       - name: Check announcement behavior
         run: python3 scripts/test-discord-alerts.py
       - name: Check webhook configuration

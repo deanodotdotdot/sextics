@@ -1,6 +1,6 @@
-# An explicit denominator for the saved visualization
+# Denominator construction and former numerical visualization
 
-HeadOfNaps's accepted proof constructs a cubic contact field over a finite algebra, then proves that a common homogeneous clearing of its coefficients exists. Here is one completely specified clearing. It gives the same rational field after the sextic lift. It is deliberately nonminimal: large powers clear fractions without expanding millions of coefficients. Neither the accepted Lean files nor their attribution are changed by this presentation export.
+`HeadOfNaps`'s accepted proof constructs a cubic contact field over a finite algebra, then proves that a common homogeneous clearing of its coefficients exists. Here is one completely specified clearing. It gives the same rational field after the sextic lift. It is deliberately nonminimal: large powers clear fractions without expanding millions of coefficients. Neither the accepted Lean files nor their attribution are changed by this presentation export.
 
 All arithmetic below is exact over $R=\mathbb Q[\alpha,\beta]$. Matrices have size $27$ unless stated otherwise. Products, adjugates, and determinants specify polynomials; an expanded monomial list is unnecessary.
 
@@ -106,7 +106,7 @@ Substitute the similarly cleared $\widehat N_j$ into the six numerator formulas 
 
 ## Numerical rendering
 
-The browser receives numerical coefficients of factors on the saved, parameter-constant slice. `scripts/export-quadric-contact-divisor.py` uses complex ball arithmetic to isolate all $27$ eliminant roots at $4{,}096$-bit precision, checks the four cubic-line identities, and reconstructs the power-basis source minor by interpolation. It checks the resulting factorization against independent full-norm evaluations at $16$ points. An unresolved coefficient stops the export.
+The denominator overlay is disabled. The former numerical export is retained in `fixed-slice-divisor.json` for offline investigation; restoring the overlay requires an exact display formula. The following describes the former presentation on the parameter-constant slice. `scripts/export-quadric-contact-divisor.py` uses complex ball arithmetic to isolate all $27$ eliminant roots at $4{,}096$-bit precision, checks the four cubic-line identities, and reconstructs the power-basis source minor by interpolation. It checks the resulting factorization against independent full-norm evaluations at $16$ points. An unresolved coefficient stops the export.
 
 Away from $a\cdot c=0$, the support of this denominator is the union of the zeros of
 
@@ -123,4 +123,4 @@ For visibility the sampled factors undergo continuous, sign-preserving normaliza
 
 The saved visualization holds the two parameters fixed: `Y1 = (2i/5) X1` and `Y2 = (13i/20) X2`, up to floating-point rounding of the orthonormal plane. At this parameter pair the eliminant has three real lines and twelve complex-conjugate pairs; the line relations and the nonvanishing coefficient factors are checked with 4096-bit ball arithmetic. Away from `X1 X2 = 0`, the coefficient-clearing factors are nonzero constants. The remaining support is evaluated from the individual line factors, with the two coordinate factors retained. This is a restriction of the same polynomial specified above, not a replacement certificate. Factoring the display calculation this way avoids underflow and loss of precision from multiplying many tiny values.
 
-The export contains the two coordinate factors and the line factors grouped into three real factors and twelve conjugate pairs. Their coefficients refer to the real amplitudes before the saved coordinate phases are applied. The shader evaluates these factors and their gradients directly at each pixel; no divisor values are stored at mesh vertices. The numerical coefficients are display approximations, not additions to the accepted Lean proof.
+The export contains the two coordinate factors and the line factors grouped into three real factors and twelve conjugate pairs. Their coefficients refer to the real amplitudes before the saved coordinate phases are applied. The former shader evaluated these factors and their gradients directly at each pixel; no divisor values are stored at mesh vertices. The numerical coefficients are display approximations, not additions to the accepted Lean proof.

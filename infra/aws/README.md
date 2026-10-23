@@ -30,11 +30,17 @@ node --test server/*.test.mjs
 python3 infra/aws/package.py --site . --output /tmp/sextics-release
 ```
 
-The packager uses an explicit public-file allowlist. It never copies the whole
+The packager and local server share the public roots and file types in
+`public-files.json`; content link checks use the same boundary. Top-level and nested
+symlinks are refused. The public package includes only meshes selected by the atlas
+and saved homepage, plus their referenced buffers. Unused mesh files fail packaging
+and must be removed from the checkout; earlier versions remain in Git history.
+It never copies the whole
 repository, `.git`, credentials, server sources, dependencies, or local caches
 into the public website. The Lambda archive contains only the runtime modules,
-pinned dependencies, instance catalogue, and discussion mapping. Its SHA-256
-and the public-file counts are recorded in `build.json`. Do not put credentials
+pinned dependencies, instance catalogue, discussion mapping, contributor IDs, and
+the shared route/public-file policies. Its SHA-256
+and the exact public file list and counts are recorded in `build.json`. Do not put credentials
 in either package.
 
 ## Deploy
@@ -58,7 +64,16 @@ table, and app secret. Upload the public package to the website bucket with
 `Cache-Control: public,max-age=60`; use a CloudFront invalidation for immediate
 rollout. Upload assets and content before `index.html` and `data/revision.json`
 so a polling client discovers the new revision after its files are available.
-Retain older content-addressed meshes while existing tabs may still need them.
+After uploading the new public files, run `retire.py --bucket <bucket> --manifest
+<release>/build.json`. It removes files absent from the new release that were
+recorded by `deployment/public-files.json`. It also lists the `assets/meshes/`
+prefix and deletes every unselected mesh, including versions published before
+release manifests existed. It never deletes notification state or inventories
+unrelated storage prefixes. Other public files require the prior manifest as
+ownership evidence. Open tabs still requesting an old mesh may need a reload.
+
+Apply the updated `publisher.json` IAM policy before deploying the workflow with
+retirement; it grants deletion within public roots, including obsolete meshes.
 
 Copy the existing GitHub App configuration directly from its private local
 file into the named Secrets Manager secret, without printing it or writing it

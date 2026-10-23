@@ -4,15 +4,15 @@ Contributor instructions are in [CONTRIBUTING.md](CONTRIBUTING.md); this documen
 
 ## Repository architecture
 
-The project uses direct GitHub PRs with protected Lean verification, owner sign-off, and a trusted publication step. GitHub provides contributor identities, PRs, and discussions; the website backend handles GitHub sign-in and discussion access. Contribution format and checks are documented in [CONTRIBUTING.md](CONTRIBUTING.md); the review and publication procedure is described below.
+The project uses direct GitHub PRs with protected Lean verification, GitHub merge permissions, and a trusted publication step. GitHub provides contributor identities, PRs, and discussions; the website backend handles GitHub sign-in and discussion access. Contribution format and checks are documented in [CONTRIBUTING.md](CONTRIBUTING.md); the verification and publication procedure is described below.
 
 Each instance lives permanently in `data/<id>/`. Its protected target and prospective context exist before a solve. A solve PR adds proof sources, an explanation, and optional witness data to that same folder. After a checked merge, the publisher adds an acceptance receipt and derives the canonical solution record. The atlas, explanations, PR links, and leaderboard are generated from these records.
 
-`formal/lean/` pins the shared contract, Lean toolchain, and mathlib manifest. `scripts/proposals/` implements source restrictions, sandboxed compilation, kernel replay, theorem/axiom auditing, owner review, and publication. `.github/workflows/` invokes trusted base-branch code; candidate workflow and setup files are never executed as part of solve verification.
+`formal/lean/` pins the shared contract, Lean toolchain, and mathlib manifest. `scripts/proposals/` implements source restrictions, sandboxed compilation, kernel replay, theorem/axiom auditing, and publication. `.github/workflows/` invokes trusted base-branch code; candidate workflow and setup files are never executed as part of solve verification.
 
 Treat the shared formal library as the Lean counterpart of the book: retain organized, generally useful machinery with explicit scope and concrete applications; keep failed experiments and instance-specific calculations out of it. Reusable constructions belong under `formal/lean/HodgeComputer/Constructions/` when they support concrete applications. Extract accepted machinery through a maintenance PR, preserving its attribution and the original acceptance-backed instance files. New solve PRs import the maintained library and supply their target-specific proof. Build changed shared modules, replay them with `leanchecker`, and check an application against the protected target before merging library changes. The protected dependency-cache key includes the shared Lean sources as well as the pinned toolchain and manifest.
 
-`docs/index.json` and its Markdown sources define the expandable technical chapters. The content builder renders bundled KaTeX and local HTML. `assets/` contains local runtime scripts, styles, fonts, and meshes. `slices/` saves per-instance planes and cameras. The atlas and mathematical content are static; sign-in and discussions use the backend API.
+`docs/index.json` and its Markdown sources define the expandable technical chapters. The content builder renders bundled KaTeX and local HTML. `assets/` contains local runtime scripts, styles, fonts, and meshes. Navigation is parsed by `assets/routes.js`; `leaderboard-view.js` owns ranking requests and rendering, and `discussion-drafts.js` owns drafts across panel mounts. The app and renderer consume `formalStatus` for accepted proof status, independently of available divisor data. `slices/` saves per-instance planes and cameras. The atlas and mathematical content are static; sign-in and discussions use the backend API.
 
 The loopback preview watches content and UI files, rebuilds valid edits, and refreshes the browser while preserving its route. It defers refresh during free-camera exploration. Changes on `main` trigger `.github/workflows/deploy-website.yml`, which publishes the static website. Backend deployments are documented in `infra/aws/README.md`.
 
@@ -44,48 +44,43 @@ Solver portraits link to the contributor's leaderboard entry; the construction h
 
 ## Verification, sign-off, and publication
 
-Solve contributions are direct GitHub PRs. The protected checker validates the exact target and proof, the owner signs off on the checked commit, and the owner merges it. A separate trusted publisher records acceptance and rebuilds the atlas and leaderboard. No workflow merges a PR automatically.
+Solve contributions are direct GitHub PRs. The protected checker validates the exact target and proof, and the owner decides whether to merge it. A separate trusted publisher records acceptance and rebuilds the atlas and leaderboard. No workflow merges a PR automatically.
 
 ### Protected checks
 
-Before preparing Lean, CI renders the proposed `solution.md` with the publication renderer, validates local file links against the protected checkout plus proposed files, and checks formulas with the bundled KaTeX. This check does not fetch external URLs or execute proposal code. `scripts/content.py` resolves ordinary Markdown links relative to the instance folder; existing repository-root artifact links remain supported.
+Before preparing Lean, CI renders the proposed `solution.md` with the publication renderer, validates local file links against the protected checkout plus proposed files, and checks formulas with the bundled KaTeX. This check does not fetch external URLs or execute proposal code. `scripts/content.py` resolves Markdown links relative to the source document; a leading `/` selects the repository root.
 
-`solve-proposal.yml` uses trusted base-branch code. Draft PRs wait until marked ready, or until the owner explicitly dispatches a check. Pinned protected Lean dependencies are cached between runs; each submitted proof is still compiled and checked independently. It fetches the PR as data and freezes the base and head commit IDs. A solve may add only permitted proof, witness, and explanation files to one existing `data/<id>/` folder. Existing target, context, infrastructure, and generated files are protected. A mixed solve/maintenance change fails even with owner approval; split it into separate PRs.
+`solve-proposal.yml` uses trusted base-branch code. Draft PRs wait until marked ready, or until the owner explicitly dispatches a check. Pinned protected Lean dependencies are cached between runs; each submitted proof is still compiled and checked independently. It fetches the PR as data and freezes the base and head commit IDs. A solve may add only permitted proof, witness, and explanation files to one existing `data/<id>/` folder. Existing target, context, infrastructure, and generated files are protected. A mixed solve/maintenance change fails validation; split it into separate PRs.
 
 The checker generates `HodgeTarget` from the base record, and optional `HodgeWitness` from exact witness data. It compiles the proposal inside an OS sandbox, replays every submitted and protected module with `leanchecker` in a separate read-only process, and audits the protected theorem type and transitive axioms. Sequential replay bounds memory use even when a submission has many helpers; unused helpers are checked too. A submitted JSON witness requires an additional theorem binding the exact displayed polynomials to the same protected target. Printed claims are never verification evidence.
 
 Candidate code receives no networking, credentials, or repository write access. Protected target artifacts, candidate artifacts, and the final trusted wrapper have separate write permissions. Linux uses Docker; local macOS checking uses `sandbox-exec`. The pinned toolchain, dependencies, verifier, and OS remain trusted components. Verification fails if isolation is unavailable.
 
-The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed; the result is ready for the owner to merge. No separate approving review is required.
+The successful report records exact target/source hashes, base/head commits, the PR author, theorem, witness binding, toolchain, kernel replay, and axiom audit. The workflow posts `solve/lean` on the submitted commit and rejects a result if either PR commit changed during checking. For solve PRs, a green check means the proof passed. Maintenance PRs have no solve to verify and use Repository checks for code validation. CI does not request approval or inspect GitHub reviews.
 
-### Owner sign-off
+### Merge permissions
 
-`.github/solve-policy.json` selects `live` mode and the account authorized to merge
-solves. After a solve's `solve/lean` check succeeds, the owner reviews its explanation
-and uses **Create a merge commit**. That merge is the sign-off. No separate approving
-review is required, including when the owner authored the PR. The publisher checks
-GitHub's `merged_by` identity against the configured owner; it does not grant credit
-for a merge performed by another account. Repository write/merge access should remain
-limited to the owner, with the trusted Actions publisher allowed to record acceptance.
+GitHub repository access controls who can push and merge. `benediamond` is the only
+human with write access; trusted GitHub Actions workflows can publish generated
+results. CI validates the proposed changes independently of merge authorization.
+There is no CI approval gate for solve or maintenance PRs and no approval-dispatch
+step. The post-merge publisher relies on GitHub merge permissions too.
+`.github/solve-policy.json` contains verification limits and publication mode.
 
 If publication of an eligible, already-merged solve failed, rerun **Publish accepted
 solve** with its PR number. It reuses the successful Lean check against the original
 merge parents and source files. A changed head or base requires fresh verification
 before merging. This retry cannot turn a failed or unchecked proof into an acceptance.
 
-Maintenance PRs retain their explicit authorization requirement. For an owner-authored
-maintenance PR, dispatch **Solve proposal** with its number and full reviewed head SHA
-in `approved_head`. Both the original workflow actor and rerun actor must be the owner.
-
 Use a **merge commit**, preserving the checked head as its second parent. Merge only against the checked base. Squash/rebase merges and base drift fail publication. When merging through GitHub CLI or an owner script, bind the merge request to the reviewed head SHA. Do not merge another solve until the previous publication commit has landed and the next proof has been checked against current main.
 
-Branch protection or repository rulesets can require `solve/lean`, up-to-date branches, and maintainer-controlled merging. A failing workflow status does not itself prevent a merge unless the repository settings enforce it. `preview` mode is available for infrastructure experiments, but its receipts cannot be published as accepted solves.
+`preview` mode is available for infrastructure experiments, but its receipts cannot be published as accepted solves.
 
 ### Trusted publication
 
 `publish-solve.yml` runs on a merged PR or an explicit retry. It checks out trusted main and invokes `scripts/proposals/publish.py`. The publisher requires:
 
-- The configured owner's merge of the checked head into this repository's main branch. The merge is the sign-off, regardless of PR authorship.
+- A merged PR into this repository's main branch. GitHub controls who may merge.
 - A successful protected workflow run associated with the exact checked head and base.
 - Matching workflow/verifier hashes and a matching preserved verification report.
 - A merge commit whose parents are exactly the checked base and head.
@@ -94,7 +89,7 @@ Branch protection or repository rulesets can require `solve/lean`, up-to-date br
 
 The PR receives a separate `solve/publication` status linking to this workflow. It reports pending, successful, or failed publication independently of `solve/lean`, so a post-merge failure is visible from the PR. It then writes `data/<id>/acceptance.json`, derives `solution.rec`, and runs the content builder and validators. The workflow commits these derived files to main. A failed or interrupted publication leaves no accepted solve in published output; rerun the workflow once the cause is resolved. The generated acceptance record is durable even after transient CI artifacts expire.
 
-Version 2 verification reports separate proof checking from owner authorization; the acceptance receipt records both. Version 1 reports retain their original meaning: a successful run already required owner authorization. Existing accepted solves and publication retries remain valid under that earlier evidence.
+Existing acceptance receipts and their historical authorization fields are preserved. Publication retries validate verifier sources against the original checked base, so older reports remain valid after the authorization code is removed.
 
 The atlas and leaderboard read generated files and need no GitHub service at runtime. Sign-in and discussions use the backend API. The publisher never awards credit from editable claimed identities, an unmerged proof, or a status flag. After acceptance, edit `solution.md` as ordinary reviewed documentation. The site renders the current explanation; the original submission remains in Git history and its acceptance record. Editorial changes do not require another Lean run or a new acceptance record. Changes to the target, Lean sources, proof manifest, or witness require renewed verification.
 
@@ -105,11 +100,21 @@ python3 scripts/proposals/test_check.py
 python3 scripts/proposals/test_lean.py
 ```
 
-The first checks file boundaries, schema, identity, and review logic. The second exercises the real Lean/sandbox path, including a small valid certificate and deliberately invalid inputs. These verifier regression tests belong to infrastructure changes; solve PRs run their actual submitted proof, not the regression suite. See [CONTRIBUTING.md](CONTRIBUTING.md#local-verification) for the contributor's local verification recipe.
+The first checks file boundaries, schema, attribution, workflow status, and publication evidence. The second exercises the real Lean/sandbox path, including a small valid certificate and deliberately invalid inputs. These verifier regression tests belong to infrastructure changes; solve PRs run their actual submitted proof, not the regression suite. See [CONTRIBUTING.md](CONTRIBUTING.md#local-verification) for the contributor's local verification recipe.
+
+The unprivileged Repository checks workflow runs the content, browser-state,
+renderer, backend and packaging suites on every PR. It validates generated records
+and links before packaging the public artifact. `validate-records.py` also checks
+that exact expressions agree with their sparse coefficient data; this runs during
+maintenance and publication, never in visitors' browsers. These checks do not grant
+formal acceptance. Proof infrastructure changes additionally run the sandbox tests.
+For shared Lean changes, `scripts/check-library.py --base <commit>` builds and
+sequentially replays changed modules and their dependents, then rechecks affected
+accepted applications against their protected targets.
 
 ## Visualization maintenance
 
-`assets/surface.js` provides the page-side `HodgeRenderer` controller. `assets/surface-worker.js` runs `assets/renderer.js` in an OffscreenCanvas worker. The page watchdog pauses an unresponsive view after about five seconds so the atlas remains usable. A temporary background context loss permits one fresh worker and canvas on returning to the page. GPU objects from a lost context are discarded. Browsers without the required worker/canvas support retain the atlas without the 3D view.
+`assets/surface.js` provides the page-side `HodgeRenderer` controller. `assets/surface-worker.js` runs `assets/renderer.js` in an OffscreenCanvas worker. `assets/mesh.js` handles manifest fetching, decoding, validation, and cancellation. Superseded loads are aborted. Stationary free-camera and reduced-motion views stop drawing after settling, while GPU fences and the worker watchdog remain active. The page watchdog pauses an unresponsive view after about five seconds so the atlas remains usable. A temporary background context loss permits one fresh worker and canvas on returning to the page. GPU objects from a lost context are discarded. Browsers without the required worker/canvas support retain the atlas without the 3D view.
 
 The page-side interface is:
 
@@ -127,19 +132,19 @@ view.destroy();
 
 Creation is synchronous and does not select a case. `setCase` requests a load; use `onStatus` to observe when the surface is ready. The parent UI manages the challenge content, exploration toggle, status pill, and visualization guide. Free-camera controls are trackball rotation, right/shift-drag panning, wheel/pinch zoom, R or double-click to reset, and Escape to return.
 
-Saved `render.mesh` manifests refer to compressed position/normal and index buffers under `assets/meshes/`. Each record's `render.camera` supplies its saved pose. `slices/` holds the corresponding plane and camera settings; see [slice curation](slices/curation.md). The homepage uses its separately saved Contact cone view in `slices/home.json`. Atlas views retain the box at ±10 and transparent edge fade. The three front-page groups use a precomputed whole compact slice without that cutoff. X-ray reach remains 2.0. X-ray rendering uses up to six depth-peeling layers.
+Saved `render.mesh` manifests refer to compressed position/normal and index buffers under `assets/meshes/`. Each record's `render.camera` stores a unit quaternion `orientation`, `distance`, and `center`; there are no saved Euler angles. Reset and exploration use this same pose. Mouse and phone parallax apply small rotations and translations along the saved camera's own horizontal and vertical axes, so a rolled view responds in screen directions too. `slices/` holds the corresponding plane and camera settings; see [slice curation](slices/curation.md). The homepage uses its separately saved Contact cone view in `slices/home.json`, exported by the content builder to `assets/home-scene.json`. Atlas views retain the box at ±10 and transparent edge fade. The three front-page groups use a precomputed whole compact slice without that cutoff. X-ray reach remains 2.0. X-ray rendering uses up to six depth-peeling layers with a 16-bit floating-point accumulation target. Unsupported graphics or failed allocation pauses the view; the renderer does not switch precision or replace x-ray with opaque rendering.
 
-The front-page mesh uses quantized position, normal, and complex-observable buffers (about 1.37 MB compressed, 147,298 triangles). The mesh is coarsened with connectivity checks, refined where edges depart from the implicit surface, and reordered for GPU locality. Byte-plane packing of modular differences reduces transfer size without changing the decoded values. A depth prepass limits expensive shading to visible fragments. Parallax uses one camera-smoothing stage and a 60-fps ceiling, subject to GPU readiness. Its divisor shading projects interpolated positions back toward the exact contact-cone sextic using three bounded Newton steps on the unit sphere, avoiding false contours from flat triangle interpolation. The complex color observable is evaluated at that same corrected point, preserving the palette while avoiding triangular phase artifacts near zeros of the vertex approximation. Mobile tilt supplies parallax only when sensor access is already available; it never requests permission.
+Mesh manifests explicitly select `float32-p3-n3-phase2-d1` (atlas meshes) or `quantized-p3-n3-phase2-delta-v1` (the compact homepage mesh); both use gzip files and the same geometry validation. The front-page mesh uses quantized position, normal, and complex-observable buffers (about 1.37 MB compressed, 147,298 triangles). The mesh is coarsened with connectivity checks, refined where edges depart from the implicit surface, and reordered for GPU locality. Byte-plane packing of modular differences reduces transfer size without changing the decoded values. A depth prepass limits expensive shading to visible fragments. Parallax uses one camera-smoothing stage and a 60-fps ceiling, subject to GPU readiness. Its divisor shading projects interpolated positions back toward the exact contact-cone sextic using three bounded Newton steps on the unit sphere, avoiding false contours from flat triangle interpolation. The complex color observable is evaluated at that same corrected point, preserving the palette while avoiding triangular phase artifacts near zeros of the vertex approximation. Mobile tilt supplies parallax only when complete orientation readings and sensor access are already available; it never requests permission. Readings are relative to the initial phone pose and adjusted for screen rotation. Returning to the page or changing modes recalibrates the neutral pose.
 
 The numerical surface is obtained from `z = diag(1 or i) B u`, where the columns of the real 6×4 matrix `B` are orthonormal and `u` lies on the unit three-sphere. The phase choices must make the sextic restrict to a scalar-real polynomial. The renderer shows the stereographic projection of the antipodal sphere cover of the projective real slice. Its mesh cannot establish smoothness, topology, or certificate validity. Accepted denominator data controls divisor highlighting independently of the saved geometric mesh.
 
-Meshes are generated offline. The repository ships the saved planes, cameras, and rendered mesh assets. When replacing a mesh, update its instance record and saved slice together. Equal-polynomial instances should share a slice unless an intentional presentation difference is documented.
+Meshes are generated offline. The repository ships the saved planes, cameras, and rendered mesh assets. When replacing a mesh, update its instance record and saved slice together, then delete manifests and buffers no longer selected by any instance or the homepage. Git history retains earlier versions; do not keep unused meshes in the checkout. Equal-polynomial instances should share a slice unless an intentional presentation difference is documented.
 
 Check finite values, normals, index bounds, projected extent, edge lengths, and polynomial residuals. Reject non-real phase restrictions rather than silently taking a real part. Compare refinements around narrow joins: a finite grid can miss small features. Use exact or direct polynomial evaluation to cross-check compact denominator evaluators. Renderer safety and denominator evaluation are exercised by `scripts/test-surface.cjs` and `scripts/test-divisor.cjs`; numerical checks remain presentation diagnostics.
 
-A solve can prove the existential contract without the optional `witness.json` export. Such a proof still earns credit; its denominator must be extracted separately before it can be highlighted. A maintenance change may add `data/<id>/display-divisor.json`, citing the relevant definitions and supplying a polynomial program or numerical factors of a fully specified polynomial on a recorded slice. This presentation file does not modify the accepted proof, receipt, witness, or credit. It must not describe an arbitrary geometric curve as the certificate divisor. One reflection's program is compared symbolically with the accepted `fullD` by `python3 scripts/test-divisor-programs.py`.
+A solve can prove the existential contract without the optional `witness.json` export. Such a proof still earns credit; its denominator must be extracted separately before it can be highlighted. A maintenance change may add `data/<id>/display-divisor.json`, citing the relevant definitions and supplying an exact polynomial program. This presentation file does not modify the accepted proof, receipt, witness, or credit. It must not describe an arbitrary geometric curve as the certificate divisor. One reflection's program is compared symbolically with the accepted `fullD` by `python3 scripts/test-divisor-programs.py`.
 
-The quadric-contact export is specified in `data/quadric-contact-broken/display-divisor.md`. Its conservative common clearing is explicit but nonminimal. On the saved slice, both parameters are fixed: the exporter isolates the 27 lines using complex ball arithmetic at 4,096-bit precision, checks their defining equations, pairs conjugate lines, and exports 17 polynomial factors in the six real coordinate amplitudes. Run `scripts/export-quadric-contact-divisor.py` with `numpy`, `PyYAML`, and `python-flint` installed to regenerate these coefficients. The factors are tied to the saved plane and phases; changes to either require a fresh export. A mesh refinement of the same section does not. The renderer evaluates the factors per pixel; it never reconstructs algebraic roots in the browser.
+Quadric contact · broken reflections has no denominator overlay. Its former numerical factors are retained in `data/quadric-contact-broken/fixed-slice-divisor.json` for offline investigation, alongside the construction in `display-divisor.md`. The exporter writes only that offline file. Restoring the overlay requires an exact display formula; the browser and content builder no longer accept numerical slice-factor exports.
 
 The pole-two holdout export is specified in `data/holdout-q2/display-divisor.md`. It supplies an explicit nonminimal clearing for the two endpoint certificates, then exports 27 conjugate-paired line factors and two coordinate factors on a fixed-ratio slice. Regenerate it with `scripts/export-holdout-q2-divisor.py`; run `scripts/test-holdout-q2-divisor.py` to check the extraction, degree bounds, and numerical norm comparisons. The twelve targets sharing the central holdout sextic now use a different common plane and camera. The old factors are preserved in `data/holdout-q2/fixed-slice-divisor.json`, but the pole-two divisor overlay is disabled: those coefficients must not be applied to a different slice without re-extraction.
 
@@ -155,7 +160,7 @@ For an offline adaptive candidate, `node scripts/simplify-surface.cjs INPUT_MANI
 reduces an existing interleaved mesh using endpoint edge collapses. It retains
 sampled vertex attributes, checks local link and face-orientation conditions, and
 bounds each collapse against incident planes. This requires Node.js and a C++17
-compiler. Keep the dense source mesh for comparison: the local tolerance is not a
+compiler. Use a temporary output folder while comparing against the selected source mesh: the local tolerance is not a
 global error bound, and sharp color or divisor features require visual inspection.
 The optional tolerance is an incident-plane distance in display coordinates
 (default 0.00018). Reduce it for sensitive divisor overlays. The command writes a
