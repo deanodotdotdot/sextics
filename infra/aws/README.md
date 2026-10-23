@@ -33,8 +33,9 @@ python3 infra/aws/package.py --site . --output /tmp/sextics-release
 The packager and local server share the public roots and file types in
 `public-files.json`; content link checks use the same boundary. Top-level and nested
 symlinks are refused. The public package includes only meshes selected by the atlas
-and saved homepage, plus their referenced buffers. Dense research originals remain
-in Git, outside the runtime package. It never copies the whole
+and saved homepage, plus their referenced buffers. Unused mesh files fail packaging
+and must be removed from the checkout; earlier versions remain in Git history.
+It never copies the whole
 repository, `.git`, credentials, server sources, dependencies, or local caches
 into the public website. The Lambda archive contains only the runtime modules,
 pinned dependencies, instance catalogue, discussion mapping, contributor IDs, and
