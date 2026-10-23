@@ -70,7 +70,7 @@ def validate_program(data, folder):
         "missing source definition",
     )
     nodes = data.get("nodes")
-    require(isinstance(nodes, list) and 0 < len(nodes) <= 1024, "invalid program size")
+    require(isinstance(nodes, list) and 0 < len(nodes) <= 4096, "invalid program size")
     degrees = []
     for node in nodes:
         require(isinstance(node, list) and len(node) in (2, 3), "invalid instruction")
@@ -82,7 +82,7 @@ def validate_program(data, folder):
             degree = None if value == 0 else 0
         elif op == "sqrt":
             require(
-                len(args) == 1 and type(args[0]) is int and 0 < args[0] <= 1000, "invalid radical"
+                len(args) == 1 and type(args[0]) is int and 0 < abs(args[0]) <= 1000, "invalid radical"
             )
             degree = 0
         elif op == "variable":

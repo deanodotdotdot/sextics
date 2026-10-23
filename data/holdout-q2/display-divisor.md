@@ -99,14 +99,72 @@ D=D_k\cdot D_{k^2},\qquad \deg D=24{,}000{,}116.
 
 The large degree is solely a conservative choice of clearing, not a lower bound or a claim of optimality. The simultaneous clearing and endpoint lift give corresponding homogeneous numerators with degree \(\deg D+7\). On the good fiber the extra factors are nonzero constants, so the proof's monic specialization argument for relative primality applies. The final combination is exactly the operation of `ReflectionCombination.lean`.
 
-## Display on a fixed-ratio slice
+## Exact display on the common holdout section
 
-The section retained in `fixed-slice-divisor.json` keeps \(Y_0/X_0\) and \(Y_1/X_1\) constant. The atlas uses a different, unrestricted section and does not display this divisor overlay. The exporter checks that the line-coordinate denominators, both source minors, and both quintic denominators are nonzero on the fixed-ratio section. Away from \(X_0X_1=0\), all coefficient-clearing factors are consequently nonzero constants. The remaining zero set is the union of the 27 factors
-
+All twelve central holdout entries share the section
 \[
-X_2^2+k^2\cdot Y_2^2-e_j\cdot X_0^2-f_j\cdot X_1^2,
+\alpha=\frac{23i}{20},\qquad\beta=\frac{3i}{4},
 \]
+with real \(X\) coordinates and imaginary \(Y\) coordinates. Only this pole-two
+construction has the denominator extracted here. The other targets' accepted
+proofs and unavailable denominators are unchanged.
 
-for each endpoint, together with \(X_0=0\) and \(X_1=0\). Conjugate factors have the same zeros on the real amplitudes and are drawn once; multiplicities are suppressed. This preserves the support of the polynomial specified above.
+Write \(\mu=23/20\), \(\nu=3/4\), and let \(P(r)\) be the monic degree-27
+eliminant from `NewEliminant.lean` at these ratios. Its coefficients are rational:
+\(a=1-\mu^6\), \(b=1-\nu^6\), \(c=-\mu\nu\), and its only dependence on
+\(d=i\nu k^2\) is through \(d^6=-\nu^6\). In the finite algebra
+\(\mathcal A=\mathbb Q[r]/(P)\), the line coordinates take the form
+\[
+e=kE,\quad f=kV,\quad g=ikG,\quad h=ikH,\qquad V=rE,
+\]
+where \(E,V,G,H\in\mathcal A\) are rational expressions in the accepted chart.
+The exporter computes them exactly by polynomial inversion modulo \(P\).
+It checks the four line equations, coordinate units, the source minor, and the
+quintic coefficient denominator before extracting the norm.
 
-`scripts/export-holdout-q2-divisor.py` isolates the roots with complex ball arithmetic, verifies all four cubic-line equations for every root, and checks invertibility of the exact source construction after specialization. It regenerates `fixed-slice-divisor.json`, preserving that section independently of the atlas view; `--slice` and `--output` select another fixed-ratio section and destination. The export contains floating-point coefficients for per-pixel evaluation. It is not a new proof of the certificate, nor does it certify topology. Changing the fixed ratios, phases, or saved plane requires regenerating the export.
+For the source minor calculation, divide its ten rows by
+\[
+(ik,ik,i,1,ik,i,1,ik^2,k^2,ik^2)
+\]
+and multiply the four gradient columns by \((ik,ik,ik^2,k^2)\). The resulting
+matrix is rational. All these scalars are nonzero, so its nonzero determinant
+establishes invertibility of the original minor. The other endpoint has the
+same rational calculation.
+
+Let \(M_E,M_V\) denote multiplication on \(\mathcal A\), and form
+\[
+N(Z,U,V_0)=\det(ZI-UM_E-V_0M_V).
+\]
+This homogeneous degree-27 polynomial has 404 nonzero rational coefficients.
+The exporter obtains them from exact characteristic polynomials of
+\(M_E+jM_V\), \(j=0,\ldots,27\), by rational interpolation. No line roots or
+polynomial coefficients are numerically approximated.
+
+Because \(k^{27}=1\), the endpoint norm on the physical coordinates is
+\[
+N\left(-\frac{X_2^2+Y_2^2}{2}
+       +\frac{\sqrt{-3}}{2}(Y_2^2-X_2^2),\ X_0^2,\ X_1^2\right).
+\]
+Here \(k=(-1+\sqrt{-3})/2\). The other endpoint is its complex conjugate
+on this section: all squared physical coordinates are real, and \(N\) has
+rational coefficients. The two endpoints therefore have identical zero sets
+on the real amplitudes. The coefficient-clearing factors above are nonzero
+constants away from \(X_0X_1=0\). Multiplying this single norm by \(X_0X_1\)
+gives a degree-56 display polynomial with the same zero set on the section as
+the stated degree-24,000,116 common clearing. Multiplicities are suppressed.
+
+Regenerate `display-divisor.json` with
+`scripts/export-holdout-q2-divisor.py` (requires python-flint). The output is an
+exact polynomial program, evaluated and shaded by the same compiler and drawing
+mechanism as every other atlas divisor. The shared compiler evaluates a negative
+square root as an imaginary constant. The old approximate line-factor export
+is removed.
+
+The ideal ratios are exact; the saved plane and mesh realize them in floating
+point. The exporter requires agreement with those ratios to roundoff, and the
+program records the saved plane and phases in `sliceRestriction` so the content
+builder rejects reuse on a different section. A new camera needs no new formula.
+Changing the saved plane requires regenerating the export; different ratios
+require a new extraction. Floating-point evaluation may still show cancellation
+artifacts. This presentation extraction does not change the accepted proof,
+receipt, credit, or witness status, and it does not certify the mesh's topology.
