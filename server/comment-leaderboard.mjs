@@ -1,14 +1,14 @@
 import { RequestCache } from './cache.mjs';
 import { ServiceError } from './github.mjs';
 
-// Cache metadata briefly in the running service, never in Git or public files.
+// Cache metadata and bounded previews in the running service, never in public files.
 // Read authorization is checked before every cache lookup, including anonymous requests.
 const caches = new WeakMap(),
   profileCaches = new WeakMap();
 const metadata = `id url createdAt updatedAt isMinimized author { login avatarUrl(size:96) url ... on User { name } }`;
 const pageInfo = 'pageInfo { hasNextPage endCursor }';
-const parents = `${pageInfo} nodes { ${metadata} replies { totalCount } }`;
 const replies = `${pageInfo} nodes { ${metadata} }`;
+const parents = `${pageInfo} nodes { ${metadata} replies(first:20) { ${replies} } }`;
 const unavailable = () =>
   new ServiceError(502, 'Comment counts are unavailable. Please try again.');
 const loginPattern = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
@@ -21,10 +21,10 @@ const profile = (author) => ({
 
 async function nodes(github, ids, fields, token) {
   const result = [];
-  for (let offset = 0; offset < ids.length; offset += 50) {
+  for (let offset = 0; offset < ids.length; offset += 100) {
     const data = await github.graphql(
       `query($ids:[ID!]!) { nodes(ids:$ids) { ${fields} } }`,
-      { ids: ids.slice(offset, offset + 50) },
+      { ids: ids.slice(offset, offset + 100) },
       token
     );
     if (!Array.isArray(data.nodes)) throw unavailable();
@@ -38,7 +38,7 @@ async function pages(first, next, visit) {
   const cursors = new Set();
   for (;;) {
     if (!Array.isArray(page?.nodes) || !page.pageInfo) throw unavailable();
-    for (const item of page.nodes) if (item) visit(item);
+    for (const item of page.nodes) if (item) await visit(item);
     if (!page.pageInfo.hasNextPage) return;
     const cursor = page.pageInfo.endCursor;
     if (!cursor || cursors.has(cursor)) throw unavailable();
@@ -49,8 +49,7 @@ async function pages(first, next, visit) {
 
 async function collect(github, entries, token) {
   const byDiscussion = new Map(Object.entries(entries).map(([id, entry]) => [entry.nodeId, id]));
-  const comments = new Map(),
-    replyParents = new Map();
+  const comments = new Map();
   function add(comment, instanceId, isReply) {
     if (!comment.id || !comment.createdAt || !Number.isFinite(Date.parse(comment.createdAt)))
       throw unavailable();
@@ -88,35 +87,22 @@ async function collect(github, entries, token) {
         if (data.node?.id !== discussion.id) throw unavailable();
         return data.node.comments;
       },
-      (comment) => {
+      async (comment) => {
         add(comment, instanceId, false);
-        const count = comment.replies?.totalCount;
-        if (!Number.isSafeInteger(count) || count < 0) throw unavailable();
-        if (count) replyParents.set(comment.id, instanceId);
-      }
-    );
-  }
-  const threads = await nodes(
-    github,
-    [...replyParents.keys()],
-    `... on DiscussionComment { id replies(first:100) { ${replies} } }`,
-    token
-  );
-  for (const thread of threads) {
-    const instanceId = replyParents.get(thread.id);
-    if (!instanceId) continue;
-    await pages(
-      thread.replies,
-      async (after) => {
-        const data = await github.graphql(
-          `query($id:ID!,$after:String!) { node(id:$id) { ... on DiscussionComment { id replies(first:100,after:$after) { ${replies} } } } }`,
-          { id: thread.id, after },
-          token
+        await pages(
+          comment.replies,
+          async (after) => {
+            const data = await github.graphql(
+              `query($id:ID!,$after:String!) { node(id:$id) { ... on DiscussionComment { id replies(first:100,after:$after) { ${replies} } } } }`,
+              { id: comment.id, after },
+              token
+            );
+            if (data.node?.id !== comment.id) throw unavailable();
+            return data.node.replies;
+          },
+          (reply) => add(reply, instanceId, true)
         );
-        if (data.node?.id !== thread.id) throw unavailable();
-        return data.node.replies;
-      },
-      (reply) => add(reply, instanceId, true)
+      }
     );
   }
   return [...comments.values()];
@@ -125,11 +111,11 @@ async function collect(github, entries, token) {
 async function index(github, entries, session) {
   const token = await github.readToken(session);
   let cache = caches.get(github);
-  if (!cache) caches.set(github, (cache = new RequestCache(15000)));
+  if (!cache) caches.set(github, (cache = new RequestCache(120000)));
   const comments = await cache.get(JSON.stringify([token, entries]), () =>
     collect(github, entries, token)
   );
-  return { token, comments };
+  return { token, comments, cache };
 }
 
 export function invalidateCommentLeaderboard(github) {
@@ -161,43 +147,44 @@ export async function readCommentLeaderboard(github, entries, session) {
 
 export async function readContributorComments(github, entries, login, session) {
   if (!loginPattern.test(login)) throw new ServiceError(400, 'Invalid GitHub username.');
-  const { token, comments } = await index(github, entries, session);
-  const selected = comments.filter(
-    (c) => c.author.githubLogin.toLowerCase() === login.toLowerCase()
-  );
-  const byId = new Map(selected.map((c) => [c.id, c]));
-  // Bodies are read fresh, only for the selected contributor. No body cache.
-  const fresh = await nodes(
-    github,
-    selected.map((c) => c.id),
-    `... on DiscussionComment { ${metadata} body discussion { id } }`,
-    token
-  );
-  const result = [];
-  for (const comment of fresh) {
-    const saved = byId.get(comment.id);
-    if (
-      !saved ||
-      comment.isMinimized ||
-      comment.author?.login.toLowerCase() !== login.toLowerCase() ||
-      comment.discussion?.id !== entries[saved.instanceId]?.nodeId
-    )
-      continue;
-    result.push({
-      instanceId: saved.instanceId,
-      number: saved.number,
-      isReply: saved.isReply,
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-      body: comment.body,
-      url: comment.url
-    });
-  }
-  if (result.length !== selected.length) invalidateCommentLeaderboard(github);
-  result.sort(
-    (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.number.localeCompare(a.number)
-  );
-  return { comments: result };
+  const { token, comments, cache } = await index(github, entries, session);
+  return cache.get(JSON.stringify([token, entries, login.toLowerCase()]), async () => {
+    const selected = comments.filter(
+      (c) => c.author.githubLogin.toLowerCase() === login.toLowerCase()
+    );
+    const byId = new Map(selected.map((c) => [c.id, c]));
+    const fresh = await nodes(
+      github,
+      selected.map((c) => c.id),
+      `... on DiscussionComment { id url createdAt updatedAt isMinimized author { login } body discussion { id } }`,
+      token
+    );
+    const result = [];
+    for (const comment of fresh) {
+      const saved = byId.get(comment.id);
+      if (
+        !saved ||
+        comment.isMinimized ||
+        comment.author?.login.toLowerCase() !== login.toLowerCase() ||
+        comment.discussion?.id !== entries[saved.instanceId]?.nodeId
+      )
+        continue;
+      result.push({
+        instanceId: saved.instanceId,
+        number: saved.number,
+        isReply: saved.isReply,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        body: comment.body.length > 1024 ? comment.body.slice(0, 1024) + '…' : comment.body,
+        url: comment.url
+      });
+    }
+    if (result.length !== selected.length) invalidateCommentLeaderboard(github);
+    result.sort(
+      (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.number.localeCompare(a.number)
+    );
+    return { comments: result };
+  });
 }
 
 export async function readProfiles(github, logins, session, contributors) {

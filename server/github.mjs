@@ -220,7 +220,7 @@ export async function readDiscussionCounts(github, entries, session) {
   const ids = Object.values(entries).map((entry) => entry.nodeId),
     key = JSON.stringify(Object.entries(entries));
   let cache = countCaches.get(github);
-  if (!cache) countCaches.set(github, (cache = new RequestCache(60000)));
+  if (!cache) countCaches.set(github, (cache = new RequestCache(120000)));
   return cache.get(JSON.stringify([token, key]), async () => {
     const byNode = new Map();
     for (let offset = 0; offset < ids.length; offset += 100) {
