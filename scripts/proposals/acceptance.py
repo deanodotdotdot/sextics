@@ -6,7 +6,6 @@ Solve PRs cannot write this module, acceptance records, or generated site record
 import ast
 import hashlib
 import json
-from pathlib import Path
 import re
 
 import yaml
@@ -102,29 +101,3 @@ def read_acceptance(root, instance_id):
             manifest['theorem'] == proof['theorem'], 'Accepted theorem identity mismatch')
     require(proof.get('witnessChecked') is ('witness.json' in actual), 'Witness was not checked against Lean')
     return receipt
-
-
-def solution_record(root, receipt):
-    """Derive all attribution, proof links, and displayed witness data from accepted inputs."""
-    instance_id = receipt['instanceId']
-    folder = root/'data'/instance_id
-    witness = {}
-    if (folder/'witness.json').exists():
-        import sympy as s
-        raw = json.loads((folder/'witness.json').read_text())
-        variables = s.symbols('X0 X1 X2 Y0 Y1 Y2')
-        expression = exact_polynomial(raw['D'],variables)
-        polynomial = s.Poly(expression, *variables)
-        require(not polynomial.is_zero and polynomial.is_homogeneous and
-                polynomial.total_degree() == raw['d'], 'Invalid homogeneous denominator')
-        witness = {'D': {'expression':raw['D'], 'degree':raw['d']}}
-    return {'schemaVersion':2, 'instanceId':instance_id,
-            'solver':{'githubLogin':receipt['githubLogin']},
-            'evidenceStatus':'lean-accepted','acceptedAt':receipt['acceptedAt'],
-            'witness':witness,
-            'explanation':'solution.md','pullRequest':receipt['pullRequest'],
-            'proof':{'formalStatus':'proved','status':'accepted',
-                     'proofFile':f'data/{instance_id}/Solution.lean',
-                     'receipt':f'data/{instance_id}/acceptance.json',
-                     'theorem':receipt['verification']['theorem'],
-                     'checker':receipt['verification']['leanVersion']}}
