@@ -5,6 +5,7 @@ import re
 from urllib.parse import quote, unquote, urlsplit
 
 import mistune
+from mistune.scanner import Matcher
 from public_files import is_public
 
 
@@ -49,39 +50,43 @@ def link_resolver(root, source_path, extra_files=()):
 def slug(text):
     return re.sub(r'[^\w\s-]', '', text.lower()).strip().replace(' ', '-')
 
+
+class MathMatcher(Matcher):
+    # A display equation starts a block even without a preceding blank line.
+    PARAGRAPH_END = re.compile(Matcher.PARAGRAPH_END.pattern + r'|(?:\n {0,3}(?:\\\[|\$\$))')
+
+
+def math_plugin(markdown):
+    markdown.block.scanner_cls = MathMatcher
+    markdown.block.register_rule(
+        'display_math', re.compile(r' {0,3}(?:\\\[([\s\S]*?)\\\]|\$\$([\s\S]*?)\$\$)[ \t]*(?:\n|$)'),
+        lambda parser, match, state: {'type': 'display_math', 'raw': (match[1] or match[2] or '').strip()})
+    for rules in (markdown.block.rules, markdown.block.block_quote_rules, markdown.block.list_rules):
+        rules.insert(0, 'display_math')
+    markdown.inline.register_rule(
+        'inline_math', r'\\\([\s\S]*?\\\)',
+        lambda parser, match, state: ('inline_math', match[0][2:-2].strip()))
+    for rules in (markdown.inline.rules, markdown.inline.ref_link_rules):
+        rules.insert(0, 'inline_math')
+
+
 class Renderer(mistune.HTMLRenderer):
     def link(self, link, text=None, title=None):
         return super().link(self.resolve_link(link), text, title)
 
     def heading(self, text, level):
-        return f'<h{level} id="{html.escape(slug(re.sub("<[^>]*>", "", text)))}">{text}</h{level}>\n'
+        identifier = slug(html.unescape(re.sub('<[^>]*>', '', text)))
+        return f'<h{level} id="{html.escape(identifier)}">{text}</h{level}>\n'
+
+    def inline_math(self, text):
+        return f'<span class="inline-math" data-math>{html.escape(text)}</span>'
+
+    def display_math(self, text):
+        return f'<div class="page-equation" data-math data-display>{html.escape(text)}</div>\n'
 
 def render(source, *, root=None, source_path=None, extra_files=()):
     renderer = Renderer(escape=True)
     renderer.resolve_link = link_resolver(root, source_path, extra_files) if source_path else lambda link: link
-    markdown = mistune.create_markdown(renderer=renderer, plugins=['table', 'strikethrough'])
-    # Protect TeX before Markdown interprets underscores, backslashes, or table bars.
-    formulas = []
-    def keep(match):
-        raw = match.group(0)
-        display = raw.startswith('$$') or raw.startswith('\\[')
-        tex = raw[2:-2].strip()
-        formulas.append((tex, display))
-        token = f'HODGEMATHTOKEN{len(formulas)-1}END'
-        return '\n\n' + token + '\n\n' if display else token
-    source = re.sub(r'\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\)', keep, source)
-    result = markdown(source)
-    # Heading links must depend on the formula, not its position in the document.
-    def heading_id(match):
-        identifier = re.sub(r'hodgemathtoken(\d+)end',
-                            lambda token: slug(formulas[int(token[1])][0]), match[1])
-        return f'id="{identifier}"'
-    result = re.sub(r'id="([^"]*)"', heading_id, result)
-    for i, (tex, display) in enumerate(formulas):
-        token = f'HODGEMATHTOKEN{i}END'
-        tag = 'div' if display else 'span'
-        node = f'<{tag} class="{"page-equation" if display else "inline-math"}" data-math{" data-display" if display else ""}>{html.escape(tex)}</{tag}>'
-        result = result.replace(f'<p>{token}</p>', node) if display else result
-        result = result.replace(token, node)
-    return result
+    markdown = mistune.create_markdown(renderer=renderer, plugins=['table', 'strikethrough', math_plugin])
+    return markdown(source)
 

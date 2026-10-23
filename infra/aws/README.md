@@ -37,7 +37,7 @@ and must be removed from the checkout; earlier versions remain in Git history.
 It never copies the whole
 repository, `.git`, credentials, server sources, dependencies, or local caches
 into the public website. The Lambda archive contains only the runtime modules,
-pinned dependencies, instance catalogue, discussion mapping, contributor IDs, and
+pinned dependencies, instance catalogue, discussion mapping, and
 the shared route parser. Its SHA-256
 and the exact public file list and counts are recorded in `build.json`. Do not put credentials
 in either package.
@@ -94,6 +94,8 @@ push workflow. The deployment workflow therefore handles successful
 pushes to `main`. It always checks out current `main`, never the submitted proof
 branch or its artifacts. It does not run Lean again. Lambda code and new
 discussion mappings require an owner-operated backend deployment separately.
+Profile lookup reads contributor IDs from the published `leaderboard/credits.json`,
+so accepting a new solver does not require a backend deployment.
 
 ## Discord announcements
 

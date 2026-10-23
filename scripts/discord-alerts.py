@@ -60,7 +60,7 @@ def payload(kind, number, record, site):
              'description': title, 'url': f'{SITE}/#case/{rid}',
              'color': 0x6ECCA8 if kind == 'solve' else 0x9CBCE4}
     if kind == 'solve':
-        full = json.loads((site / 'data' / rid / 'record.json').read_text())
+        full = json.loads((site / record['path']).read_text())
         login = full['credit']['githubLogin']
         pr = full['pullRequest']
         if not re.fullmatch(r'[A-Za-z0-9-]+', login) or pr['url'] != f'{REPO}/pull/{int(pr["number"])}':
@@ -125,10 +125,10 @@ def send(webhook, message):
 
 
 def wait_for_site(site):
-    expected = json.loads((site / 'data/index.json').read_text())
+    expected = json.loads((site / 'assets/atlas/index.json').read_text())
     for attempt in range(40):
         try:
-            with urllib.request.urlopen(f'{SITE}/data/index.json?announcement={time.time_ns()}',
+            with urllib.request.urlopen(f'{SITE}/assets/atlas/index.json?announcement={time.time_ns()}',
                                         timeout=10) as response:
                 if json.load(response) == expected:
                     return
@@ -175,13 +175,11 @@ def discussion_payload(event, site):
     title = discussion['title']
     if matches:
         rid = matches[0]
-        index = json.loads((site / 'data/index.json').read_text())
-        entry = next(((n, r) for n, r in enumerate(index['records'], 1) if r['id'] == rid), None)
-        if entry is None:
+        catalogue = json.loads((site / 'data/catalogue.json').read_text())['instanceIds']
+        if rid not in catalogue:
             raise ValueError('Discussion instance is absent from the atlas')
-        atlas_number, record = entry
+        atlas_number = catalogue.index(rid) + 1
         heading += f' · {atlas_number:02d}'
-        title = record['title']
         url = f'{SITE}/#case/{rid}/discussion/{comment_id}'
     # Titles of non-atlas discussions are user content. Render them as text.
     title = re.sub(r'([\\`*_~|\[\]()<>])', r'\\\1', ' '.join(title.split())[:512])
@@ -237,7 +235,7 @@ def main():
         if state is None:
             # First activation starts from what is already live, before upload.
             # Persist it now so a failed first send can be retried safely.
-            state = snapshot(s3_read(args.bucket, 'data/index.json'))
+            state = snapshot(s3_read(args.bucket, 'assets/atlas/index.json'))
             s3_write(args.bucket, validate_state(state))
             print('Initialized notifications from the existing published atlas.')
         else:
@@ -246,7 +244,7 @@ def main():
     if state is None:
         raise RuntimeError('Notification baseline was not prepared before deployment')
     validate_state(state)
-    index = json.loads((args.site / 'data/index.json').read_text())
+    index = json.loads((args.site / 'assets/atlas/index.json').read_text())
     if pending_events(index, state):
         wait_for_site(args.site)
         announce(index, state, args.site, lambda message: send(webhook, message),

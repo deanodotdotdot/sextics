@@ -87,9 +87,6 @@ for name,expected in candidates.items():
     record = yaml.safe_load((ROOT/"data"/name/"instance.rec").read_text())
     F = s.sympify(record["F"])
     assert s.expand(F-expected)==0
-    for field in ("F","A"):
-        sparse = sum(s.Rational(c)*s.prod(v**e for v,e in zip(z,ex)) for c,ex in record["polynomialData"][field]["terms"])
-        assert s.expand(sparse-s.sympify(record[field]))==0
     A=target-X[1]**3*Y[1]**3 if name=='diagonal-permutation' else target
     assert s.expand(A-s.sympify(record['A']))==0
     F=s.expand(F);P=s.Poly(F,*z);terms=P.terms()

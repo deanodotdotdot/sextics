@@ -1,12 +1,12 @@
-# Atlas records
+# Mathematical records
 
 `catalogue.json` lists stable instance IDs in navigation order. Each existing `data/<id>/` folder contains the exact target `instance.rec`, prospective motivation `why.md`, and a context and related-instance index in `provenance.json`.
 
 A solve PR adds `proof.json`, `Solution.lean`, `solution.md`, optional `witness.json`, and optional flat Lean helpers to that same folder. It cannot edit existing files. See [the full proposal specification](../CONTRIBUTING.md).
 
-The trusted publisher adds `acceptance.json` after checking the successful workflow and merge. It derives `solution.rec`, including solver identity, accepted PR, theorem, and any displayed denominator. `scripts/build-content.py` validates the acceptance bindings before generating solved status and credit. A hand-edited record, local compilation, or schema check cannot establish acceptance.
+The trusted publisher adds `acceptance.json` after checking the successful workflow and merge. It derives `solution.rec`, including solver identity, accepted PR, theorem, and any exported exact denominator. `scripts/build-content.py` validates the acceptance bindings before generating solved status and credit. A hand-edited record, local compilation, or schema check cannot establish acceptance.
 
-`.rec` files use YAML. Exact polynomial expressions use the variable order `X0, X1, X2, Y0, Y1, Y2`, rational coefficients, and `**` for powers. Display LaTeX and mesh coefficients are presentation only. An accepted target must not be silently repurposed for another `(F,q,A)`.
+`.rec` files use YAML. Exact polynomial expressions use the variable order `X0, X1, X2, Y0, Y1, Y2`, rational coefficients, and `**` for powers. These files contain no rendering settings, display LaTeX, or expanded coefficient lists. The build derives coefficients from the exact expressions. Saved planes, cameras, and display divisors belong in `slices/`; curated typesetting belongs in `assets/atlas-presentation.json`. An accepted target must not be silently repurposed for another `(F,q,A)`.
 
 ## Instance descriptions
 
@@ -18,7 +18,7 @@ Edit `solution.md` directly and rebuild the content. The site uses its current t
 
 ## Generated files
 
-Do not hand-edit `record.json`, `solution.json`, `why.html`, `solution.html`, `data/index.json`, or `leaderboard/credits.json`. For authorized source maintenance, rebuild and validate:
+The website build writes its index, per-instance JSON, and rendered explanations to `assets/atlas/`. This directory is disposable build output, including polynomial coefficient arrays; do not commit it. `leaderboard/credits.json` is also generated. For authorized source maintenance, rebuild and validate:
 
 ```sh
 python3 scripts/build-content.py
@@ -34,8 +34,7 @@ Ten structured targets include `checks.json`, reproducible with SageMath:
 sage -python scripts/audit-frontier.py
 ```
 
-The script reads the exact `.rec` statements and checks their sparse encodings,
-parity, degrees, coordinate reflections, elementary split Euler conditions,
+The script reads the exact `.rec` statements and checks their parity, degrees, coordinate reflections, elementary split Euler conditions,
 Hessian symmetrizers, and diagonal symmetry characters. It also checks the
 specific old-denominator obstruction for `quadric-contact-broken`.
 

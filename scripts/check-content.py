@@ -34,7 +34,7 @@ class Content(HTMLParser):
 
 index=json.loads((ROOT/'docs/index.json').read_text())
 pages={p['id']:p for p in index['pages']}
-files=list((ROOT/'data').glob('*/*.html'))+list((ROOT/'docs').glob('*.html'))+[ROOT/'index.html']
+files=list((ROOT/'assets/atlas').glob('*/*.html'))+list((ROOT/'docs').glob('*.html'))+[ROOT/'index.html']
 if args.explanation:
     files.append(args.explanation.resolve())
 contents={}
@@ -58,7 +58,7 @@ for p,c in contents.items():
             elif len(parts)>2 and '/'.join(parts[2:]) not in contents[ROOT/page['content']].ids:errors.append(f'{p.name}: missing chapter heading {link}')
         elif link.startswith('#') or not link:continue
         elif not is_public(link.split('#')[0].lstrip('/')) or not (ROOT/link.split('#')[0].lstrip('/')).is_file():errors.append(f'{p.name}: missing local link {link}')
-for p in (ROOT/'data').glob('*/record.json'):
+for p in (ROOT/'assets/atlas').glob('*/record.json'):
     record=json.loads(p.read_text())
     for name in ('F','A','D'):
         if name in record and record[name].get('latex'):math.append({'file':str(p.relative_to(ROOT))+':'+name,'tex':record[name]['latex']})

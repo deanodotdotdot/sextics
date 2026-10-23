@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "polynomial-program",
+  "source": {
+    "path": "data/three-block-rational-d4-strict/witness.json",
+    "definition": "D restricted to the saved section equals (X1**2-2*Y1**2)^2"
+  },
+  "degree": 2,
+  "normalization": {
+    "gradient": true
+  },
+  "sliceIdentity": {
+    "power": 2
+  },
+  "nodes": [
+    [
+      "variable",
+      1
+    ],
+    [
+      "pow",
+      0,
+      2
+    ],
+    [
+      "rational",
+      "-2"
+    ],
+    [
+      "variable",
+      4
+    ],
+    [
+      "pow",
+      3,
+      2
+    ],
+    [
+      "mul",
+      2,
+      4
+    ],
+    [
+      "add",
+      1,
+      5
+    ]
+  ],
+  "output": 6
+}

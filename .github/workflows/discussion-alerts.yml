@@ -31,7 +31,7 @@ jobs:
           sparse-checkout: |
             scripts
             discussions
-            data/index.json
+            data/catalogue.json
             leaderboard
           sparse-checkout-cone-mode: false
       - name: Obtain short-lived notification storage credentials

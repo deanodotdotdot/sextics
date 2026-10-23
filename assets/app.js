@@ -545,7 +545,7 @@
   async function loadCatalogue() {
     const responses = await Promise.all(
       [
-        'data/index.json',
+        'assets/atlas/index.json',
         'docs/index.json',
         'assets/home-scene.json',
         'discussions/index.json'
@@ -557,9 +557,7 @@
     state.chapters = chapters.pages;
     state.overview = chapters.overview;
     buildChapterIndex();
-    state.records = data.records
-      .map((r, i) => ({ ...r, number: String(i + 1).padStart(2, '0') }))
-      .filter((r) => r.visibility !== 'hidden' && r.visibility !== 'backend');
+    state.records = data.records.map((r, i) => ({ ...r, number: String(i + 1).padStart(2, '0') }));
     HodgeRoutes.startLinks(state.records, chapters, discussions);
     updateOpenInstanceLinks();
     $('totalCount').textContent = `${state.records.length} instances`;

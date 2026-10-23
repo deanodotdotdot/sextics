@@ -1,0 +1,709 @@
+{
+  "block-q2": {
+    "F": "F_0 + 2 X_{0}^{4} Y_{0}^{2} - X_{0}^{2} Y_{0}^{4}",
+    "A": "X_{0} Y_{0}^{11} - \\frac{610 X_{0} Y_{0}^{5} Y_{2}^{6}}{87}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "cofactor-eight": {
+    "F": "X_{0}^{6} + 3 X_{0}^{5} X_{1} + 9 X_{0}^{4} X_{1}^{2} + 3 X_{0}^{4} X_{2}^{2} - 2 X_{0}^{4} Y_{0}^{2} + 13 X_{0}^{3} X_{1}^{3} + 6 X_{0}^{3} X_{1} X_{2}^{2} - 4 X_{0}^{3} X_{1} Y_{0}^{2} + 18 X_{0}^{2} X_{1}^{4} + 16 X_{0}^{2} X_{1}^{2} X_{2}^{2} - 18 X_{0}^{2} X_{1}^{2} Y_{0}^{2} + 3 X_{0}^{2} X_{2}^{4} - 4 X_{0}^{2} X_{2}^{2} Y_{0}^{2} + 12 X_{0} X_{1}^{5} + 13 X_{0} X_{1}^{3} X_{2}^{2} - 16 X_{0} X_{1}^{3} Y_{0}^{2} + 3 X_{0} X_{1} X_{2}^{4} - 4 X_{0} X_{1} X_{2}^{2} Y_{0}^{2} + 9 X_{1}^{6} + 14 X_{1}^{4} X_{2}^{2} - 20 X_{1}^{4} Y_{0}^{2} + 7 X_{1}^{2} X_{2}^{4} - 18 X_{1}^{2} X_{2}^{2} Y_{0}^{2} + 12 X_{1}^{2} Y_{0}^{4} + 2 X_{2}^{6} - 2 X_{2}^{4} Y_{0}^{2} + Y_{0}^{6} + Y_{1}^{6} + Y_{1}^{4} Y_{2}^{2} + Y_{2}^{6}",
+    "A": "2 X_{0}^{5} Y_{1} + 5 X_{0}^{4} X_{1} Y_{1} + 10 X_{0}^{3} X_{1}^{2} Y_{1} + 4 X_{0}^{3} X_{2}^{2} Y_{1} - 5 X_{0}^{3} Y_{0}^{2} Y_{1} + 10 X_{0}^{2} X_{1}^{3} Y_{1} + 6 X_{0}^{2} X_{1} X_{2}^{2} Y_{1} - \\frac{15 X_{0}^{2} X_{1} Y_{0}^{2} Y_{1}}{2} + 7 X_{0} X_{1}^{4} Y_{1} + 8 X_{0} X_{1}^{2} X_{2}^{2} Y_{1} - \\frac{17 X_{0} X_{1}^{2} Y_{0}^{2} Y_{1}}{2} + 2 X_{0} X_{2}^{4} Y_{1} - 5 X_{0} X_{2}^{2} Y_{0}^{2} Y_{1} + 2 X_{0} Y_{0}^{4} Y_{1} + 2 X_{1}^{5} Y_{1} + 3 X_{1}^{3} X_{2}^{2} Y_{1} - 3 X_{1}^{3} Y_{0}^{2} Y_{1} + X_{1} X_{2}^{4} Y_{1} - \\frac{5 X_{1} X_{2}^{2} Y_{0}^{2} Y_{1}}{2} + X_{1} Y_{0}^{4} Y_{1}",
+    "definitions": [],
+    "category": "Challenge instances"
+  },
+  "cofactor-mixed": {
+    "F": "X_{0}^{6} + 3 X_{0}^{5} X_{1} + 9 X_{0}^{4} X_{1}^{2} - 2 X_{0}^{4} Y_{0}^{2} + 3 X_{0}^{4} Y_{1}^{2} + 3 X_{0}^{4} Y_{2}^{2} + 13 X_{0}^{3} X_{1}^{3} - 4 X_{0}^{3} X_{1} Y_{0}^{2} + 6 X_{0}^{3} X_{1} Y_{1}^{2} + 6 X_{0}^{3} X_{1} Y_{2}^{2} + 18 X_{0}^{2} X_{1}^{4} - 18 X_{0}^{2} X_{1}^{2} Y_{0}^{2} + 16 X_{0}^{2} X_{1}^{2} Y_{1}^{2} + 15 X_{0}^{2} X_{1}^{2} Y_{2}^{2} - 4 X_{0}^{2} Y_{0}^{2} Y_{1}^{2} - 4 X_{0}^{2} Y_{0}^{2} Y_{2}^{2} + 3 X_{0}^{2} Y_{1}^{4} + 6 X_{0}^{2} Y_{1}^{2} Y_{2}^{2} + 3 X_{0}^{2} Y_{2}^{4} + 12 X_{0} X_{1}^{5} - 16 X_{0} X_{1}^{3} Y_{0}^{2} + 13 X_{0} X_{1}^{3} Y_{1}^{2} + 12 X_{0} X_{1}^{3} Y_{2}^{2} - 4 X_{0} X_{1} Y_{0}^{2} Y_{1}^{2} - 4 X_{0} X_{1} Y_{0}^{2} Y_{2}^{2} + 3 X_{0} X_{1} Y_{1}^{4} + 6 X_{0} X_{1} Y_{1}^{2} Y_{2}^{2} + 3 X_{0} X_{1} Y_{2}^{4} + 9 X_{1}^{6} - 20 X_{1}^{4} Y_{0}^{2} + 14 X_{1}^{4} Y_{1}^{2} + 12 X_{1}^{4} Y_{2}^{2} + 12 X_{1}^{2} Y_{0}^{4} - 18 X_{1}^{2} Y_{0}^{2} Y_{1}^{2} - 16 X_{1}^{2} Y_{0}^{2} Y_{2}^{2} + 7 X_{1}^{2} Y_{1}^{4} + 13 X_{1}^{2} Y_{1}^{2} Y_{2}^{2} + 6 X_{1}^{2} Y_{2}^{4} + X_{2}^{6} + Y_{0}^{6} - 2 Y_{0}^{2} Y_{1}^{4} - 4 Y_{0}^{2} Y_{1}^{2} Y_{2}^{2} - 2 Y_{0}^{2} Y_{2}^{4} + 2 Y_{1}^{6} + 3 Y_{1}^{4} Y_{2}^{2} + 3 Y_{1}^{2} Y_{2}^{4} + 2 Y_{2}^{6}",
+    "A": "2 X_{0}^{3} X_{2}^{2} Y_{1} + 3 X_{0}^{2} X_{1} X_{2}^{2} Y_{1} + 3 X_{0} X_{1}^{2} X_{2}^{2} Y_{1} - X_{0} X_{2}^{2} Y_{0}^{2} Y_{1} + 2 X_{0} X_{2}^{2} Y_{1}^{3} + 2 X_{0} X_{2}^{2} Y_{1} Y_{2}^{2} + X_{1}^{3} X_{2}^{2} Y_{1} - \\frac{X_{1} X_{2}^{2} Y_{0}^{2} Y_{1}}{2} + X_{1} X_{2}^{2} Y_{1}^{3} + X_{1} X_{2}^{2} Y_{1} Y_{2}^{2}",
+    "definitions": [],
+    "category": "Challenge instances"
+  },
+  "collision-h3": {
+    "F": "F_0 + 2 X_{0}^{6} + 9 X_{0}^{4} X_{1}^{2} - 7 X_{0}^{4} Y_{0}^{2} + 20 X_{0}^{2} X_{1}^{4} + X_{0}^{2} X_{1}^{2} Y_{0}^{2} + 11 X_{0}^{2} Y_{0}^{4} + 12 X_{1}^{6} - 14 X_{1}^{4} Y_{0}^{2} - 19 X_{1}^{2} Y_{0}^{4} - 19 Y_{0}^{6}",
+    "A": "- 36 X_{0}^{5} Y_{0} - 50 X_{0}^{3} X_{1}^{2} Y_{0} + 56 X_{0}^{3} Y_{0}^{3} - 28 X_{0} X_{1}^{4} Y_{0} + 28 X_{0} X_{1}^{2} Y_{0}^{3} - 44 X_{0} Y_{0}^{5}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "completed-square-nambu-holdout": {
+    "F": "F_0 + 4 X_{2}^{6} + \\frac{49 X_{2}^{4} Y_{2}^{2}}{4} + X_{2}^{2} Y_{1}^{3} Y_{2} + 43 X_{2}^{2} Y_{2}^{4} + 2 Y_{1}^{3} Y_{2}^{3} + 22 Y_{2}^{6}",
+    "A": "X_{1}^{2} X_{2} Y_{1}^{2} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "cone-ladder-linear": {
+    "F": "F_0 - X_{1}^{5} X_{2} + X_{1} X_{2}^{5} - 2 X_{2}^{6} - Y_{1}^{5} Y_{2} + Y_{1} Y_{2}^{5} - 2 Y_{2}^{6}",
+    "A": "- 10 X_{0} X_{1}^{4} Y_{0} - 10 X_{0} X_{2}^{4} Y_{0}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "contact46006": {
+    "F": "f(X+Y)+f(X-Y)",
+    "A": "g(X+Y)-g(X-Y)",
+    "definitions": [
+      "f=h^2+Ck,\\quad g=\\det(\\nabla k,\\nabla C,\\nabla h)",
+      "h(z)=z_0^3+2z_2^3",
+      "C(z)=z_1^3+5z_1^2z_2-22z_1z_2^2-56z_2^3",
+      "k(z)=z_1^3-10z_1^2z_2+z_1z_2^2+120z_2^3"
+    ],
+    "category": "Challenge instances"
+  },
+  "coupled-pair-rational-d4-strict": {
+    "F": "F_0 + X_{0}^{4} Y_{1}^{2} - X_{0}^{2} Y_{0}^{2} Y_{1}^{2} + Y_{0}^{4} Y_{1}^{2}",
+    "A": "X_{0}^{3} X_{1} X_{2} Y_{0} + \\frac{X_{0} X_{1} X_{2} Y_{0} Y_{1}^{2}}{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "crossed-ternary-asymmetric": {
+    "F": "P+R",
+    "A": "X_{0}^{4} \\cdot X_{1} \\cdot Y_{1}",
+    "definitions": [
+      "P=X_{0}^{6} + \\frac{5}{7}\\cdot X_{0}^{5}\\cdot X_{1} + \\frac{5}{7}\\cdot X_{0}^{3}\\cdot X_{1}\\cdot Y_{0}^{2} + \\frac{10}{7}\\cdot X_{0}\\cdot X_{1}^{5} + \\frac{5}{7}\\cdot X_{0}\\cdot X_{1}\\cdot Y_{0}^{4} + X_{1}^{6} + Y_{0}^{6}",
+      "R=X_{2}^{6} + \\frac{5}{7}\\cdot X_{2}^{4}\\cdot Y_{1}\\cdot Y_{2} + \\frac{5}{7}\\cdot X_{2}^{2}\\cdot Y_{1}^{3}\\cdot Y_{2} + Y_{1}^{6} + \\frac{5}{7}\\cdot Y_{1}^{5}\\cdot Y_{2} + \\frac{10}{7}\\cdot Y_{1}\\cdot Y_{2}^{5} + Y_{2}^{6}"
+    ],
+    "category": "Challenge instances"
+  },
+  "cycle-q2": {
+    "F": "F_0 + \\frac{X_{0}^{3} X_{1} Y_{0} Y_{1}}{2} + \\frac{X_{0} X_{2}^{3} Y_{0} Y_{2}}{2} + \\frac{X_{1}^{3} X_{2} Y_{1} Y_{2}}{2}",
+    "A": "X_{0}^{2} X_{1}^{2} X_{2}^{3} Y_{0}^{2} Y_{1}^{2} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "cycle-three": {
+    "F": "F_0 + \\frac{X_{0}^{3} X_{1} Y_{0} Y_{1}}{2} + \\frac{X_{0} X_{2}^{3} Y_{0} Y_{2}}{2} + \\frac{X_{1}^{3} X_{2} Y_{1} Y_{2}}{2}",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "cyclic-triple-fano": {
+    "F": "X_2^6+t\\cdot X_2^3\\cdot C+H",
+    "A": "X_{0} \\cdot X_{2}^{2} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "t=\\frac57",
+      "C=X_{0}^{3} + X_{0} \\cdot Y_{1} \\cdot Y_{2} + X_{1} \\cdot Y_{0} \\cdot Y_{1}",
+      "H=X_{0}^{6} + \\frac{5}{7}\\cdot X_{0}^{3}\\cdot X_{1}\\cdot Y_{0}\\cdot Y_{1} + \\frac{5}{7}\\cdot X_{0}^{2}\\cdot Y_{0}\\cdot Y_{1}\\cdot Y_{2}^{2} + \\frac{5}{7}\\cdot X_{0}\\cdot X_{1}\\cdot Y_{1}^{3}\\cdot Y_{2} + X_{1}^{6} + Y_{0}^{6} + Y_{1}^{6} + Y_{2}^{6}"
+    ],
+    "category": "Challenge instances"
+  },
+  "cyclic-triple-residual": {
+    "F": "X_2^6+t\\cdot X_2^3\\cdot C+H",
+    "A": "X_0^3\\cdot Y_0^3",
+    "definitions": [
+      "t=\\frac57",
+      "C=X_{0}^{3} + X_{0} \\cdot Y_{1} \\cdot Y_{2} + X_{1} \\cdot Y_{0} \\cdot Y_{1}",
+      "H=X_{0}^{6} + \\frac{5}{7}\\cdot X_{0}^{3}\\cdot X_{1}\\cdot Y_{0}\\cdot Y_{1} + \\frac{5}{7}\\cdot X_{0}^{2}\\cdot Y_{0}\\cdot Y_{1}\\cdot Y_{2}^{2} + \\frac{5}{7}\\cdot X_{0}\\cdot X_{1}\\cdot Y_{1}^{3}\\cdot Y_{2} + X_{1}^{6} + Y_{0}^{6} + Y_{1}^{6} + Y_{2}^{6}"
+    ],
+    "category": "Challenge instances"
+  },
+  "dense-rational": {
+    "F": "F_0+\\frac{1}{9973}\\sum_{\\alpha\\in\\mathcal E}c_\\alpha Z^\\alpha",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "\\mathcal E=\\{\\alpha\\in\\mathbb N^6:|\\alpha|=6,\\ \\alpha_3+\\alpha_4+\\alpha_5\\equiv0\\pmod2,\\ \\max_i\\alpha_i<6\\}",
+      "c_\\alpha=1+\\Bigl(\\sum_{i=0}^{5}(i+3)(\\alpha_i+1)^2\\bmod17\\Bigr)",
+      "Z=(X_0,X_1,X_2,Y_0,Y_1,Y_2)",
+      "F_0=\\sum_{i=0}^{2}(X_i^6+Y_i^6)"
+    ],
+    "category": "Challenge instances"
+  },
+  "diagonal-permutation": {
+    "F": "F_0+\\frac57\\cdot O_1+\\frac5{11}\\cdot O_2+\\frac5{13}\\cdot O_3",
+    "A": "X_{0}^{3} \\cdot Y_{0}^{3} - X_{1}^{3} \\cdot Y_{1}^{3}",
+    "definitions": [
+      "F_0=\\sum_{i=0}^{2}(X_i^6+Y_i^6)",
+      "\\mathcal P=\\{(i,j,k):\\{i,j,k\\}=\\{0,1,2\\}\\}",
+      "O_1=\\sum_{(i,j,k)\\in\\mathcal P}X_i^3\\cdot X_j\\cdot Y_i\\cdot Y_j",
+      "O_2=\\sum_{(i,j,k)\\in\\mathcal P}X_i^3\\cdot X_j\\cdot Y_k^2",
+      "O_3=\\sum_{(i,j,k)\\in\\mathcal P}Y_i^3\\cdot Y_j\\cdot X_k^2"
+    ],
+    "category": "Challenge instances"
+  },
+  "eight-plane-configuration": {
+    "F": "F_0+\\sum_{i=0}^2\\frac5{p_i}\\cdot Q_i\\cdot H_i",
+    "A": "X_{0}^{3} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "F_0=\\sum_{i=0}^{2}(X_i^6+Y_i^6)",
+      "Q_i=X_i^2+Y_i^2,\\quad i=0,1,2",
+      "H_i=\\ell_i^3\\cdot n_i+m_i^3\\cdot o_i+\\ell_i^2\\cdot o_i^2",
+      "\\ell_i=\\frac17\\cdot\\sum_{j=0}^2(j+i+1)\\cdot X_j",
+      "m_i=\\frac1{11}\\cdot\\sum_{j=0}^2(2\\cdot j+i+1)\\cdot Y_j",
+      "n_i=\\frac1{13}\\cdot\\sum_{j=0}^2(j+1)^{i+1}\\cdot X_j",
+      "o_i=\\frac1{17}\\cdot\\sum_{j=0}^2(j+2)^{i+1}\\cdot Y_j",
+      "(p_0,p_1,p_2)=(7,11,13)"
+    ],
+    "category": "Challenge instances"
+  },
+  "f3-block-x0-quartic-strict": {
+    "F": "F_0 + X_{0}^{2} X_{1}^{2} Y_{0}^{2}",
+    "A": "X_{0}^{3} Y_{0}^{3} - \\frac{5 X_{0} X_{1}^{4} Y_{0}}{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "family-block-cube": {
+    "F": "F_0 + X_{0}^{4} Y_{0}^{2} + 2 X_{0}^{2} Y_{0}^{4} + X_{1}^{3} X_{2}^{3} + X_{2}^{6} + 2 Y_{0}^{6}",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "family-hesse-web": {
+    "F": "F_0 - 2 X_{0}^{2} X_{1}^{2} Y_{0}^{2} + X_{2}^{6} + 2 Y_{1}^{6} + 4 Y_{2}^{6}",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "family-passive-contact": {
+    "F": "F_0 + \\frac{13 X_{0}^{2} X_{1}^{2} Y_{0}^{2}}{17} + \\frac{5 X_{0}^{2} X_{1}^{2} Y_{0} Y_{2}}{9} + \\frac{7 X_{0}^{2} X_{1}^{2} Y_{2}^{2}}{11} + X_{2}^{2} Y_{1}^{2} Y_{2}^{2}",
+    "A": "X_{0}^{3} X_{1} X_{2} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "family-root-cube": {
+    "F": "5 X_{0}^{6} + \\frac{303 X_{0}^{4} X_{2}^{2}}{103} - 7 X_{0}^{4} Y_{0}^{2} + \\frac{303 X_{0}^{4} Y_{2}^{2}}{103} + \\frac{101 X_{0}^{2} X_{1}^{3} X_{2}}{103} + \\frac{101 X_{0}^{2} X_{1}^{2} Y_{1} Y_{2}}{103} + \\frac{101 X_{0}^{2} X_{2}^{4}}{103} - \\frac{202 X_{0}^{2} X_{2}^{2} Y_{0}^{2}}{103} + 7 X_{0}^{2} Y_{0}^{4} + \\frac{202 X_{0}^{2} Y_{0}^{2} Y_{2}^{2}}{103} + \\frac{101 X_{0}^{2} Y_{2}^{4}}{103} + X_{1}^{6} + 2 X_{1}^{4} Y_{1}^{2} + \\frac{101 X_{1}^{3} X_{2} Y_{0}^{2}}{103} + \\frac{101 X_{1}^{2} Y_{0}^{2} Y_{1} Y_{2}}{103} + 3 X_{1}^{2} Y_{1}^{4} + X_{2}^{6} - \\frac{101 X_{2}^{4} Y_{0}^{2}}{103} + 2 X_{2}^{4} Y_{2}^{2} + \\frac{303 X_{2}^{2} Y_{0}^{4}}{103} + 3 X_{2}^{2} Y_{2}^{4} - 5 Y_{0}^{6} + \\frac{303 Y_{0}^{4} Y_{2}^{2}}{103} - \\frac{101 Y_{0}^{2} Y_{2}^{4}}{103} + 5 Y_{1}^{6} + 7 Y_{2}^{6}",
+    "A": "X_{0} X_{1} X_{2}^{3} Y_{0}",
+    "definitions": [],
+    "category": "Challenge instances"
+  },
+  "family-shear": {
+    "F": "F_0 + 2 X_{0}^{4} Y_{0}^{2} + 3 X_{0}^{2} Y_{0}^{4} + X_{0} X_{2}^{5} - X_{2}^{6}",
+    "A": "- 10 X_{1} X_{2}^{4} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "family-sylvester-norm": {
+    "F": "F_0 + 2 X_{0}^{4} Y_{0}^{2} + 3 X_{0}^{2} Y_{0}^{4} + X_{1}^{6} + 3 X_{1}^{4} Y_{1}^{2} + 5 X_{1}^{2} Y_{1}^{4} + 10 X_{2}^{6} + 13 X_{2}^{4} Y_{2}^{2} + 17 X_{2}^{2} Y_{2}^{4} + 4 Y_{0}^{6} + 6 Y_{1}^{6} + 18 Y_{2}^{6}",
+    "A": "X_{0} X_{1}^{2} X_{2}^{2} Y_{0}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "family-trace-zero": {
+    "F": "2 X_{0}^{6} + 2 X_{0}^{4} Y_{0}^{2} + \\frac{10201 X_{0}^{2} X_{1}^{4}}{10609} + \\frac{20402 X_{0}^{2} X_{1}^{2} Y_{1}^{2}}{10609} + 2 X_{0}^{2} Y_{0}^{4} + \\frac{10201 X_{0}^{2} Y_{1}^{4}}{10609} + 2 X_{1}^{6} + \\frac{10201 X_{1}^{4} Y_{0}^{2}}{10609} + \\frac{20402 X_{1}^{2} Y_{0}^{2} Y_{1}^{2}}{10609} + 3 X_{2}^{6} + 2 Y_{0}^{6} + \\frac{10201 Y_{0}^{2} Y_{1}^{4}}{10609} + 5 Y_{1}^{6} + 7 Y_{2}^{6}",
+    "A": "8 X_{0}^{3} X_{1}^{2} Y_{0} - 8 X_{0} X_{1}^{2} Y_{0}^{3}",
+    "definitions": [],
+    "category": "Challenge instances"
+  },
+  "fermat-pair-rational-d4-strict": {
+    "F": "F_0",
+    "A": "X_{0}^{3} X_{1} X_{2} Y_{0}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "fermat-q2": {
+    "F": "F_0",
+    "A": "X_{0}^{3} X_{1}^{2} X_{2}^{2} Y_{0}^{3} Y_{1}^{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "fixed-witness-hesse-cofactor-d4-rational": {
+    "F": "F_0 + 12 X_{0}^{4} X_{1}^{2} + 9 X_{0}^{4} X_{2}^{2} + 6 X_{0}^{2} X_{1}^{4} - 3 X_{0}^{2} X_{1}^{2} X_{2}^{2} - 6 X_{0}^{2} X_{2}^{4} + X_{1}^{6} + Y_{1}^{6} + 2 Y_{2}^{6}",
+    "A": "X_{0} X_{1} X_{2}^{3} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "four-plus-two-residual": {
+    "F": "H+B",
+    "A": "X_{0}^{3} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "H=X_{0}^{6} + \\frac{5}{7}\\cdot X_{0}^{5}\\cdot X_{1} + \\frac{5}{7}\\cdot X_{0}^{3}\\cdot X_{1}\\cdot Y_{0}\\cdot Y_{1} + \\frac{10}{7}\\cdot X_{0}\\cdot X_{1}^{5} + \\frac{10}{7}\\cdot X_{0}\\cdot X_{1}\\cdot Y_{0}^{3}\\cdot Y_{1} + X_{1}^{6} + Y_{0}^{6} + \\frac{5}{7}\\cdot Y_{0}^{5}\\cdot Y_{1} + \\frac{15}{7}\\cdot Y_{0}\\cdot Y_{1}^{5} + Y_{1}^{6}",
+      "B=X_{2}^{6} + \\frac{15}{7}\\cdot X_{2}^{4}\\cdot Y_{2}^{2} + \\frac{10}{7}\\cdot X_{2}^{2}\\cdot Y_{2}^{4} + Y_{2}^{6}"
+    ],
+    "category": "Challenge instances"
+  },
+  "hesse-radial-hesse-cofactor-d4-rational": {
+    "F": "F_0 + X_{0}^{2} X_{2}^{2} Y_{2}^{2} + 4 X_{1}^{6} + 21 X_{1}^{4} Y_{1}^{2} + 30 X_{1}^{2} Y_{1}^{4} + 13 Y_{1}^{6}",
+    "A": "X_{0} X_{1} X_{2}^{3} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "hesse-triangle": {
+    "F": "F_0 - 3 Y_{0}^{2} Y_{1}^{2} Y_{2}^{2} + 2 Y_{2}^{6}",
+    "A": "X_{0} Y_{0} Y_{1}^{3} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-all-six": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{0} X_{1} X_{2} Y_{0} Y_{1} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-bundle": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{0}^{3} Y_{0}^{3} + X_{0}^{3} Y_{0} Y_{1}^{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-moving-branch": {
+    "F": "F_0+X_0^3\\cdot X_1\\cdot Y_0\\cdot Y_1+X_1^3\\cdot X_2\\cdot Y_1\\cdot Y_2+\\frac17 X_0^2\\cdot Y_0^2\\cdot Y_2^2",
+    "A": "X_0^3\\cdot Y_0^3",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-p-y14": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{2} Y_{1}^{4} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-p3": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{2}^{3} Y_{2}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-q2": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{0}^{3} X_{1}^{2} X_{2}^{2} Y_{0}^{3} Y_{1}^{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-ternary-deformation": {
+    "F": "F_0+X_0^3\\cdot X_1\\cdot Y_0\\cdot Y_1+X_1^3\\cdot X_2\\cdot Y_1\\cdot Y_2+\\frac1{14}(X_0^5\\cdot X_1+2\\cdot X_1^5\\cdot X_2+X_2^5\\cdot X_0)",
+    "A": "X_0^3\\cdot Y_0^3",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-x0-x14-y0": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{0} X_{1}^{4} Y_{0}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-x0-y03-y12": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{0} Y_{0}^{3} Y_{1}^{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-x04-p": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{0}^{4} X_{2} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-x1-y04-y1": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{1} Y_{0}^{4} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-x12-p-y02": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{1}^{2} X_{2} Y_{0}^{2} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "holdout-x13-y13": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{1} Y_{2}",
+    "A": "X_{1}^{3} Y_{1}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "klein-coupled-character": {
+    "F": "K+Y_0^6+Y_1^6+Y_2^6+t\\cdot P",
+    "A": "X_{0}^{3} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "t=\\frac57",
+      "K=X_0^5\\cdot X_1+X_1^5\\cdot X_2+X_2^5\\cdot X_0",
+      "P=2 \\cdot X_{0}^{3} \\cdot X_{2} \\cdot Y_{1} \\cdot Y_{2} + X_{0} \\cdot X_{1}^{3} \\cdot Y_{0} \\cdot Y_{1} + 3 \\cdot X_{1} \\cdot X_{2}^{3} \\cdot Y_{0} \\cdot Y_{2}"
+    ],
+    "category": "Challenge instances"
+  },
+  "klein-hesse": {
+    "F": "X_{0}^{5} X_{1} + 2 X_{0}^{2} X_{1}^{2} X_{2}^{2} + X_{0} X_{2}^{5} + X_{1}^{5} X_{2} + Y_{0}^{5} Y_{1} + Y_{0} Y_{2}^{5} + Y_{1}^{5} Y_{2}",
+    "A": "X_{0}^{3} X_{1}^{2} Y_{0} - X_{1}^{3} X_{2}^{2} Y_{0}",
+    "definitions": [],
+    "category": "Challenge instances"
+  },
+  "klein-rational": {
+    "F": "F_0 - X_{0}^{6} + X_{0}^{5} X_{1} + X_{0} X_{2}^{5} - X_{1}^{6} + X_{1}^{5} X_{2} - X_{2}^{6} - Y_{0}^{6} + Y_{0}^{5} Y_{1} + Y_{0} Y_{2}^{5} - Y_{1}^{6} + Y_{1}^{5} Y_{2} - Y_{2}^{6}",
+    "A": "X_{0}^{3} X_{1}^{2} Y_{0}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "m3-coupled": {
+    "F": "- 116 X_{0}^{6} + 132 X_{0}^{4} X_{1}^{2} - 171 X_{0}^{4} Y_{0}^{2} + 14 X_{0}^{2} X_{1}^{4} - 52 X_{0}^{2} X_{1}^{2} Y_{0}^{2} + X_{0}^{2} X_{2}^{2} Y_{2}^{2} + 33 X_{0}^{2} Y_{0}^{4} - 30 X_{1}^{6} + 62 X_{1}^{4} Y_{0}^{2} - 34 X_{1}^{2} Y_{0}^{4} + X_{1}^{2} Y_{0}^{2} Y_{1}^{2} + 22 X_{2}^{6} - 56 X_{2}^{4} Y_{1}^{2} + 80 X_{2}^{4} Y_{2}^{2} + 32 X_{2}^{2} Y_{1}^{4} + 6 X_{2}^{2} Y_{1}^{2} Y_{2}^{2} + 40 X_{2}^{2} Y_{2}^{4} - 3 Y_{0}^{6} + 2 Y_{1}^{6} + 40 Y_{1}^{4} Y_{2}^{2} + 8 Y_{1}^{2} Y_{2}^{4} - 2 Y_{2}^{6}",
+    "A": "4 X_{0}^{3} X_{1} X_{2} Y_{1} + 5 X_{0} X_{1}^{3} X_{2} Y_{1} - 5 X_{0} X_{1} X_{2} Y_{0}^{2} Y_{1}",
+    "definitions": [],
+    "category": "Challenge instances"
+  },
+  "mixed-biweight": {
+    "F": "F_0 + \\frac{X_{0}^{3} X_{1} Y_{0} Y_{1}}{2} + \\frac{X_{0} X_{2} Y_{0}^{3} Y_{2}}{3} + \\frac{X_{1}^{3} X_{2} Y_{1} Y_{2}}{2}",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "mixed-polar": {
+    "F": "F_0 + \\frac{X_{0}^{3} X_{1} Y_{0} Y_{1}}{2} + \\frac{X_{0} X_{1} Y_{0} Y_{1}^{3}}{3} + \\frac{X_{1}^{3} X_{2} Y_{1} Y_{2}}{2}",
+    "A": "X_{0} X_{1} X_{2} Y_{0} Y_{1} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "off-paired": {
+    "F": "F_0 + \\frac{X_{0}^{3} X_{1} Y_{0} Y_{1}}{2} + \\frac{X_{0}^{2} X_{1} X_{2} Y_{0} Y_{2}}{3} + \\frac{X_{1}^{3} X_{2} Y_{1} Y_{2}}{2}",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "one-reflection": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{0} Y_{1}",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "one-reflection-skew": {
+    "F": "F_0 + X_0^3 X_1 Y_0 Y_1 + X_1^3 X_2 Y_0 Y_1 + \\frac17 X_0 X_1 Y_0 Y_1 (Y_0^2-Y_1^2)",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "one-reflection-y2-sector": {
+    "F": "F_0 + X_{0}^{3} X_{1} Y_{0} Y_{1} + X_{1}^{3} X_{2} Y_{0} Y_{1}",
+    "A": "X_{0}^{3} Y_{0} Y_{1} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "passive-quadratic-d4-strict-rational": {
+    "F": "F_0 + X_{0}^{2} X_{1}^{2} Y_{0}^{2} + X_{0}^{2} X_{1}^{2} Y_{2}^{2} + X_{2}^{2} Y_{1}^{2} Y_{2}^{2}",
+    "A": "4 X_{0}^{3} X_{1} X_{2} Y_{1} + 5 X_{0} X_{1}^{3} X_{2} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "polarized-contact-coupled-d2": {
+    "F": "f(U)+f(V)+1000003\\,r(U)r(V)",
+    "A": "g(U)-g(V)",
+    "definitions": [
+      "U=X+Y,\\quad V=X-Y",
+      "r(z)=z_0^3+2z_0^2z_1+3z_0z_1^2+5z_1^3",
+      "Q(z)=z_0^5+2z_0^4z_1+3z_0^3z_1^2+5z_0^2z_1^3+7z_0z_1^4+11z_1^5+z_2^5",
+      "f=r^2+z_2Q,\\qquad g=-r_{z_1}Q_{z_0}+r_{z_0}Q_{z_1}"
+    ],
+    "category": "Challenge instances"
+  },
+  "polarized-contact-deformation-d2": {
+    "F": "f(U)+f(V)+1000003\\,r(U)r(V)+101000303\\,(X_2^2-Y_2^2)Y_1^4",
+    "A": "g(U)-g(V)+202000606\\,Y_1^3\\bigl(V_2r_{z_0}(U)+U_2r_{z_0}(V)\\bigr)",
+    "definitions": [
+      "U=X+Y,\\quad V=X-Y",
+      "r(z)=z_0^3+2z_0^2z_1+3z_0z_1^2+5z_1^3",
+      "Q(z)=z_0^5+2z_0^4z_1+3z_0^3z_1^2+5z_0^2z_1^3+7z_0z_1^4+11z_1^5+z_2^5",
+      "f=r^2+z_2Q,\\qquad g=-r_{z_1}Q_{z_0}+r_{z_0}Q_{z_1}"
+    ],
+    "category": "Challenge instances"
+  },
+  "polarized-k3-remainder": {
+    "F": "\\frac12\\cdot\\bigl(f(X+Y)+f(X-Y)\\bigr)",
+    "A": "X_{0} \\cdot X_{1} \\cdot X_{2} \\cdot Y_{0} \\cdot Y_{1} \\cdot Y_{2}",
+    "definitions": [
+      "X=(X_0,X_1,X_2),\\quad Y=(Y_0,Y_1,Y_2)",
+      "t=\\frac57",
+      "f(a,b,c)=a^6+b^6+c^6+t\\cdot(a^5\\cdot b+2\\cdot b^5\\cdot c+3\\cdot c^5\\cdot a+a^2\\cdot b^3\\cdot c)"
+    ],
+    "category": "Challenge instances"
+  },
+  "quadratic-cubic-pullback": {
+    "F": "\\sum_{i=0}^5 Q_i^3",
+    "A": "X_{0}^{3} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "Q_0=X_{0}^{2} + \\frac{5 \\cdot X_{1} \\cdot X_{2}}{7} + \\frac{5 \\cdot Y_{0} \\cdot Y_{1}}{7}",
+      "Q_1=\\frac{5 \\cdot X_{0} \\cdot X_{2}}{11} + X_{1}^{2} + \\frac{5 \\cdot Y_{1} \\cdot Y_{2}}{11}",
+      "Q_2=\\frac{5 \\cdot X_{0} \\cdot X_{1}}{13} + X_{2}^{2} + \\frac{5 \\cdot Y_{0} \\cdot Y_{2}}{13}",
+      "Q_3=\\frac{5 \\cdot X_{0} \\cdot X_{1}}{17} + Y_{0}^{2} + \\frac{5 \\cdot Y_{1} \\cdot Y_{2}}{17}",
+      "Q_4=\\frac{5 \\cdot X_{1} \\cdot X_{2}}{19} + \\frac{5 \\cdot Y_{0} \\cdot Y_{2}}{19} + Y_{1}^{2}",
+      "Q_5=\\frac{5 \\cdot X_{0} \\cdot X_{2}}{23} + \\frac{5 \\cdot Y_{0} \\cdot Y_{1}}{23} + Y_{2}^{2}"
+    ],
+    "category": "Challenge instances"
+  },
+  "quadric-contact-broken": {
+    "F": "F_*+t\\cdot X_0\\cdot X_1\\cdot Y_0\\cdot Y_1\\cdot(X_2^2+2\\cdot Y_2^2)",
+    "A": "X_{0}^{3} \\cdot X_{1}^{2} \\cdot Y_{0} - X_{0} \\cdot X_{1}^{2} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6",
+      "t=\\frac{5}{7}",
+      "F_*=F_0+5\\cdot\\bigl(X_0^4\\cdot Y_0^2+X_0^2\\cdot Y_0^4+(X_0^2+Y_0^2)\\cdot Q\\bigr)",
+      "Q=X_1^2\\cdot Y_1^2+X_1\\cdot X_2\\cdot Y_1\\cdot Y_2+X_2^2\\cdot Y_2^2"
+    ],
+    "category": "Challenge instances"
+  },
+  "quadric-contact-residual": {
+    "F": "F_*+t\\cdot X_0\\cdot X_1\\cdot Y_0\\cdot Y_1\\cdot(X_2^2+2\\cdot Y_2^2)",
+    "A": "X_{0}^{3} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6",
+      "t=\\frac{5}{7}",
+      "F_*=F_0+5\\cdot\\bigl(X_0^4\\cdot Y_0^2+X_0^2\\cdot Y_0^4+(X_0^2+Y_0^2)\\cdot Q\\bigr)",
+      "Q=X_1^2\\cdot Y_1^2+X_1\\cdot X_2\\cdot Y_1\\cdot Y_2+X_2^2\\cdot Y_2^2"
+    ],
+    "category": "Challenge instances"
+  },
+  "rank-one-biquartic": {
+    "F": "f(X_0,X_1,X_2)+g(Y_0,Y_1,Y_2)+t\\cdot L^2\\cdot M",
+    "A": "X_{0}^{3} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "t=\\frac57",
+      "f(a,b,c)=a^6+b^6+c^6+t\\cdot(a^5\\cdot b+2\\cdot b^5\\cdot c+3\\cdot c^5\\cdot a+a^2\\cdot b^3\\cdot c)",
+      "g(a,b,c)=a^6+b^6+c^6+t\\cdot(2\\cdot a^5\\cdot b+3\\cdot b^5\\cdot c+c^5\\cdot a+2\\cdot a^3\\cdot b\\cdot c^2)",
+      "L=X_{0}^{2} + X_{0} \\cdot X_{1} + 2 \\cdot X_{1} \\cdot X_{2} + 3 \\cdot X_{2}^{2}",
+      "M=Y_{0}^{2} + Y_{0} \\cdot Y_{1} + 2 \\cdot Y_{1} \\cdot Y_{2} + 3 \\cdot Y_{2}^{2}"
+    ],
+    "category": "Challenge instances"
+  },
+  "reflection-coupled-fano": {
+    "F": "F_0+t\\cdot P",
+    "A": "X_{0}^{3} \\cdot Y_{2}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6",
+      "t=\\frac{5}{7}",
+      "P=X_{0}^{3} \\cdot X_{1} \\cdot Y_{0} \\cdot Y_{1} + X_{0} \\cdot X_{1} \\cdot Y_{0}^{3} \\cdot Y_{1} + X_{0} \\cdot X_{1} \\cdot Y_{0}^{2} \\cdot Y_{2}^{2} + 2 \\cdot X_{0} \\cdot X_{1} \\cdot Y_{1}^{2} \\cdot Y_{2}^{2} + 3 \\cdot X_{0} \\cdot X_{2}^{3} \\cdot Y_{0} \\cdot Y_{1} + 2 \\cdot X_{1}^{3} \\cdot X_{2} \\cdot Y_{0} \\cdot Y_{1} + X_{1} \\cdot X_{2} \\cdot Y_{0} \\cdot Y_{1}^{3}"
+    ],
+    "category": "Challenge instances"
+  },
+  "reflection-coupled-residual": {
+    "F": "F_0+t\\cdot P",
+    "A": "X_0^3\\cdot Y_0^3",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6",
+      "t=\\frac{5}{7}",
+      "P=X_{0}^{3} \\cdot X_{1} \\cdot Y_{0} \\cdot Y_{1} + X_{0} \\cdot X_{1} \\cdot Y_{0}^{3} \\cdot Y_{1} + X_{0} \\cdot X_{1} \\cdot Y_{0}^{2} \\cdot Y_{2}^{2} + 2 \\cdot X_{0} \\cdot X_{1} \\cdot Y_{1}^{2} \\cdot Y_{2}^{2} + 3 \\cdot X_{0} \\cdot X_{2}^{3} \\cdot Y_{0} \\cdot Y_{1} + 2 \\cdot X_{1}^{3} \\cdot X_{2} \\cdot Y_{0} \\cdot Y_{1} + X_{1} \\cdot X_{2} \\cdot Y_{0} \\cdot Y_{1}^{3}"
+    ],
+    "category": "Challenge instances"
+  },
+  "short-power-presentation": {
+    "F": "F_0+\\frac5{7^7}\\cdot\\bigl((L+M)^6+(L-M)^6\\bigr)",
+    "A": "X_{0}^{3} \\cdot Y_{0}^{3}",
+    "definitions": [
+      "F_0=\\sum_{i=0}^{2}(X_i^6+Y_i^6)",
+      "L=X_0+2\\cdot X_1+3\\cdot X_2",
+      "M=Y_0+3\\cdot Y_1+5\\cdot Y_2"
+    ],
+    "category": "Challenge instances"
+  },
+  "split-ternary-q2": {
+    "F": "f(X_0,X_1,X_2)+g(Y_0,Y_1,Y_2)",
+    "A": "X_{0}^{4} \\cdot X_{1}^{3} \\cdot Y_{0}^{3} \\cdot Y_{1}^{2}",
+    "definitions": [
+      "t=\\frac57",
+      "f(a,b,c)=a^6+b^6+c^6+t\\cdot(a^5\\cdot b+2\\cdot b^5\\cdot c+3\\cdot c^5\\cdot a+a^2\\cdot b^3\\cdot c)",
+      "g(a,b,c)=a^6+b^6+c^6+t\\cdot(2\\cdot a^5\\cdot b+3\\cdot b^5\\cdot c+c^5\\cdot a+2\\cdot a^3\\cdot b\\cdot c^2)"
+    ],
+    "category": "Challenge instances"
+  },
+  "symmetric-sextic-residual": {
+    "F": "F_0+t\\cdot(Q_X^2\\cdot Q_Y+2\\cdot Q_X\\cdot Q_Y^2)",
+    "A": "X_{0} \\cdot X_{1} \\cdot X_{2} \\cdot Y_{0} \\cdot Y_{1} \\cdot Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6",
+      "t=\\frac{5}{7}",
+      "Q_X=X_0\\cdot X_1+X_1\\cdot X_2+X_2\\cdot X_0",
+      "Q_Y=Y_0\\cdot Y_1+Y_1\\cdot Y_2+Y_2\\cdot Y_0"
+    ],
+    "category": "Challenge instances"
+  },
+  "ternary-collision-cb-d2": {
+    "F": "F_0 - 4 X_{0}^{6} + X_{0}^{4} X_{1}^{2} + 4 X_{0}^{4} Y_{0}^{2} + X_{0}^{2} X_{1}^{4} + X_{0}^{2} X_{1}^{2} Y_{0}^{2} - 2 X_{0}^{2} Y_{0}^{4} - 2 X_{1}^{6} + X_{1}^{4} Y_{0}^{2} + X_{1}^{2} Y_{0}^{4}",
+    "A": "- X_{0}^{5} Y_{0} + \\frac{7 X_{0} X_{1}^{4} Y_{0}}{5} + \\frac{21 X_{0} X_{1}^{2} Y_{0}^{3}}{5} + 4 X_{0} Y_{0}^{5}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "ternary-collision-cbp-d2": {
+    "F": "F_0 + X_{0}^{4} X_{1}^{2} + X_{0}^{4} Y_{0}^{2} + X_{0}^{2} X_{1}^{4} + X_{0}^{2} X_{1}^{2} Y_{0}^{2} + X_{0}^{2} Y_{0}^{4} - 8 X_{1}^{4} Y_{0}^{2} + 10 X_{1}^{2} Y_{0}^{4} - 4 Y_{0}^{6}",
+    "A": "- X_{0}^{4} X_{1} Y_{0} - 3 X_{0}^{2} X_{1} Y_{0}^{3} + 20 X_{1}^{3} Y_{0}^{3} - \\frac{265 X_{1} Y_{0}^{5}}{17}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "ternary-tangent-residual-h2-d2": {
+    "F": "F_0 + X_{0}^{4} X_{1}^{2} + X_{0}^{4} Y_{0}^{2} + X_{0}^{2} X_{1}^{4} + X_{0}^{2} X_{1}^{2} Y_{0}^{2} + X_{0}^{2} Y_{0}^{4} - \\frac{5 X_{1}^{6}}{2} + X_{1}^{4} Y_{0}^{2} + \\frac{17 X_{1}^{2} Y_{0}^{4}}{2} - 15 Y_{0}^{6}",
+    "A": "X_{0}^{5} Y_{0} - \\frac{X_{0} X_{1}^{4} Y_{0}}{25} - \\frac{293 X_{0} X_{1}^{2} Y_{0}^{3}}{25} + \\frac{699 X_{0} Y_{0}^{5}}{25}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "three-block-rational-d4-strict": {
+    "F": "F_0 + 5 X_{1}^{6} - 15 X_{1}^{4} Y_{1}^{2} + 9 X_{1}^{2} Y_{1}^{4}",
+    "A": "X_{0} X_{1} X_{2}^{3} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "tie-offblock-ytype-d4-strict-rational": {
+    "F": "F_0 + X_{0}^{2} X_{1}^{2} Y_{1}^{2}",
+    "A": "X_{0}^{3} Y_{0}^{2} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "tie-singleton-3odd-strict": {
+    "F": "F_0 + X_{0}^{2} X_{1}^{2} Y_{1}^{2}",
+    "A": "X_{0}^{3} Y_{0} Y_{1} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "two-reflection-cubic-surface-d2": {
+    "F": "F_0 + 5 X_{0}^{4} Y_{0}^{2} + 5 X_{0}^{2} X_{1}^{2} Y_{1}^{2} + 5 X_{0}^{2} X_{1} X_{2} Y_{1} Y_{2} + 5 X_{0}^{2} X_{2}^{2} Y_{2}^{2} + 5 X_{0}^{2} Y_{0}^{4} + 5 X_{1}^{2} Y_{0}^{2} Y_{1}^{2} + 5 X_{1} X_{2} Y_{0}^{2} Y_{1} Y_{2} + 5 X_{2}^{2} Y_{0}^{2} Y_{2}^{2}",
+    "A": "X_{0}^{3} X_{1}^{2} Y_{0} - X_{0} X_{1}^{2} Y_{0}^{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "two-ternary-dense-two-odd-hessian-d48": {
+    "F": "p(X_0^2)+r(Y_1^2)",
+    "A": "X_{0}^{5} Y_{1}",
+    "definitions": [
+      "p(t)=14t^3+(7X_1^2+21Y_0^2)t^2+(23X_1^4+12X_1^2Y_0^2+23Y_0^4)t+4X_1^6+39X_1^4Y_0^2+73X_1^2Y_0^4+8Y_0^6",
+      "r(t)=59t^3+(43X_2^2+61Y_2^2)t^2+(37X_2^4+47X_2^2Y_2^2+67Y_2^4)t+31X_2^6+41X_2^4Y_2^2+53X_2^2Y_2^4+71Y_2^6",
+      "P=p(X_0^2),\\qquad Q=r(Y_1^2)",
+      "\\mathcal H_{\\phi}(t)=(b^2-3ac)t^2+(bc-9ad)t+c^2-3bd\\quad\\text{for }\\phi(t)=at^3+bt^2+ct+d",
+      "H_P=\\mathcal H_p(X_0^2),\\quad H_Q=\\mathcal H_r(Y_1^2),\\quad\\Delta_P=\\operatorname{disc}(p),\\quad\\Delta_Q=\\operatorname{disc}(r)"
+    ],
+    "category": "Challenge instances"
+  },
+  "twoblock-cubic": {
+    "F": "F_0 - \\frac{11 X_{0}^{4} Y_{0}^{2}}{8} + \\frac{7 X_{2}^{4} Y_{2}^{2}}{3} - 2 X_{2}^{2} Y_{2}^{4}",
+    "A": "X_{0}^{3} Y_{0}^{2} Y_{1} - 3 X_{0} Y_{0}^{4} Y_{1}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "twoties-crossblock-hesse-cofactor-d4-rational": {
+    "F": "F_0 + X_{0}^{2} X_{1}^{2} Y_{0}^{2} + X_{2}^{2} Y_{1}^{2} Y_{2}^{2}",
+    "A": "X_{2}^{3} Y_{0} Y_{1} Y_{2}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "twoties-tie2-x2-quartic-strict": {
+    "F": "F_0 + X_{0}^{2} X_{1}^{2} Y_{0}^{2} + X_{2}^{2} Y_{1}^{2} Y_{2}^{2}",
+    "A": "X_{2}^{3} Y_{1}^{3} - \\frac{5 X_{2} Y_{1} Y_{2}^{4}}{3}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "xtype-sparse-rational-1m142": {
+    "F": "F_0 + X_{0}^{4} Y_{0}^{2} - \\frac{X_{0}^{2} Y_{0}^{4}}{4} + Y_{0}^{6}",
+    "A": "- \\frac{X_{0}^{2} X_{1} Y_{0}^{3}}{29} + X_{1} Y_{0}^{5}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "xtype-strict-rational-113": {
+    "F": "F_0 + X_{0}^{4} Y_{0}^{2} + X_{0}^{2} Y_{0}^{4} + 2 Y_{0}^{6}",
+    "A": "X_{1} Y_{0}^{5}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "ytype-companion-231-d4-strict-rational": {
+    "F": "F_0 + 2 X_{0}^{4} Y_{0}^{2} + 3 X_{0}^{2} Y_{0}^{4}",
+    "A": "X_{0}^{3} Y_{0}^{2} Y_{1} + \\frac{9 X_{0} Y_{0}^{4} Y_{1}}{7}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  },
+  "ytype-companion-fiberA-d4-strict-rational": {
+    "F": "F_0 - 2 X_{0}^{4} Y_{0}^{2}",
+    "A": "X_{0}^{3} Y_{0}^{2} Y_{1} - \\frac{6 X_{0} Y_{0}^{4} Y_{1}}{7}",
+    "definitions": [
+      "F_0=X_0^6+X_1^6+X_2^6+Y_0^6+Y_1^6+Y_2^6"
+    ],
+    "category": "Challenge instances"
+  }
+}

@@ -37,9 +37,9 @@ def checked_file(root, name):
 def selected_meshes(site):
     """Only manifests selected by the UI and their binary streams are deployed."""
     selected = set()
-    records = json.loads(checked_file(site, "data/index.json").read_text())["records"]
+    records = json.loads(checked_file(site, "assets/atlas/index.json").read_text())["records"]
     renders = [
-        json.loads(checked_file(site, f"data/{record['id']}/record.json").read_text())["render"]
+        json.loads(checked_file(site, record['path']).read_text())["render"]
         for record in records
     ]
     renders.append(json.loads(checked_file(site, "assets/home-scene.json").read_text()))

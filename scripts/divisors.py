@@ -53,18 +53,18 @@ def validate_slice_identity(data, denominator, render, folder):
     )
 
 
-def validate_program(data, folder):
+def validate_program(data, root):
     def require(ok, message):
         if not ok:
-            raise ValueError(f"{folder.name}: display divisor: {message}")
+            raise ValueError(f"Display divisor: {message}")
 
     require(
         data.get("schemaVersion") == 1 and data.get("kind") == "polynomial-program",
         "unknown format",
     )
     source = data.get("source", {})
-    path = (folder / source.get("path", "")).resolve()
-    require(path.is_relative_to(folder.resolve()) and path.is_file(), "missing local source")
+    path = (root / source.get("path", "")).resolve()
+    require(path.is_relative_to(root.resolve()) and path.is_file(), "missing local source")
     require(
         isinstance(source.get("definition"), str) and source["definition"],
         "missing source definition",

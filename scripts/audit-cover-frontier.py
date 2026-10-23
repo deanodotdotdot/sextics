@@ -74,9 +74,6 @@ def check(ident):
  record=yaml.safe_load((ROOT/'data'/ident/'instance.rec').read_text())
  assert record['id']==ident and record['q']==1
  F,A=(s.sympify(record[k]) for k in ('F','A'))
- for key,expr in [('F',F),('A',A)]:
-  encoded=sum(s.Rational(c)*s.prod(z**e for z,e in zip(Z,m)) for c,m in record['polynomialData'][key]['terms'])
-  assert s.expand(expr-encoded)==0
  result=audit(ident,F,A,record['q'])
  assert result['hessianSymmetrizerDimension']==1
  assert not result['coordinateReflections']

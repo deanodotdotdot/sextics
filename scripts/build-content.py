@@ -6,14 +6,16 @@ import json
 import re
 import sys
 from pathlib import Path
+import sympy as sp
 
 from content import render
 from divisors import validate_program, validate_slice_identity
 import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent / "proposals"))
-from acceptance import validate_solution
+from acceptance import exact_polynomial, validate_solution
 
 ROOT = Path(__file__).resolve().parents[1]
+ATLAS = ROOT / 'assets/atlas'
 outputs = {}
 
 def require(condition, message):
@@ -47,7 +49,16 @@ def dump(path, value):
     emit(path, json.dumps(value, ensure_ascii=False, indent=2) + '\n')
 
 
+def polynomial(expression):
+    variables = sp.symbols('X0 X1 X2 Y0 Y1 Y2')
+    value = sp.Poly(exact_polynomial(expression, variables), *variables)
+    terms = [[str(c), list(m)] for m, c in value.terms() if c]
+    return {'expression': expression, 'latex': sp.latex(value.as_expr()),
+            'degree': value.total_degree(), 'termCount': len(terms), 'terms': terms}
+
+
 catalogue = json.loads((ROOT / 'data/catalogue.json').read_text())
+presentation = json.loads((ROOT / 'assets/atlas-presentation.json').read_text())
 summaries = []
 credits = []
 require(catalogue['schemaVersion'] == 2, 'Unsupported catalogue schema')
@@ -57,17 +68,19 @@ for rid in catalogue['instanceIds']:
     folder = ROOT / 'data' / rid
     record = yaml.load((folder / 'instance.rec').read_text(), Loader=yaml.CSafeLoader)
     require(record['id'] == rid, f'{rid}: mismatched instance ID')
-    require(record.get('formalStatus', 'unproved') == 'unproved', f'{rid}: no formal acceptance without a checked theorem')
     require(record['q'] in (1, 2), f'{rid}: unsupported pole order')
-    record = dict(record)
-    for name, meta in record.pop('polynomialData').items():
-        record[name] = {**meta, 'expression': record[name]}
+    display = presentation[rid]
+    for name in ('F', 'A'):
+        record[name] = {**polynomial(record[name]), 'latex': display[name]}
+    record['category'] = display['category']
+    record['displayDefinitions'] = display['definitions']
+    record['render'] = json.loads((ROOT / 'slices' / f'{rid}.json').read_text())
     record['status'] = 'open'
     record['evidenceKind'] = 'none'
     record['certificateAvailable'] = False
     record['formalStatus'] = 'unproved'
-    record['content'] = {'why': f'data/{rid}/why.html'}
-    emit(folder / 'why.html', render(prose(local_path(record['rationale'], folder)), root=ROOT, source_path=local_path(record['rationale'], folder)))
+    record['content'] = {'why': f'assets/atlas/{rid}/why.html'}
+    emit(ATLAS / rid / 'why.html', render(prose(local_path(record['rationale'], folder)), root=ROOT, source_path=local_path(record['rationale'], folder)))
     if (folder / 'solution.rec').is_file():
         solution = yaml.load((folder / 'solution.rec').read_text(), Loader=yaml.CSafeLoader)
         validate_solution(ROOT, rid, solution)
@@ -89,18 +102,18 @@ for rid in catalogue['instanceIds']:
         record['certificateAvailable'] = True
         record['certificate'] = dict(solution['witness'])
         if 'D' in record['certificate']:
-            record['D'] = record['certificate'].pop('D')
+            record['D'] = polynomial(record['certificate'].pop('D')['expression'])
             record['render']['divisorTerms'] = [[float(Fraction(c)), m] for c,m in record['D']['terms']]
         record['witnessAvailability'] = solution['witnessAvailability']
         record['leanVerification'] = solution['proof']
-        display_divisor = folder / 'display-divisor.json'
+        display_divisor = ROOT / 'slices/divisors' / f'{rid}.json'
         if display_divisor.is_file():
-            display = validate_program(json.loads(display_divisor.read_text()), folder)
+            display = validate_program(json.loads(display_divisor.read_text()), ROOT)
             if 'sliceRestriction' in display:
                 require(display['sliceRestriction'] == {key: record['render'][key] for key in ('planeMatrix', 'phaseSigns')},
                         f'{rid}: display divisor belongs to a different saved section')
             if 'D' in witness:
-                validate_slice_identity(display, witness['D'], record['render'], folder)
+                validate_slice_identity(display, record['D'], record['render'], folder)
             else:
                 require('sliceIdentity' not in display, f'{rid}: slice identity needs an explicit denominator')
             record['render']['divisorProgram'] = display
@@ -110,27 +123,23 @@ for rid in catalogue['instanceIds']:
         require(submitted is None or isinstance(submitted, str), f'{rid}: invalid submission date')
         solution['submittedAt'] = submitted
         record['credit'] = {'githubLogin': login, 'origin': solution['creditOrigin'], 'awardedAt': submitted}
-        record['content']['solution'] = f'data/{rid}/solution.html'
-        emit(folder / 'solution.html', render(prose(local_path(solution['explanation'], folder)), root=ROOT, source_path=local_path(solution['explanation'], folder)))
-        dump(folder / 'solution.json', solution)
+        record['content']['solution'] = f'assets/atlas/{rid}/solution.html'
+        emit(ATLAS / rid / 'solution.html', render(prose(local_path(solution['explanation'], folder)), root=ROOT, source_path=local_path(solution['explanation'], folder)))
         accepted = solution['acceptedAt']
         accepted = accepted.isoformat() if isinstance(accepted, (date, datetime)) else accepted
         credits.append({'instanceId': rid, **record['credit'], 'acceptedAt': accepted})
     if not record['certificateAvailable']:
-        record['render'].pop('divisorTerms', None)
-        record['render'].pop('divisorProgram', None)
-        require(not (folder / 'display-divisor.json').exists(), f'{rid}: display divisor requires an accepted proof')
+        require(not (ROOT / 'slices/divisors' / f'{rid}.json').exists(), f'{rid}: display divisor requires an accepted proof')
         record['witnessAvailability'] = 'missing'
-    record['draftDisplayStatus'] = record['status']
-    dump(folder / 'record.json', record)
-    summary = {k: record[k] for k in ['id', 'title', 'status', 'formalStatus', 'evidenceKind', 'certificateAvailable', 'visibility', 'draftDisplayStatus', 'category', 'q']}
-    summary['path'] = f'data/{rid}/record.json'
+    dump(ATLAS / rid / 'record.json', record)
+    summary = {k: record[k] for k in ['id', 'title', 'status', 'formalStatus', 'evidenceKind', 'certificateAvailable', 'category', 'q']}
+    summary['path'] = f'assets/atlas/{rid}/record.json'
     if 'credit' in record:
         summary['credit'] = record['credit']
     summaries.append(summary)
 home = json.loads((ROOT / 'slices/home.json').read_text())
 dump(ROOT / 'assets/home-scene.json', {key: home[key] for key in ['pairId', 'seed', 'mesh', 'camera']})
-dump(ROOT / 'data/index.json', {'schemaVersion': 2, 'records': summaries})
+dump(ATLAS / 'index.json', {'schemaVersion': 2, 'records': summaries})
 dump(ROOT / 'leaderboard/credits.json', {'schemaVersion': 2, 'basis': 'accepted-proofs', 'credits': credits})
 
 doc_index = json.loads((ROOT / 'docs/index.json').read_text())
@@ -145,7 +154,7 @@ if doc_index.get('overview'):
 
 # Delete only known generated exports, after every source has passed the build.
 # Removing a solution must also retire its old downloadable explanation.
-generated = [*ROOT.glob('data/*/record.json'), *ROOT.glob('data/*/solution.json'), *ROOT.glob('data/*/why.html'), *ROOT.glob('data/*/solution.html'), *ROOT.glob('docs/*.html')]
+generated = [*ATLAS.glob('*/record.json'), *ATLAS.glob('*/why.html'), *ATLAS.glob('*/solution.html'), *ROOT.glob('docs/*.html')]
 for path in generated:
     if path not in outputs:
         path.unlink()

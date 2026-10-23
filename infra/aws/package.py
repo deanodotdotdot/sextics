@@ -62,7 +62,6 @@ def package(source, site, output, static_only=False):
             for name in [
                 "data/catalogue.json",
                 "discussions/index.json",
-                "leaderboard/credits.json",
             ]:
                 z.write(site / name, name)
             z.write(source / "assets/routes.js", "assets/routes.js")

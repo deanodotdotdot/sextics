@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "polynomial-program",
+  "source": {
+    "path": "data/coupled-pair-rational-d4-strict/witness.json",
+    "definition": "D restricted to the saved section equals (X0)^4"
+  },
+  "degree": 1,
+  "normalization": {
+    "gradient": true
+  },
+  "sliceIdentity": {
+    "power": 4
+  },
+  "nodes": [
+    [
+      "variable",
+      0
+    ]
+  ],
+  "output": 0
+}

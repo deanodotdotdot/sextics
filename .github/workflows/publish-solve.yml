@@ -73,7 +73,7 @@ jobs:
           set -euo pipefail
           [[ "$PR" =~ ^[0-9]+$ ]]
           python3 scripts/proposals/publish.py --pr "$PR"
-      - name: Commit the derived acceptance, atlas, and leaderboard
+      - name: Commit the acceptance record and leaderboard
         id: commit
         env:
           GH_TOKEN: ${{ github.token }}
