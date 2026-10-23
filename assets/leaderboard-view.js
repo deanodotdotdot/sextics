@@ -20,7 +20,7 @@
       panel.innerHTML = `<header class="contributor-heading"><p class="dialog-eyebrow">THE CONTRIBUTIONS</p><div class="contributor-title-line"><h2>Constructions by ${escape(account.name)}</h2><a href="https://github.com/${encodeURIComponent(account.githubLogin)}" target="_blank" rel="noopener noreferrer">@${escape(account.githubLogin)} ↗</a></div></header><div class="contribution-list">${row.instanceIds
         .map((id) => {
           const r = records().find((r) => r.id === id);
-          return `<div class="contribution-row"><button type="button" data-solution="${escape(id)}" aria-haspopup="dialog"><span class="contribution-check" aria-hidden="true">✓</span><span><strong>${escape(r.title)}</strong><small>${r.credit.origin === 'starting-example' ? 'Starting Fermat example' : 'Contributed construction'} · q = ${r.q}</small></span><span class="contribution-read">Read the construction ↗</span></button><a href="#case/${encodeURIComponent(id)}" aria-label="View instance: ${escape(r.title)}">Instance →</a></div>`;
+          return `<div class="contribution-row"><a class="contribution-solution" href="#case/${encodeURIComponent(id)}/solution" aria-haspopup="dialog"><span class="contribution-check" aria-hidden="true">✓</span><span><strong>${escape(r.title)}</strong><small>${r.credit.origin === 'starting-example' ? 'Starting Fermat example' : 'Contributed construction'} · q = ${r.q}</small></span><span class="contribution-read">Read the construction ↗</span></a><a href="#case/${encodeURIComponent(id)}" aria-label="View instance: ${escape(r.title)}">Instance →</a></div>`;
         })
         .join('')}</div>`;
     }
@@ -42,7 +42,7 @@
         })
         .join('')}</div>`;
       panel.querySelectorAll('.comment-preview').forEach((node, i) => {
-        HodgeDiscussionMarkdown.render(node, row.comments[i].body);
+        HodgeDiscussionMarkdown.render(node, row.comments[i].body, row.comments[i].url);
         let remaining = 240,
           truncated = false;
         function shorten(parent) {

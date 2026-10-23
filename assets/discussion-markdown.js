@@ -31,7 +31,6 @@
       try{if(tex.length>5000)throw Error();katex.render(tex,node,{displayMode:display,throwOnError:false,trust:false,strict:'ignore',maxExpand:200,maxSize:10,macros:{}});}
       catch{node.textContent=tex;}
     }
-    window.HodgeDiscussion?.localizeLinks(fragment);
     target.replaceChildren(fragment);
   }
   window.HodgeDiscussionMarkdown={render};

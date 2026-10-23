@@ -2189,6 +2189,7 @@ dialog .modal-note {
   backdrop-filter: blur(12px);
 }
 .status-certificate.solved {
+  text-decoration: none;
   color: #cce6d7;
   background: rgba(25, 65, 51, 0.82);
   border-color: #8bbba368;
@@ -2913,7 +2914,8 @@ dialog.solution-dialog {
   border-top: 1px solid var(--line);
   gap: 15px;
 }
-.contribution-row > button {
+.contribution-solution {
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -2923,7 +2925,7 @@ dialog.solution-dialog {
   padding: 18px 0;
   background: none;
 }
-.contribution-row > button:hover strong {
+.contribution-solution:hover strong {
   color: #c4e3c8;
 }
 .contribution-row strong {
@@ -2947,7 +2949,7 @@ dialog.solution-dialog {
   margin-left: auto;
   white-space: nowrap;
 }
-.contribution-row > a {
+.contribution-row > a:last-child {
   font-size: 9px;
   color: #9bb0c9;
   white-space: nowrap;
@@ -2968,10 +2970,10 @@ dialog.solution-dialog {
   .contribution-row strong {
     font-size: 14px;
   }
-  .contribution-row > button {
+  .contribution-solution {
     gap: 10px;
   }
-  .contribution-row > a {
+  .contribution-row > a:last-child {
     font-size: 8px;
   }
 }
@@ -3924,7 +3926,7 @@ dialog.participate-dialog {
   }
   .contributor-title-line > a,
   .contribution-read,
-  .contribution-row > a {
+  .contribution-row > a:last-child {
     font-size: 13px;
   }
   .contribution-row small {
