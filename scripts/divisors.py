@@ -70,7 +70,7 @@ def validate_program(data, folder):
         "missing source definition",
     )
     nodes = data.get("nodes")
-    require(isinstance(nodes, list) and 0 < len(nodes) <= 1024, "invalid program size")
+    require(isinstance(nodes, list) and 0 < len(nodes) <= 4096, "invalid program size")
     degrees = []
     for node in nodes:
         require(isinstance(node, list) and len(node) in (2, 3), "invalid instruction")

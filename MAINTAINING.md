@@ -134,11 +134,18 @@ Check finite values, normals, index bounds, projected extent, edge lengths, and 
 
 A solve can prove the existential contract without the optional `witness.json` export. Such a proof still earns credit; its denominator must be extracted separately before it can be highlighted. A maintenance change may add `data/<id>/display-divisor.json`, citing the relevant definitions and supplying an exact polynomial program. This presentation file does not modify the accepted proof, receipt, witness, or credit. It must not describe an arbitrary geometric curve as the certificate divisor.
 
-Quadric contact · broken reflections has no denominator overlay. Its former numerical factors are retained in `data/quadric-contact-broken/fixed-slice-divisor.json` for offline investigation, alongside the construction in `display-divisor.md`. The exporter writes only that offline file. Restoring the overlay requires an exact display formula; the browser and content builder no longer accept numerical slice-factor exports.
+Quadric contact · broken reflections uses the exact rational norm exported by
+`scripts/export-quadric-contact-divisor.py`; its construction is explained in
+`data/quadric-contact-broken/display-divisor.md`. It replaces the former numerical
+line factors. Its `sliceRestriction` records the saved plane and coordinate
+phases: the content builder rejects reuse on a different section. The exact
+formula describes the ideal rational-ratio section; the saved plane and mesh
+are its floating-point realization. Rendering uses the same polynomial compiler
+and divisor shader as every other atlas entry.
 
 The pole-two holdout export is specified in `data/holdout-q2/display-divisor.md`. It supplies an explicit nonminimal clearing for the two endpoint certificates, then exports 27 conjugate-paired line factors and two coordinate factors on a fixed-ratio slice. Regenerate it with `scripts/export-holdout-q2-divisor.py`. The twelve targets sharing the central holdout sextic now use a different common plane and camera. The old factors are preserved in `data/holdout-q2/fixed-slice-divisor.json`, but the pole-two divisor overlay is disabled: those coefficients must not be applied to a different slice without re-extraction.
 
-All displayed denominators use per-pixel evaluation. Literal polynomials are compiled into multivariate Horner expressions; compact programs retain their arithmetic structure. The fragment shader evaluates each factor and its six ambient derivatives after the inverse stereographic map. Homogeneous coordinate rescaling reduces underflow; dividing by the gradient norm and using pixel derivatives gives curves a consistent antialiased width. Products and powers are displayed as the union of their factors' zero sets, without multiplicity. There is no vertex-sampling fallback. Generated expressions have a 4,096-node budget and run inside the existing visualization worker; context-loss handling and graphics timeouts remain active. Large formulas may still cost more on slower hardware.
+All displayed denominators use per-pixel evaluation. Literal polynomials are compiled into multivariate Horner expressions; compact programs retain their arithmetic structure. The fragment shader evaluates each factor and its six ambient derivatives after the inverse stereographic map. Homogeneous coordinate rescaling, including a common scale for quadratic inputs of higher-degree expressions, reduces underflow; dividing by the gradient norm and using pixel derivatives gives curves a consistent antialiased width. Products and powers are displayed as the union of their factors' zero sets, without multiplicity. There is no vertex-sampling fallback. Generated expressions have a 4,096-node budget and run inside the existing visualization worker; context-loss handling and graphics timeouts remain active. Large formulas may still cost more on slower hardware.
 
 Numerical rendering does not replace the surface mesh with an exact surface. A divisor need not intersect a chosen real slice; absence of a bright curve does not imply missing certificate data.
 

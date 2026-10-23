@@ -7,6 +7,7 @@ struct DivJet { float v; vec3 a; vec3 b; };
 DivJet dc(float v) { return DivJet(v,vec3(0.0),vec3(0.0)); }
 DivJet da(DivJet x,DivJet y) { return DivJet(x.v+y.v,x.a+y.a,x.b+y.b); }
 DivJet dm(DivJet x,DivJet y) { return DivJet(x.v*y.v,x.a*y.v+x.v*y.a,x.b*y.v+x.v*y.b); }
+DivJet ds(DivJet x,float s) { return DivJet(x.v/s,x.a/s,x.b/s); }
 float divisorDistance(DivJet r,DivJet i,bool complexValue) {
   float scale=max(max(max(abs(r.a.x),abs(r.a.y)),max(abs(r.a.z),abs(r.b.x))),max(abs(r.b.y),abs(r.b.z)));
   scale=max(scale,max(max(max(abs(i.a.x),abs(i.a.y)),max(abs(i.a.z),abs(i.b.x))),max(abs(i.b.y),abs(i.b.z))));
@@ -46,6 +47,21 @@ float divisorDistance(DivJet r,DivJet i,bool complexValue) {
       if (a === zero) return b;
       if (b === zero) return a;
       if (cv(a) !== null && cv(b) !== null) return constant(cv(a) + cv(b));
+      // Preserve precision when phase rotation turns a sum of squares into a
+      // difference: x*x-y*y is evaluated as (x-y)*(x+y).
+      const square = (n) =>
+        nodes[n][0] === '*' && nodes[n][1] === nodes[n][2] ? nodes[n][1] : null;
+      const negativeSquare = (n) => {
+        const [op, x, y] = nodes[n];
+        return op === '*' ? (cv(x) === -1 ? square(y) : cv(y) === -1 ? square(x) : null) : null;
+      };
+      let x = square(a),
+        y = negativeSquare(b);
+      if (x === null || y === null) {
+        x = square(b);
+        y = negativeSquare(a);
+      }
+      if (x !== null && y !== null) return mul(add(x, mul(constant(-1), y)), add(x, y));
       return node('+', Math.min(a, b), Math.max(a, b));
     }
     function mul(a, b) {
@@ -160,6 +176,46 @@ float divisorDistance(DivJet r,DivJet i,bool complexValue) {
       const s = String(x);
       return /[.e]/i.test(s) ? s : s + '.0';
     };
+    // Evaluate a homogeneous polynomial in its quadratic inputs at their own
+    // projective scale. The same factor divides its value and gradient, so
+    // divisorDistance is unchanged without forming tiny high-degree products.
+    const degrees = nodes.map(([op]) => (op === 'v' ? 1 : 0));
+    for (let n = 0; n < nodes.length; n++) {
+      const [op, a, b] = nodes[n];
+      if (op === '+') degrees[n] = Math.max(degrees[a], degrees[b]);
+      else if (op === '*') degrees[n] = degrees[a] + degrees[b];
+    }
+    const quadratic = new Set(),
+      cuts = new Map();
+    function quadraticCut(n) {
+      if (cuts.has(n)) return cuts.get(n);
+      if (degrees[n] === 0) return true;
+      if (degrees[n] === 2) {
+        quadratic.add(n);
+        return true;
+      }
+      if (degrees[n] < 2) return false;
+      const [, a, b] = nodes[n];
+      const valid = quadraticCut(a) && quadraticCut(b);
+      cuts.set(n, valid);
+      return valid;
+    }
+    const canRescale = factors.flat().every((n) => degrees[n] <= 1 || quadraticCut(n));
+    if (!canRescale) quadratic.clear();
+    const basis = new Set();
+    function visitBasis(n) {
+      if (basis.has(n)) return;
+      const [op, a, b] = nodes[n];
+      if (op === '+' || op === '*') {
+        visitBasis(a);
+        visitBasis(b);
+      }
+      basis.add(n);
+    }
+    quadratic.forEach(visitBasis);
+    const order = quadratic.size
+      ? [...basis, ...[...used].filter((n) => !basis.has(n))]
+      : [...used];
     const lines = [GLSL, 'float divisorField(vec3 a,vec3 b) {'];
     // All factors are homogeneous. Projectively rescaling the coordinates
     // prevents degree-48/60 values from underflowing on small saved sections.
@@ -167,7 +223,13 @@ float divisorDistance(DivJet r,DivJet i,bool complexValue) {
       'float scale=max(max(max(abs(a.x),abs(a.y)),max(abs(a.z),abs(b.x))),max(abs(b.y),abs(b.z)));',
       'a/=max(scale,1e-20); b/=max(scale,1e-20);'
     );
-    for (const n of used) {
+    for (const [at, n] of order.entries()) {
+      if (quadratic.size && at === basis.size) {
+        const values = [...quadratic].map((n) => `abs(d${n}.v)`);
+        const maximum = values.reduce((a, b) => `max(${a},${b})`);
+        lines.push(`float quadraticScale=max(${maximum},1e-20);`);
+        quadratic.forEach((n) => lines.push(`d${n}=ds(d${n},quadraticScale);`));
+      }
       const [op, a, b] = nodes[n];
       let expr;
       if (op === 'c') expr = `dc(${literal(a)})`;

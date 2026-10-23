@@ -1,4 +1,4 @@
-# Denominator construction and former numerical visualization
+# Denominator construction and exact slice display
 
 `HeadOfNaps`'s accepted proof constructs a cubic contact field over a finite algebra, then proves that a common homogeneous clearing of its coefficients exists. Here is one completely specified clearing. It gives the same rational field after the sextic lift. It is deliberately nonminimal: large powers clear fractions without expanding millions of coefficients. Neither the accepted Lean files nor their attribution are changed by this presentation export.
 
@@ -104,23 +104,71 @@ These follow by adding degrees in products, taking maxima in sums, and multiplyi
 
 Substitute the similarly cleared $\widehat N_j$ into the six numerator formulas in the accepted explanation. The strict equations follow from the same common-factor and sextic-lift identities. On the good fiber the new clearing is a nonzero scalar times $(a\cdot c)^n$, so the accepted denominator-legality argument applies unchanged.
 
-## Numerical rendering
+## Exact polynomial on the saved section
 
-The denominator overlay is disabled. The former numerical export is retained in `fixed-slice-divisor.json` for offline investigation; restoring the overlay requires an exact display formula. The following describes the former presentation on the parameter-constant slice. `scripts/export-quadric-contact-divisor.py` uses complex ball arithmetic to isolate all $27$ eliminant roots at $4{,}096$-bit precision, checks the four cubic-line identities, and reconstructs the power-basis source minor by interpolation. It checks the resulting factorization against independent full-norm evaluations at $16$ points. An unresolved coefficient stops the export.
-
-Away from $a\cdot c=0$, the support of this denominator is the union of the zeros of
+The saved section is the numerical realization of
 
 \[
-u,\quad v,\quad k,\quad\operatorname{Norm}(\ell(r)),\quad
-\det(\mathrm{sourceMinor}),\quad\operatorname{Norm}(S-\xi\cdot B-\eta\cdot C).
+\alpha=\frac{2i}{5},\qquad\beta=\frac{13i}{20}.
 \]
 
-Indeed $e_0=u^{261}\cdot v^{36}$ and $H=u^{823}\cdot v^{112}\cdot k^3\cdot\delta$, while $\delta=t^{702}\cdot\operatorname{Norm}(\ell(r))$. On $H\ne0$, $E_0=H^{32}\cdot\det(\mathrm{sourceMinor})$ and $\det\Pi=H^{27}\cdot D_0$. On $H=0$, the explicit extra factor $H$ makes $\widehat D$ vanish. The additional components $a=0$ and $c=0$ come from the final sextic factor.
+At these values,
 
-For visibility the sampled factors undergo continuous, sign-preserving normalization, then their signed minimum is used to display the union of their zero sets without multiplying many small magnitudes together. This suppresses multiplicities; it is not an exact distance function. As with every atlas surface, triangle interpolation only approximates the curves. The bounding box remains $\pm10$. These samples and the explicit clearing are presentation material, not a replacement acceptance receipt or a separately kernel-checked witness export.
+\[
+(p,q,s,k,u,v)=\left(-\frac{32}{5},-\frac{52}{5},-\frac{169}{10},
+\frac{31i}{175},\frac{248976}{15625},\frac{59173191}{4000000}\right).
+\]
 
-## Saved real slice
+Let $P$ be the specialized monic eliminant. In the exact finite algebra
+$E=\mathbb Q[r]/(P)$, set $\xi=-m(r)/\ell(r)$ and $\eta=r\xi$.
+Although $k$ is imaginary, these two elements have rational power-basis
+coefficients: their formulas use only even powers of $k$. Write $M_f$ for
+multiplication by $f$ in the basis $1,r,\ldots,r^{26}$ and define
 
-The saved visualization holds the two parameters fixed: `Y1 = (2i/5) X1` and `Y2 = (13i/20) X2`, up to floating-point rounding of the orthonormal plane. At this parameter pair the eliminant has three real lines and twelve complex-conjugate pairs; the line relations and the nonvanishing coefficient factors are checked with 4096-bit ball arithmetic. Away from `X1 X2 = 0`, the coefficient-clearing factors are nonzero constants. The remaining support is evaluated from the individual line factors, with the two coordinate factors retained. This is a restriction of the same polynomial specified above, not a replacement certificate. Factoring the display calculation this way avoids underflow and loss of precision from multiplying many tiny values.
+\[
+N(S,B,C)=\det(SI-BM_\xi-CM_\eta).
+\]
 
-The export contains the two coordinate factors and the line factors grouped into three real factors and twelve conjugate pairs. Their coefficients refer to the real amplitudes before the saved coordinate phases are applied. The former shader evaluated these factors and their gradients directly at each pixel; no divisor values are stored at mesh vertices. The numerical coefficients are display approximations, not additions to the accepted Lean proof.
+This is a homogeneous degree-$27$ polynomial with $406$ rational coefficients.
+The exporter obtains it by taking the characteristic polynomials of
+$M_\xi+cM_\eta$ for the integers $c=0,\ldots,27$, interpolating exactly, and
+homogenizing in $B$. It does not approximate the individual algebraic roots or
+line factors.
+
+The same exact computation establishes $P(0)\ne0$, invertibility of
+$\ell(r)$, and a nonzero determinant for the original eight source rows and
+first eight power-basis coordinates. Thus $H$ and $E_0$ are nonzero constants
+on this section. The global clearing above restricts to
+
+\[
+D=E_0H^{28}\,a^{3000002}c^{3000002}
+N\bigl(2(x^2+y^2),a^2,c^2\bigr).
+\]
+
+Consequently the displayed polynomial
+
+\[
+a\,c\,N\bigl(2(x^2+y^2),a^2,c^2\bigr)
+\]
+
+has exactly the same zero set, with multiplicities removed. Its degree is $56$.
+`display-divisor.json` stores a compact arithmetic program for a nonzero rational
+multiple of this polynomial. It is presentation material extracted from the
+accepted construction, not a replacement witness or acceptance receipt.
+
+Regenerate it with `scripts/export-quadric-contact-divisor.py`, which requires
+`python-flint`. The export records the saved plane and coordinate phases under
+`sliceRestriction`; a different plane requires a new extraction. The stored
+plane and the mesh have ordinary floating-point rounding, so they approximate
+the ideal section above. The restriction metadata ties the formula to that
+specific numerical realization; it does not claim the rounded rows satisfy
+exact rational identities.
+
+The renderer evaluates the quadratic inputs at a common projective scale before
+forming their degree-$27$ norm. This preserves the zero set and the normalized
+value/gradient calculation while preventing the norm from underflowing merely
+because all three inputs are small. Difference-of-squares evaluation also avoids
+unnecessary cancellation in the phase-rotated $2(x^2+y^2)$. The coefficients are
+exact, but pixels still use floating-point arithmetic and the surface remains a
+triangle approximation. Cancellation can produce small display artifacts near
+closely spaced components; the numerical image is not mathematical evidence.

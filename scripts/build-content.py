@@ -96,6 +96,9 @@ for rid in catalogue['instanceIds']:
         display_divisor = folder / 'display-divisor.json'
         if display_divisor.is_file():
             display = validate_program(json.loads(display_divisor.read_text()), folder)
+            if 'sliceRestriction' in display:
+                require(display['sliceRestriction'] == {key: record['render'][key] for key in ('planeMatrix', 'phaseSigns')},
+                        f'{rid}: display divisor belongs to a different saved section')
             if 'D' in witness:
                 validate_slice_identity(display, witness['D'], record['render'], folder)
             else:
