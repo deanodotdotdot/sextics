@@ -75,9 +75,7 @@ for rid in catalogue['instanceIds']:
     record['category'] = display['category']
     record['displayDefinitions'] = display['definitions']
     record['render'] = json.loads((ROOT / 'slices' / f'{rid}.json').read_text())
-    record['status'] = 'open'
     record['evidenceKind'] = 'none'
-    record['certificateAvailable'] = False
     record['formalStatus'] = 'unproved'
     record['content'] = {'why': f'assets/atlas/{rid}/why.html'}
     emit(ATLAS / rid / 'why.html', render(prose(local_path(record['rationale'], folder)), root=ROOT, source_path=local_path(record['rationale'], folder)))
@@ -96,10 +94,8 @@ for rid in catalogue['instanceIds']:
             require(isinstance(pull_request.get(key), str) and re.fullmatch(r'[0-9a-f]{40}', pull_request[key]),
                     f'{rid}: pull request {key} must be a full commit SHA')
         record['pullRequest'] = dict(pull_request)
-        record['status'] = 'solved'
         record['formalStatus'] = 'proved'
         record['evidenceKind'] = 'explicit-certificate' if 'D' in witness else 'existence-proof'
-        record['certificateAvailable'] = True
         record['certificate'] = dict(solution['witness'])
         if 'D' in record['certificate']:
             record['D'] = polynomial(record['certificate'].pop('D')['expression'])
@@ -128,11 +124,11 @@ for rid in catalogue['instanceIds']:
         accepted = solution['acceptedAt']
         accepted = accepted.isoformat() if isinstance(accepted, (date, datetime)) else accepted
         credits.append({'instanceId': rid, **record['credit'], 'acceptedAt': accepted})
-    if not record['certificateAvailable']:
+    if record['formalStatus'] == 'unproved':
         require(not (ROOT / 'slices/divisors' / f'{rid}.json').exists(), f'{rid}: display divisor requires an accepted proof')
         record['witnessAvailability'] = 'missing'
     dump(ATLAS / rid / 'record.json', record)
-    summary = {k: record[k] for k in ['id', 'title', 'status', 'formalStatus', 'evidenceKind', 'certificateAvailable', 'category', 'q']}
+    summary = {k: record[k] for k in ['id', 'title', 'formalStatus', 'evidenceKind', 'category', 'q']}
     summary['path'] = f'assets/atlas/{rid}/record.json'
     if 'credit' in record:
         summary['credit'] = record['credit']
