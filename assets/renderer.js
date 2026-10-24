@@ -723,6 +723,7 @@ void main() {
       last = performance.now(),
       lastDraw = 0;
     const touches = new Map(),
+      heldArrows = new Set(),
       clamp = (x, a, b) => Math.max(a, Math.min(b, x)),
       clone3 = (v) => v.slice();
     function listen(target, name, fn, opts) {
@@ -891,6 +892,7 @@ void main() {
       orbitCenter = clone3(cameraCenter);
     }
     function resetCamera() {
+      heldArrows.clear();
       orbitOrientation = homeOrientation.slice();
       orbitDistance = baseDistance;
       orbitCenter = baseCenter.slice();
@@ -904,6 +906,7 @@ void main() {
       needsDraw = true;
     }
     function setMode(mode) {
+      heldArrows.clear();
       cameraMode = mode === 'free' ? 'free' : 'parallax';
       drag = null;
       touches.clear();
@@ -928,6 +931,11 @@ void main() {
     }
     function pannedCenter(center, dx, dy, orientation, distance) {
       return ScreenTrackball.pan(center, dx, dy, orientation, distance, FOV, canvas.clientHeight);
+    }
+    function rotateCamera(dx, dy) {
+      // Move the visible surface in screen directions, even when rolled.
+      orbitOrientation = ScreenTrackball.rotate(orbitOrientation, -dx * 0.0047, dy * 0.0042);
+      needsDraw = true;
     }
     listen(
       window,
@@ -964,6 +972,7 @@ void main() {
       window,
       'blur',
       () => {
+        heldArrows.clear();
         targetX = targetY = 0;
         drag = null;
         touches.clear();
@@ -1074,16 +1083,15 @@ void main() {
         const dx = e.clientX - drag.x,
           dy = e.clientY - drag.y;
         if (drag.action === 'orbit') {
-          // Dragging moves the visible surface with the pointer, even when rolled.
-          orbitOrientation = ScreenTrackball.rotate(orbitOrientation, -dx * 0.0047, dy * 0.0042);
+          rotateCamera(dx, dy);
           cameraOrientation = orbitOrientation.slice();
           drag.x = e.clientX;
           drag.y = e.clientY;
         } else {
           orbitCenter = pannedCenter(drag.center, dx, dy, drag.orientation, drag.distance);
           cameraCenter = clone3(orbitCenter);
+          needsDraw = true;
         }
-        needsDraw = true;
       },
       { passive: false }
     );
@@ -1114,11 +1122,12 @@ void main() {
       { passive: true }
     );
     listen(window, 'keydown', (e) => {
-      if (e.textInput) return;
-      if (e.key === 'Escape' && cameraMode === 'free') setMode('parallax');
-      if ((e.key === 'r' || e.key === 'R') && cameraMode === 'free' && !e.metaKey && !e.ctrlKey)
-        resetCamera();
+      if (cameraMode !== 'free') return;
+      if (e.key.startsWith('Arrow')) heldArrows.add(e.key);
+      else if (e.key === 'Escape') setMode('parallax');
+      else if (e.key === 'r' || e.key === 'R') resetCamera();
     });
+    listen(window, 'keyup', (e) => heldArrows.delete(e.key));
     listen(canvas, 'webglcontextlost', () => {
       contextLost = true;
       stop('The graphics context was lost.');
@@ -1140,6 +1149,7 @@ void main() {
     }
     listen(window, 'resize', resize, { passive: true });
     listen(document, 'visibilitychange', () => {
+      heldArrows.clear();
       needsDraw = true;
       lastFrameTick = fenceStarted = performance.now();
     });
@@ -1184,7 +1194,12 @@ void main() {
         }
         return;
       }
-      // The camera below supplies the smoothing; filtering the input too adds lag.
+      if (heldArrows.size) {
+        const dx = heldArrows.has('ArrowRight') - heldArrows.has('ArrowLeft'),
+          dy = heldArrows.has('ArrowDown') - heldArrows.has('ArrowUp');
+        if (dx || dy) rotateCamera(dx * 200 * dt, dy * 200 * dt);
+      }
+      // Camera easing also ramps held-arrow motion up and down without key-repeat steps.
       const idle = reduced ? 0 : 0.01 * Math.sin(now * 0.00023),
         idle2 = reduced ? 0 : 0.007 * Math.sin(now * 0.00017 + 1.7);
       const desiredOrientation =
