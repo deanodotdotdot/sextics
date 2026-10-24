@@ -4205,6 +4205,53 @@ dialog.participate-dialog {
 .discussion-markdown a {
   color: #b4cff1;
 }
+.discussion-markdown details {
+  margin: 18px 0;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.discussion-markdown summary {
+  position: relative;
+  display: block;
+  min-height: 44px;
+  margin: 0 -16px;
+  padding: 12px 44px 12px 16px;
+  border-radius: inherit;
+  background: #1b2a4166;
+  color: #d1dff1;
+  font: 600 14px/1.6 var(--sans);
+  cursor: pointer;
+  list-style: none;
+}
+.discussion-markdown summary::-webkit-details-marker {
+  display: none;
+}
+.discussion-markdown summary:hover {
+  background: #263a5466;
+}
+.discussion-markdown summary::after {
+  content: '';
+  position: absolute;
+  right: 17px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+}
+.discussion-markdown details[open] > summary {
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 5px 5px 0 0;
+}
+.discussion-markdown details[open] > summary::after {
+  transform: translateY(-20%) rotate(225deg);
+}
+.discussion-markdown details > :last-child:not(summary) {
+  margin-bottom: 16px;
+}
 .discussion-markdown h1,
 .discussion-markdown h2,
 .discussion-markdown h3 {

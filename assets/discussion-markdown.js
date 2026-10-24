@@ -1,4 +1,4 @@
-/* Bundled Markdown + KaTeX; raw HTML is text, and links are sanitized. */
+/* Bundled Markdown + KaTeX; HTML and links pass through the shared sanitizer. */
 (()=>{
   'use strict';
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6,7 +6,6 @@
   const inlineRule=/^(?:\$`([^\n]*?)`\$|\\\(([\s\S]*?)\\\)|\$(?!\s|\$)((?:\\.|[^\n$\\])+?)\$(?!\d))/;
   const displayRule=/^ {0,3}(?:\$\$([\s\S]*?)\$\$|\\\[([\s\S]*?)\\\])(?:[ \t]*\n|$)/;
   const parser=new marked.Marked({gfm:true,breaks:true,renderer:{
-    html({text}){return escape(text.replace(/<!--[\s\S]*?-->/g,''));},
     code(token){if(token.lang?.trim()==='math')return math(token.text,true);return false;},
     image({href,text}){return `<a href="${escape(href)}">${escape(text||'View image')} ↗</a>`;}
   },extensions:[
@@ -16,8 +15,8 @@
   function render(target,source,baseUrl='https://github.com/hodge-computer/sextics/',remaining=Infinity){
     const fragment=DOMPurify.sanitize(parser.parse(String(source||'').slice(0,65536)),{
       RETURN_DOM_FRAGMENT:true,ALLOW_DATA_ATTR:false,
-      ALLOWED_TAGS:['p','br','strong','em','del','a','ul','ol','li','blockquote','pre','code','h1','h2','h3','h4','h5','h6','hr','table','thead','tbody','tr','th','td','span','input'],
-      ALLOWED_ATTR:['href','title','start','type','checked','disabled','data-discussion-math','data-display']
+      ALLOWED_TAGS:['p','br','strong','em','del','a','ul','ol','li','blockquote','pre','code','h1','h2','h3','h4','h5','h6','hr','table','thead','tbody','tr','th','td','span','input','details','summary'],
+      ALLOWED_ATTR:['href','title','start','type','checked','disabled','open','data-discussion-math','data-display']
     });
     // Trim preview nodes before typesetting mathematics that will not be shown.
     let truncated=false;
