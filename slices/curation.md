@@ -17,6 +17,10 @@ Validate finite values, normals, coordinate and index bounds, edge lengths, and 
 
 Denominators are evaluated directly at each pixel, independently of the geometric mesh. Compact formulas and slice-specific factorizations can be supplied through `slices/divisors/<id>.json`; see MAINTAINING.md. A factorization restricted to a saved plane must be regenerated if that plane or its coordinate phases change. Open instances have no displayed denominator.
 
+Klein · rational Piola trace keeps `X0 = 0`, where `D = X1^18 * X2^12`.
+Sample new planes within that hyperplane to retain real divisor curves.
+Making `F` real-valued alone does not ensure that `D = 0` has real codimension one.
+
 The homepage uses its separately saved Contact cone view in `home.json`. The Contact cone atlas entry uses `contact46006.json`.
 
 Equal-sextic targets share the same geometric section and camera: the two Fermat targets, the two cross-block Two ties targets, the coupled Fano reflection and its complementary-character target, and the cyclic triple cover and its complementary-character target. Their accepted denominators, when available, are evaluated independently. Special sections used to expose repeated-factor divisors are checked by the exact `sliceIdentity` mechanism described in MAINTAINING.md.
