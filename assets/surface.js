@@ -141,10 +141,12 @@
       if (usingTilt && target === 'view' && event.pointerType === 'touch') return;
       const properties = {};
       for (const key of keys) if (event[key] !== undefined) properties[key] = event[key];
-      if (name === 'keydown')
-        properties.textInput = !!event.target?.closest?.(
+      if (name === 'keydown') {
+        if (event.metaKey || event.ctrlKey || event.altKey || event.target?.closest?.(
           'input,textarea,select,[contenteditable="true"]'
-        );
+        )) return;
+        if (mode === 'free' && event.key.startsWith('Arrow')) event.preventDefault();
+      }
       send({ type: 'input', target, name, properties });
     }
     function start() {
@@ -260,8 +262,8 @@
       if (returning && recoveryPending) start();
       else send({ type: 'visibility', hidden });
     });
-    for (const name of ['pointermove', 'pointerleave', 'blur', 'keydown'])
-      listen(window, name, (event) => input('view', name, event), { passive: true });
+    for (const name of ['pointermove', 'pointerleave', 'blur', 'keydown', 'keyup'])
+      listen(window, name, (event) => input('view', name, event), { passive: name !== 'keydown' });
     // Never request sensor permission. Browsers requiring it silently retain
     // the ordinary background view; already-granted access is usable as-is.
     const orientation = window.DeviceOrientationEvent;
