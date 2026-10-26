@@ -678,10 +678,10 @@
     try {
       const record = await getRecord(caseId);
       if (id !== state.loadId) return;
-      await renderCase(record, id);
-      if (id !== state.loadId) return;
       document.title = `${record.title} — hodge.computer`;
       setScene(record);
+      await renderCase(record, id);
+      if (id !== state.loadId) return;
       if (destination.solution && isProved(record)) await showSolution(record, destination.anchor);
     } catch (error) {
       if (id !== state.loadId) return;

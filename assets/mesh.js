@@ -1,6 +1,6 @@
 /* Saved mesh decoding and validation, independent of GPU resource lifetime. */
 ((root) => {
-  async function validateDynamicMesh(buffer, indexBuffer, meta, shouldContinue) {
+  async function validateMesh(buffer, indexBuffer, meta, checkpoint) {
     const STRIDE = 9;
     if (!(buffer instanceof ArrayBuffer) || !(indexBuffer instanceof ArrayBuffer))
       throw new Error('Missing geometry buffers.');
@@ -36,36 +36,29 @@
     // Compact-domain meshes may extend beyond the usual normalized box.
     const positionBound =
       meta.samplingMode === 'sphere' ? Math.min(4, Number(meta.positionBound) || 1.01) : 1.01;
-    const yieldUI = () => new Promise((resolve) => setTimeout(resolve, 0));
-    for (let start = 0; start < meta.vertexCount; start += 8192) {
-      if (!shouldContinue()) throw new Error('Cancelled');
-      for (let n = start; n < Math.min(meta.vertexCount, start + 8192); n++) {
-        const o = n * STRIDE;
-        for (let j = 0; j < STRIDE; j++)
-          if (!Number.isFinite(v[o + j])) throw new Error('Non-finite mesh attribute rejected.');
-        if (Math.max(Math.abs(v[o]), Math.abs(v[o + 1]), Math.abs(v[o + 2])) > positionBound)
-          throw new Error('Corrupt position data rejected.');
-        if (Math.abs(Math.hypot(v[o + 3], v[o + 4], v[o + 5]) - 1) > 0.015)
-          throw new Error('Corrupt normal data rejected.');
-      }
-      await yieldUI();
+    for (let n = 0; n < meta.vertexCount; n++) {
+      if (n % 8192 === 0) await checkpoint();
+      const o = n * STRIDE;
+      for (let j = 0; j < STRIDE; j++)
+        if (!Number.isFinite(v[o + j])) throw new Error('Non-finite mesh attribute rejected.');
+      if (Math.max(Math.abs(v[o]), Math.abs(v[o + 1]), Math.abs(v[o + 2])) > positionBound)
+        throw new Error('Corrupt position data rejected.');
+      if (Math.abs(Math.hypot(v[o + 3], v[o + 4], v[o + 5]) - 1) > 0.015)
+        throw new Error('Corrupt normal data rejected.');
     }
     const bound = meta.edgeBound + 1e-5;
-    for (let start = 0; start < ix.length; start += 24576) {
-      if (!shouldContinue()) throw new Error('Cancelled');
-      for (let q = start; q < Math.min(ix.length, start + 24576); q += 3) {
-        for (let j = 0; j < 3; j++) {
-          const a = ix[q + j],
-            b = ix[q + ((j + 1) % 3)];
-          if (a >= meta.vertexCount || b >= meta.vertexCount)
-            throw new Error('Triangle index out of range.');
-          const i = a * STRIDE,
-            k = b * STRIDE;
-          if (Math.hypot(v[i] - v[k], v[i + 1] - v[k + 1], v[i + 2] - v[k + 2]) > bound)
-            throw new Error('Corrupt triangle extent rejected.');
-        }
+    for (let q = 0; q < ix.length; q += 3) {
+      if (q % 24576 === 0) await checkpoint();
+      for (let j = 0; j < 3; j++) {
+        const a = ix[q + j],
+          b = ix[q + ((j + 1) % 3)];
+        if (a >= meta.vertexCount || b >= meta.vertexCount)
+          throw new Error('Triangle index out of range.');
+        const i = a * STRIDE,
+          k = b * STRIDE;
+        if (Math.hypot(v[i] - v[k], v[i + 1] - v[k + 1], v[i + 2] - v[k + 2]) > bound)
+          throw new Error('Corrupt triangle extent rejected.');
       }
-      await yieldUI();
     }
     return true;
   }
@@ -92,6 +85,16 @@
         signal.throwIfAborted();
         if (!usable()) throw new Error('Cancelled');
       };
+      // Share one work budget across decoding and validation. Yield to controls
+      // and the worker heartbeat without paying a timer delay for every chunk.
+      let deadline = performance.now() + 16;
+      async function checkpoint() {
+        check();
+        if (performance.now() < deadline) return;
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        check();
+        deadline = performance.now() + 16;
+      }
       const response = await fetch(url, { signal });
       if (!response.ok) throw new Error('Missing saved slice.');
       const manifest = await response.json(),
@@ -101,29 +104,12 @@
         check();
         const response = await fetch(new URL(name, root), { signal });
         if (!response.ok) throw new Error('Missing local mesh asset: ' + name);
-        const buffer = await response.arrayBuffer();
-        check();
         if (typeof DecompressionStream === 'undefined')
           throw new Error('This browser cannot decompress the saved mesh.');
-        const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'));
-        const reader = stream.getReader(),
-          chunks = [];
-        const cancel = () => {
-          reader.cancel().catch(() => {});
-        };
-        signal.addEventListener('abort', cancel, { once: true });
-        try {
-          for (;;) {
-            const { value, done } = await reader.read();
-            check();
-            if (done) break;
-            chunks.push(value);
-          }
-          return await new Blob(chunks).arrayBuffer();
-        } finally {
-          signal.removeEventListener('abort', cancel);
-          reader.releaseLock();
-        }
+        const stream = response.body.pipeThrough(new DecompressionStream('gzip'), { signal });
+        const buffer = await new Response(stream).arrayBuffer();
+        check();
+        return buffer;
       }
       let buffer, indexBuffer;
       if (manifest.encoding === 'quantized-p3-n3-phase2-delta-v1') {
@@ -148,10 +134,7 @@
           throw new Error('Invalid packed mesh.');
         const data = new Float32Array(n * 9);
         for (let i = 0; i < n; i++) {
-          if (i % 8192 === 0) {
-            await new Promise((resolve) => setTimeout(resolve, 0));
-            check();
-          }
+          if (i % 8192 === 0) await checkpoint();
           for (let j = 0; j < 3; j++) {
             data[9 * i + j] =
               manifest.positionMin[j] +
@@ -170,12 +153,7 @@
         ]);
       } else throw new Error('Unrecognized mesh encoding.');
       check();
-      await validateDynamicMesh(
-        buffer,
-        indexBuffer,
-        manifest.meta,
-        () => !signal.aborted && usable()
-      );
+      await validateMesh(buffer, indexBuffer, manifest.meta, checkpoint);
       check();
       return { buffer, indexBuffer, meta: manifest.meta };
     }
