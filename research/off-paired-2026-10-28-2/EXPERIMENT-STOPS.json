@@ -1,0 +1,32 @@
+[
+  {
+    "name": "gradient-components-1009",
+    "stopped_utc": "2026-10-28T16:54:23.316467+00:00",
+    "reason": "Replaced by smaller critical-quartic coupled-normal ideal; no completed mathematical result or obstruction."
+  },
+  {
+    "name": "coupled-branch-1009",
+    "stopped_utc": "2026-10-28T16:54:23.316683+00:00",
+    "reason": "Replaced by smaller critical-quartic coupled-normal ideal; no completed mathematical result or obstruction."
+  },
+  {
+    "name": "critical-coupled-normal-qq",
+    "stopped_utc": "2026-10-28T16:58:32.152819+00:00",
+    "reason": "Auxiliary quartic critical point need not lie on the actual physical fiber. Replaced by on-fiber ideal including the critical value relation; no obstruction inferred."
+  },
+  {
+    "name": "critical-coupled-onfiber-qq",
+    "stopped_utc": "2026-10-28T17:39:08.559579+00:00",
+    "reason": "Direct rational std did not finish after40minutes; exact geometric unit-ideal proof established independently. Continue faster slimgb and explicit modular multiplier lifting. No result inferred from termination."
+  },
+  {
+    "name": "critical-coupled-qq-slimgb",
+    "stopped_utc": "2026-10-28T17:58:04.224717+00:00",
+    "reason": "Replaced broad Groebner computation by exact targeted physical two-node Bezout solve, 639-square rational system, fully verified identity. No result inferred from stopped job."
+  },
+  {
+    "name": "critical-coupled-normal-1009-lift",
+    "stopped_utc": "2026-10-28T18:09:10.275148+00:00",
+    "reason": "General Singular transformation-matrix lift did not finish after35minutes. Verified modular membership B in I remains valid, but no multiplier certificate was produced. Replaced with targeted bounded Macaulay solve."
+  }
+]

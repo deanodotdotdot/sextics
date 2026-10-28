@@ -1,0 +1,58 @@
+{
+  "agent_only": true,
+  "certificate": false,
+  "authoritative_prose": "RESULTS.txt",
+  "claims": [
+    {
+      "claim": "coupled physical double-node current",
+      "scope": "Exact all-eight-row cancellation at j=+/-1; nonzero residual",
+      "evidence": [
+        "two-node-physical-current-improved.json",
+        "independent-two-node-improved-audit.json"
+      ]
+    },
+    {
+      "claim": "patched current",
+      "scope": "Generic support i,L,Delta; slice support i,L,H1; no zero-residual claim",
+      "evidence": [
+        "two-node-physical-current-patched.json",
+        "patched-native-direct-replay-audit.json",
+        "patched-generic-support-audit.json",
+        "independent-patched-audit.json"
+      ]
+    },
+    {
+      "claim": "original-coordinate transport",
+      "scope": "Exact specialization on both deck branches, all16 fiber words; nonzero divergence",
+      "evidence": [
+        "two-node-patched-algebraic-original-field-audit.json",
+        "two-node-patched-negative-deck-field-audit.json"
+      ]
+    },
+    {
+      "claim": "critical residue",
+      "scope": "Explicit normalized rank-one square-zero residue on critical cover; scoped ramification",
+      "evidence": [
+        "critical-normalized-residue.json",
+        "independent-critical-residue-audit.json",
+        "critical-cover-ramification-audit.json"
+      ]
+    },
+    {
+      "claim": "native logarithmic fields",
+      "scope": "Twelve explicit fields, 768 connection cancellations; no global closure",
+      "evidence": [
+        "native-logarithmic-frame.json",
+        "independent-new-identities-audit.json"
+      ]
+    },
+    {
+      "claim": "scalar normal ideal",
+      "scope": "Characteristic-zero localized unit-ideal proof; no exported global multipliers or eight-row current",
+      "evidence": [
+        "COUPLED-NORMAL-IDEAL.txt",
+        "coupled-unit-geometry-audit.json"
+      ]
+    }
+  ]
+}

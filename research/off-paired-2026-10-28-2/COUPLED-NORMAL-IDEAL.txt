@@ -1,0 +1,90 @@
+COUPLED CRITICAL-NORMAL IDEAL: CHARACTERISTIC-ZERO UNIT-IDEAL PROOF
+Agent-only computational research. This is a scalar critical-algebra result,
+not an eight-row current, an original certificate, or a solved sextic.
+
+Let u=j^2 and work over Q in i,u,w,x. Define
+ T=1+w^3, N=9i^2w^2-16uT, L=256T^5N+729i^6u w^6,
+ AV=64u w T^2N, BV=9i^2L, vp=AV/BV, B=i*u*w*T*N*L,
+ Q=8(i x^2+2x+3)^2-u x^2(2i x^2+5x+8),
+ H=AV(2i x^2+5x+8)(x+2)-4BV x^6.
+Define the three polynomial normal generators (subscripts mean derivatives):
+ mi=2iNL x^2-(i N_i L-2NL-i L_i N)(x+2),
+ mj=-4NL(i x^2+2x+3)-(2NL+2u N_u L-2u L_u N)(x+2),
+ mw=-(NLT+2w T_w NL+w N_w LT-w L_w NT)(x+2).
+
+Claim: the ideal I=(Q,H,mi,mj,mw) becomes the unit ideal in
+ Q[i,u,w,x,1/B]. Equivalently, B^m belongs to I for some finite m.
+The argument below proves this over characteristic zero. It does NOT give
+an explicit exponent or rational multipliers. A separate calculation proves
+B itself is in the corresponding ideal modulo1009; that finite-field fact
+is not substituted for the characteristic-zero argument.
+
+Proof.
+Suppose there were a complex common zero with B nonzero. Since Q(0)=72,
+x is nonzero. Choose j with j^2=u and set
+ a=-2(i x^2+2x+3)/(j x), A2=i x^2+5x/2+4.
+The exact identity a^2-A2=Q/(2j^2 x^2) gives a^2=A2. Since H=0,
+ vp*A2*(x+2)=2x^6.
+All factors on the right and vp are nonzero. Hence a and x+2 are nonzero.
+Set y=x^3/a and t=y^2/vp=(x+2)/2. Then
+ ay=x^3,
+ C=y^2/vp+a^2+i x^2+j a x+x+1=0.
+At fixed base parameters, regard y=x^3/a. Direct substitution gives
+ a*C_a=2a^2+j a x-2t=0,
+ x*C_x=2i x^2+j a x+x+6t=0.
+The three remaining derivatives at fixed x,a are exactly
+ i*C_i=mi/(2NL), j*C_j=mj/(2NL), w*C_w=mw/(2NLT).
+Consequently C and all five derivatives of C in (i,j,w,x,a) vanish.
+
+This is impossible because this chart is an etale finite cover of an open
+subset of the original smooth affine sextic. Here are explicit inverse
+choices and a Jacobian check, so the assertion does not rely on a picture
+or on a generic-point-only smoothness inference.
+Choose Z with Z^2=w, put k=3iw/(4T), and put
+ R=k^2*T/j^2-1=N/(16uT).
+Choose X with X^3=a*j/k; choose U with U^6=R*X^6; then set
+ Y=2T*x/(Z*X), P=k*X*Y/U.
+Every coordinate and every chosen root is nonzero. The definitions recover
+ k=UP/(XY), R=(U/X)^6, i=4kT/(3w), j^2=k^2T/(1+R),
+ x=ZXY/(2T), a=kX^3/j, y=Z^3Y^3j/(8kT^3).
+Also 1+R=k^2T/j^2 is nonzero. With S=k^6/R, L nonzero implies
+1+S nonzero. The physical v expression agrees with
+ w^3/[64T^4(1+R)(1+S)].
+Before imposing any hypersurface equation, the exact identity is
+ C=f/T,
+ f=1+X^6+U^6+Y^6+Z^6+P^6+XYZ/2+X^3UZP/2+XUYP/3.
+The logarithmic Jacobian of (i,j,w,x,a) with respect to (X,U,Y,Z,P)
+is -18R/(1+R), with the stated ordering. Thus its ordinary Jacobian is
+this nonzero scalar times i*j*w*x*a/(X*U*Y*Z*P). The root choices are etale
+on this open torus. Therefore dC=0 on C=0 would imply df=0 on f=0.
+
+The homogeneous original F is smooth over C: the coefficient L1 bounds
+of its perturbation gradients are (13/6,7/3,5/6,5/6,1,5/6), all less
+than6. At a nonzero complex vector, choose a coordinate of maximal modulus
+M. Its Fermat derivative has modulus6M^5, whereas all perturbation terms
+in that derivative have total modulus at most cM^5 with c<6. Hence the
+homogeneous gradient cannot vanish. If df vanished on f=0, Euler's
+homogeneous identity would also make the omitted X0 derivative vanish.
+This is the required contradiction.
+
+The localized ideal therefore has no complex zero. The Nullstellensatz
+makes it the unit ideal over C; faithful field extension descends the
+unit-ideal statement to Q. Clearing powers of B proves the claim.
+
+Exact arithmetic support is in coupled-unit-geometry-audit.json and
+code/audit_coupled_unit_geometry.py. It checks the critical-point equations,
+all three normal generators, the logarithmic Jacobian, the original
+hypersurface identity, and the six strict gradient bounds independently
+with rational symbolic arithmetic. The native critical-value resultant
+is also independently checked: Res_x(Q,v(2i x^2+5x+8)(x+2)-4x^6)
+=2187*d(i,j,v), with u=j^2.
+
+What this does and does not resolve.
+This removes a common-zero obstruction to coupling the physical normal
+directions on the indicated critical chart. Scalar Bezout coefficients
+exist using only the listed chart denominators. It does not export those
+coefficients, convert them into the compact eight-row connection basis,
+serve the chart boundary or infinity, lower the full actual residual, or
+verify the required original F^2 identity. The frozen Taylor current with
+nonzero residual and only Delta^3 denominator remains the preferred actual
+current. The scalar unit-ideal result must not be presented as a certificate.

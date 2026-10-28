@@ -1,0 +1,285 @@
+{
+  "status": "PASS exact generic denominator-support proof",
+  "checks": [
+    {
+      "label": "correction i 0",
+      "support": {}
+    },
+    {
+      "label": "correction i 1",
+      "support": {}
+    },
+    {
+      "label": "correction i 2",
+      "support": {}
+    },
+    {
+      "label": "correction i 3",
+      "support": {}
+    },
+    {
+      "label": "correction i 4",
+      "support": {}
+    },
+    {
+      "label": "correction i 5",
+      "support": {}
+    },
+    {
+      "label": "correction i 6",
+      "support": {}
+    },
+    {
+      "label": "correction i 7",
+      "support": {
+        "i": 7,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 0",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 1",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 2",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 3",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 4",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 5",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 6",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction j 7",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "correction w 0",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction w 1",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction w 2",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction w 3",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction w 4",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction w 5",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction w 6",
+      "support": {
+        "i": 11,
+        "L": 3
+      }
+    },
+    {
+      "label": "correction w 7",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 0",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 1",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 2",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 3",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 4",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 5",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 6",
+      "support": {
+        "i": 11,
+        "L": 4
+      }
+    },
+    {
+      "label": "vertical contraction 7",
+      "support": {
+        "i": 11,
+        "L": 5
+      }
+    },
+    {
+      "label": "old residual 0",
+      "support": {
+        "i": 7,
+        "L": 2,
+        "Delta": 1
+      }
+    },
+    {
+      "label": "old residual 1",
+      "support": {
+        "i": 7,
+        "L": 2,
+        "Delta": 1
+      }
+    },
+    {
+      "label": "old residual 2",
+      "support": {
+        "i": 5,
+        "L": 1,
+        "Delta": 1
+      }
+    },
+    {
+      "label": "old residual 3",
+      "support": {
+        "i": 5,
+        "L": 1,
+        "Delta": 1
+      }
+    },
+    {
+      "label": "old residual 4",
+      "support": {
+        "i": 7,
+        "L": 2,
+        "Delta": 1
+      }
+    },
+    {
+      "label": "old residual 5",
+      "support": {
+        "i": 7,
+        "L": 2,
+        "Delta": 1
+      }
+    },
+    {
+      "label": "old residual 6",
+      "support": {
+        "i": 6,
+        "L": 2,
+        "Delta": 1
+      }
+    },
+    {
+      "label": "old residual 7",
+      "support": {
+        "i": 5,
+        "L": 2,
+        "Delta": 1
+      }
+    }
+  ],
+  "check_count": 232,
+  "matrix_degree_checks": 192,
+  "maximum_native_numerator_v_degree": 5,
+  "pulled_native_denominator": "Dh*BV^max(0,d-4), where Dh=KD*i^2*Delta and BV=9*i^2*L",
+  "argument": "Ppatch=Pold+C. Every C_p and sum_p rho_p*C_p has denominator supported on i,L. Differentiation preserves that support. Homogenizing each native numerator shows the pulled matrices have denominator supported on i,L,Delta. Since Rold is supported on i,L,Delta, the full generic Rpatch is supported on i,L,Delta. This proves a support bound without expanding the full generic residual.",
+  "generic_residual_support": [
+    "i",
+    "L",
+    "Delta"
+  ],
+  "scope": "At j=+/-1 the separately expanded residual further cancels h and has support i,L,H1. No zero-residual or global removal of i,L,Delta is claimed.",
+  "certificate": false,
+  "seconds": 6.634115934371948
+}

@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "step_count": 20,
+  "steps": [
+    {
+      "name": "source-fiber-normalization",
+      "script": "code/audit_source_fiber_normalization.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.069
+    },
+    {
+      "name": "critical-resultant",
+      "script": "code/critical_quartic.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.069
+    },
+    {
+      "name": "native-logarithmic-frame",
+      "script": "code/audit_logarithmic_fields.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.147
+    },
+    {
+      "name": "critical-normalized-residue",
+      "script": "code/critical_normal_residue.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.169
+    },
+    {
+      "name": "critical-cover-ramification",
+      "script": "code/audit_critical_cusp.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.205,
+      "strengthened_exact_three_minor_equalities": true
+    },
+    {
+      "name": "independent-source-log-frame-resultant",
+      "script": "code/independent_new_identities.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 6.106
+    },
+    {
+      "name": "independent-critical-residue",
+      "script": "code/independent_critical_residue.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 5.526
+    },
+    {
+      "name": "scalar-unit-ideal-geometric-inputs",
+      "script": "code/audit_coupled_unit_geometry.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.46
+    },
+    {
+      "name": "native-double-node-current",
+      "script": "code/build_two_node_coupled_current.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.075
+    },
+    {
+      "name": "actual-improved-two-node-current",
+      "script": "code/apply_two_node_physical_current_improved.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 13.048
+    },
+    {
+      "name": "independent-two-node-current",
+      "script": "code/independent_two_node_improved_audit.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 3.13
+    },
+    {
+      "name": "improved-original-field-positive",
+      "script": "code/algebraic_two_node_improved_original_field_check.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 2.435
+    },
+    {
+      "name": "improved-original-field-negative",
+      "script": "code/algebraic_two_node_improved_original_field_check.py",
+      "environment_override": {
+        "DECK_SIGN": "-1"
+      },
+      "returncode": 0,
+      "seconds": 2.409
+    },
+    {
+      "name": "actual-patched-current",
+      "script": "code/patch_two_node_current.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 24.42
+    },
+    {
+      "name": "direct-native-patched-reconstruction",
+      "script": "code/verify_patched_native_residual.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 195.237
+    },
+    {
+      "name": "generic-patched-support",
+      "script": "code/audit_patched_generic_support.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 7.175
+    },
+    {
+      "name": "independent-patch-support",
+      "script": "code/independent_patched_audit.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 6.469
+    },
+    {
+      "name": "patched-original-field-positive",
+      "script": "code/algebraic_two_node_patched_original_field_check.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 4.802
+    },
+    {
+      "name": "patched-original-field-negative",
+      "script": "code/algebraic_two_node_patched_original_field_check.py",
+      "environment_override": {
+        "DECK_SIGN": "-1"
+      },
+      "returncode": 0,
+      "seconds": 4.775
+    },
+    {
+      "name": "displayed-formulas",
+      "script": "code/audit_displayed_formulas.py",
+      "environment_override": {},
+      "returncode": 0,
+      "seconds": 0.086
+    }
+  ],
+  "all_32_residual_files_reproduced_byte_for_byte": true,
+  "residual_sha256": {
+    "two-node-improved-residual/j1-row-0.json": "105db25ea3792191de486045a60ab776e543e03507344f25aaf0de9d36d792dc",
+    "two-node-improved-residual/j1-row-1.json": "221624a2d6872e719625e9d0413c729bcab1b9887b7e46aaefc0fbc10d0919dc",
+    "two-node-improved-residual/j1-row-2.json": "01750c113f4020055f13da64ba497890424699924809927ca2a51f7acaabd83a",
+    "two-node-improved-residual/j1-row-3.json": "43b39121998d711bbe1a3bbbe382184afab7a3052b7b0529f8a737cfd4cf49a1",
+    "two-node-improved-residual/j1-row-4.json": "dc0828e6ab8eeff86d90dbc161f90b566455ce56fa6814483a45edd887f9733f",
+    "two-node-improved-residual/j1-row-5.json": "4638e828e1580dd1ba0926438694a47e6746f183c099c8997b1414cac63acb5a",
+    "two-node-improved-residual/j1-row-6.json": "00fffd07f5227a315d5717cf387d970d66fa7104c9473a3c1e9fff20c741261f",
+    "two-node-improved-residual/j1-row-7.json": "3e593340770219f10b95152fcc4ef83d33c68504a7fc839efd50ae5452a9b100",
+    "two-node-improved-residual/j-1-row-0.json": "26551bd08eed9c099d00f60ebb1b41ffc1932e433df494156fffc8189342fdfc",
+    "two-node-improved-residual/j-1-row-1.json": "ab032591d49d25fa7da63ecb19496f0ea50349b71233857425b528904ebdc97d",
+    "two-node-improved-residual/j-1-row-2.json": "5fdefdec104b8699b376c259626e1c6bf959798cc848ea8e88070daec70dca07",
+    "two-node-improved-residual/j-1-row-3.json": "242b02fd4f755b4247b7a45225f88eed8ba9bc34f57c540856da86b71ffbd2f2",
+    "two-node-improved-residual/j-1-row-4.json": "4d905eca837b54e25bc1fbcb6050093901d5b63c0de8a1c732cf5de49083eacb",
+    "two-node-improved-residual/j-1-row-5.json": "4cf670eebc6beadc7ef2966ff2e453c7c2c4944033fc10982351677269d7ca9e",
+    "two-node-improved-residual/j-1-row-6.json": "3c905cfc14145bbe5f85c45415b9beb5520788bde5d345975af0e5a186b99cd4",
+    "two-node-improved-residual/j-1-row-7.json": "8eb710179716e4f0602872c72bb65f2590e3edd8331c4145f99644e698e40bf0",
+    "two-node-patched-residual/j1-row-0.json": "71dbf1c38b74110ce2df77f22a819e39edd183579050ca5c37f7d99601250f0f",
+    "two-node-patched-residual/j1-row-1.json": "c9fbf3a668dce5f95c01697a5ce0a444617e9377c48374f1f9ab771b8f7441b6",
+    "two-node-patched-residual/j1-row-2.json": "03f4633a3798835053c110f4c44ab3f025cb305842a7bb414ba03f0f9e43113c",
+    "two-node-patched-residual/j1-row-3.json": "4739ac459dcf364212efb41f1842583bc3790baa81d06152a473df6390850787",
+    "two-node-patched-residual/j1-row-4.json": "59b981f7abcff568dc0b9c410212ca5004951535e9fa2c6cb8950725ae7500d1",
+    "two-node-patched-residual/j1-row-5.json": "d7c75e3e88b1cb2e791843fbc3342f6feaa6a401051cf9535b0450cd22a7a1fa",
+    "two-node-patched-residual/j1-row-6.json": "037c23e80a057d4a6b0904f7c5d3dce985620f01140cdf1dd08abb5b60e0726d",
+    "two-node-patched-residual/j1-row-7.json": "4aa1a9163c49801c4727ed5695f5b4884e96dcc62416e5e3b406b97b10b611f8",
+    "two-node-patched-residual/j-1-row-0.json": "346bdab8fe1920d493cc18344051dd7298cea6626222edc092d61e67e37a681a",
+    "two-node-patched-residual/j-1-row-1.json": "55fee4e3ba852fad900818e03746db5a26e5fd430fcd06b4c354315195c43dad",
+    "two-node-patched-residual/j-1-row-2.json": "6dd6d77c9b536071fdda43b5f7b8e3e68be180bc0830a3889933d3158b1d088a",
+    "two-node-patched-residual/j-1-row-3.json": "8381d8e84c1f1549df15be81e8b3ef8bf5d318b6c0ce73075f4b04d88e899ee7",
+    "two-node-patched-residual/j-1-row-4.json": "923851219ea920a1bfb7719c50bfe64f98e3bf9476e057fa792f9f7aebf4867e",
+    "two-node-patched-residual/j-1-row-5.json": "682d1bb1368ae0f6adfeffea490565413a7f7088d308be07fc215eb288fd2938",
+    "two-node-patched-residual/j-1-row-6.json": "6978a0eef59dfe2659ddd6f3995ab267cf02190e7f54a48b67e9ed8d020b3295",
+    "two-node-patched-residual/j-1-row-7.json": "0ccd38bcfa1c8b60343847def801ff60fd5124ca139b786b257af279582bf94a"
+  },
+  "seconds": 276.773,
+  "completed_utc": "2026-10-28T19:01:02.436341+00:00",
+  "certificate": false,
+  "scope": "Exact computational checks of the stated partial results. No formal proof assistant, global zero residual or original F^2 certificate.",
+  "supplemental_verification_utc": "2026-10-28T19:01:20.901881+00:00"
+}

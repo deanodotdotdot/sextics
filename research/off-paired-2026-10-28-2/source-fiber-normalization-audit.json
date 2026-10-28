@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "source_denominator_over_native_denominator": "67108864/2187",
+  "all_16_literal_words": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "identity": "sum(source_D_num*word)/Dsource = sum((fV_num_col6-2i*fi_num_col6-j*fj_num_col6)*word)/Dnative = Jbar*fD_actual",
+  "field_numerator_convention": "Hfib and FDnum in the original field graph omit the common Jbar denominator, which cancels in ux=-(Hfib+Aphysical*FDnum+Aphysical*v*x*y)/(rho*v).",
+  "scope": "The point evaluator already used the correct source denominator. This audit corrects an ambiguous normalization in the descriptive expression graph; it does not change the verified current or point result.",
+  "seconds": 0.002732992172241211
+}

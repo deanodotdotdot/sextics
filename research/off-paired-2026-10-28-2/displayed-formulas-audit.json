@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": [
+    "displayed Zprime polynomial",
+    "displayed physical h",
+    "three multiplier term counts",
+    "all sixteen displayed reduced denominator orders"
+  ],
+  "certificate": false,
+  "seconds": 0.008779048919677734
+}

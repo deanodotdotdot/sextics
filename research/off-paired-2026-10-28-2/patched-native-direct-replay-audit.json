@@ -1,0 +1,88 @@
+{
+  "status": "PASS exact direct native reconstruction of all sixteen saved rows",
+  "checks": [
+    {
+      "j": 1,
+      "row": 0,
+      "exact_equality": true
+    },
+    {
+      "j": 1,
+      "row": 1,
+      "exact_equality": true
+    },
+    {
+      "j": 1,
+      "row": 2,
+      "exact_equality": true
+    },
+    {
+      "j": 1,
+      "row": 3,
+      "exact_equality": true
+    },
+    {
+      "j": 1,
+      "row": 4,
+      "exact_equality": true
+    },
+    {
+      "j": 1,
+      "row": 5,
+      "exact_equality": true
+    },
+    {
+      "j": 1,
+      "row": 6,
+      "exact_equality": true
+    },
+    {
+      "j": 1,
+      "row": 7,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 0,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 1,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 2,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 3,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 4,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 5,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 6,
+      "exact_equality": true
+    },
+    {
+      "j": -1,
+      "row": 7,
+      "exact_equality": true
+    }
+  ],
+  "method": "Differentiate the fully extended rational current; pull all native matrix columns; compute source minus divergence and connection directly. Compare exact reduced fractions to product-rule producer output.",
+  "certificate": false,
+  "seconds": 186.67465901374817
+}

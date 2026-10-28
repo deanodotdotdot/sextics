@@ -1,0 +1,18 @@
+{
+  "status": "PASS exact critical-cover ramification and normalized residue support",
+  "cusp_polynomial": "6*a**2*x + 16*a**2 + 5*x**2 + 26*x + 32",
+  "Q_x_on_cover": "(-2*a**2 + x + 2)*(6*a**2*x + 16*a**2 + 5*x**2 + 26*x + 32)/(a**2*x)",
+  "parametrization_jacobian_i_j": "-(6*a**2*x + 16*a**2 + 5*x**2 + 26*x + 32)/(2*a**2*x**4)",
+  "all_three_parametrization_minors": [
+    "-(6*a**2*x + 16*a**2 + 5*x**2 + 26*x + 32)/(2*a**2*x**4)",
+    "-2*x**3*(6*a**2*x + 16*a**2 + 5*x**2 + 26*x + 32)/(a**3*(x + 2)**2)",
+    "2*x**4*(6*a**2*x + 16*a**2 + 5*x**2 + 26*x + 32)/(a**4*(x + 2)**2)"
+  ],
+  "normalized_residue_denominator_support": [
+    "x",
+    "a",
+    "cusp_polynomial"
+  ],
+  "geometric_scope": "On x*a*(x+2)!=0, the parametrization differential loses rank exactly on C=0. No global singularity classification or cusp normal-form assertion at exceptional intersections is made.",
+  "seconds": 0.06704306602478027
+}

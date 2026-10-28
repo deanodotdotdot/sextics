@@ -1,0 +1,28 @@
+{
+  "status": "PASS exact inputs to characteristic-zero geometric unit-ideal proof",
+  "checks": {
+    "quartic gives a_squared": true,
+    "curve at critical values": true,
+    "fiber a derivative times a": true,
+    "fiber x derivative times x": true,
+    "i normal generator": true,
+    "j normal generator": true,
+    "w normal generator": true,
+    "chart Jacobian": true,
+    "original hypersurface before imposing F": true
+  },
+  "gradient_L1_bounds": [
+    "13/6",
+    "7/3",
+    "5/6",
+    "5/6",
+    "1",
+    "5/6"
+  ],
+  "chart_log_jacobian": "-18*R/(R + 1)",
+  "localization": "B=i*u*w*T*N*L, u=j^2",
+  "ideal": "(Q,Vrel,mi,mj,mw) with Vrel=AV*(2i*x^2+5x+8)*(x+2)-4*BV*x^6",
+  "conclusion": "The ideal becomes the unit ideal after inverting B over Q; proof in COUPLED-NORMAL-IDEAL.txt. This is a geometric proof, not an exported rational Bezout multiplier certificate.",
+  "scope": "Critical-normal scalar algebra only; no resulting full eight-row current or closure claimed",
+  "seconds": 0.3504929542541504
+}

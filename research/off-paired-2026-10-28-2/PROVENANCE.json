@@ -1,0 +1,15 @@
+{
+  "baseline_commit": "844dc49f48ecd8109c19bc19503dfcf004c18c88",
+  "upstream_commit": "f7a73cf3346e1da8fded079f16b9e827f218902b",
+  "baseline_archive_sha256": "590d3aa89ad2d08b442998285530a0c62fb92f3a4d77041bba23f08ebbe37bbe",
+  "included_baseline_inputs": {
+    "w-correction.json": "313bd0b2097bd479fb9028027737d08960799a1543918c8f269eec460193660e",
+    "after-w-physical.json": "393ecfc92c5b3749732970386c7c824f6b443c41b2e6b24b4188c44c2369e702",
+    "pole-inventory.json": "1e3738afbeb607fa134927f0b75497d0525f51f25a9989ec3d6854b2e66b453c",
+    "packet/coupled-fresh/ruling-source/full-base-connection/rank8-ij-connections-results.json": "c12ea0753d7f0eb6e67e1f48fca65cb0fd3e7f5603dba271b7ee8867f594c1bb",
+    "packet/coupled-fresh/ruling-source/full-base-connection/rank8-v-literal-primitives-results.json": "99f6c100091c1d2b04c21957e771542604e8be8a52710cd86ce0d6377cca9b07",
+    "packet/coupled-fresh/ruling-source/full-base-connection/source-euler-current-results.json": "cc6f8672c0a05ecd6a344336614558a53a519c8af31993b727eb6b2f78ec16f4"
+  },
+  "research_status": "partial; nonzero residual; no certificate",
+  "agent_only": true
+}

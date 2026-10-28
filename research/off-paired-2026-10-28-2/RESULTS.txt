@@ -1,0 +1,186 @@
+OFF-PAIRED: COUPLED DOUBLE-NODE CORRECTION, 2026-10-28 SECOND RUN
+
+Agent-only contribution: generated and computationally checked by OpenAI
+Codex. deanodotdotdot has not personally reviewed or verified the mathematics
+and does not claim expertise in formal mathematics. No certificate, Lean
+proof, unrestricted nonexistence theorem, solve PR or accepted solve is claimed.
+
+Exact target and convention
+---------------------------
+Variables are X0,X1,X2,Y0,Y1,Y2; q=1; A=X0^3 Y0^3.
+F=sum(z^6)+X0^3 X1 Y0 Y1/2+X1^3 X2 Y1 Y2/2
+  +X0^2 X1 X2 Y0 Y2/3.
+The original certificate problem permits arbitrary finite denominator degree,
+complex coefficients and a nonzero quotient. None is excluded here.
+
+Use fqlx's compact genus-four curve ay=x^3,
+y^2+v(a^2+i x^2+j a x+x+1)=0 and eight-element basis
+(1,x,x^3,x^4-v(i-j^2/4)(i-5j^2/4)x^2/8,a,ax+jx^2/2,y,yx).
+Indices are zero based. GammaV is the matrix for 6v*d/dv.
+T=1+w^3, N=9i^2w^2-16j^2T, L=256T^5N+729i^6j^2w^6,
+AV=64j^2wT^2N, BV=9i^2L, vp=AV/BV, AP=9i^3wT/(j^2N).
+The physical connection is Gamma_p(native)+(vp_p/vp)*GammaV/6;
+the native w connection is zero. The actual weighted source is
+S=AP*(4I-GammaV+2i Gamma_i+j Gamma_j)e6. Throughout,
+R=S-sum_p(d_p Pp+Gamma_p(physical)Pp).
+All density derivatives are included before restricting j. The native
+connection denominator is d; its degree-four homogenization satisfies
+Dh=30218041401827740857925632*i^2*Delta.
+
+Main constructive result
+------------------------
+A fully specified rational coupled physical current Ppatch has generic
+residual denominator support contained in {i,L,Delta}. On each of the two
+slices j=1 and j=-1, all eight actual residuals have no double-node h factor
+and no N,w,T factor. They remain nonzero. This does not imply a vanishing
+residue in a full neighborhood of these slices or a global certificate.
+The common specialized denominator divides i^13 L1^5 H1phys.
+Here L1=L|j=1 and H1phys is the reduced numerator of H1(i,vp|j=1).
+Individual reduced-denominator orders, up to nonzero rational constants:
+ rows 0,1,4,5: i^13 L1^5 H1phys;
+ rows 2,3:     i^11 L1^4 H1phys;
+ row 6:        i^12 L1^5 H1phys;
+ row 7:        i^11 L1^5 H1phys.
+The exact sixteen expanded numerators and denominators are supplied.
+
+At j=+/-1 put s=4i-1. The native denominator factors exactly as
+ d=(512/2187)*h0^2*H1,
+ h0=s^3*v+1728,
+ H1=32i^6v^2-16i^5v^2+1728i^3v-10800i^2v+11250iv-3125v+23328.
+The two critical points over h0 are roots of s*x^2+6x+12, with
+ a=-(x+2)/(2j). The native vector ((1-i)/3,j/2,0) has normal rate 1
+at both points. A direct physical lift through division by vp_w would
+introduce its critical divisor. The following exact polynomial construction
+avoids that extra divisor.
+
+Let N1=N|j=1, AV1=AV|j=1, BV1=BV|j=1, and
+ 64h=s^3 AV1+1728 BV1,
+ h=w*T^2*s^3*N1+243i^2L1.
+An explicit rational polynomial identity is supplied:
+ Abez*h+Bbez*h_i+Cbez*h_w=i^4*T.
+The three multipliers contain 146,157,144 terms. They were found using a
+finite-field choice of a square subsystem, solved over Q, and then verified
+as a full exact polynomial identity over Q. The proof is this identity,
+not an inference from modular ranks or from the bounded search.
+
+Put Lu=-4096T^6+729i^6w^6,
+ Zold=(AV1*s^2/64)*(3-s-s*(vp_j/vp)|j=1/2),
+ Zprime=Zold-h*Lu/L1+h
+       =w*T^2*(s^2*N1*(3-s)+16*s^3*T)+559872i^4w^2T^5,
+ alpha_i=Zprime*Bbez/(i^4*T), alpha_w=Zprime*Cbez/(i^4*T),
+ alpha_j=j/2.
+Extend alpha_i,alpha_w independently of j. Their reduced denominators
+contain powers of i only. The current Pnew_p=-AP*alpha_p*e7 cancels h
+in all eight weighted residual rows on both slices, with the derivative
+of AP and all derivatives of alpha retained. It still has N poles.
+The pure Python rational audit proves the normal-function identities in
+all eight native rows and binds both saved slice outputs (94 checks).
+
+The final patch uses the previous run's joint+w current Pold, before its
+Taylor discriminant cutoff. Explicitly,
+ Pold_i=0, Pold_j=c*e7+Vj*Z, Pold_w=d0*e7+Vw*Z,
+ c=-i*T/(4wj)+28T^2j/(45iw^3)-224j(2-w^3)/(405iw^3),
+ d0=-448T/(405iw^2), Vj=j(2-w^3)/(2iw^3), Vw=T/(iw^2),
+with the eight-vector Z in w-correction.json. Its actual residual is in
+after-w-physical.json and has support i,L,Delta, as independently verified
+in the previous frozen release. Define
+ K=1+(s^3*vp/1728)^3,
+ Ppatch=K*Pold+(1-K)*Pnew.
+K vanishes on h=0 at j=+/-1, whereas K-1 is divisible by
+j^6*w^3*T^6*N^3 after clearing its i,L denominator. This preserves the
+previous boundary cancellations. The exact full slice residual is
+ K*Rold+(1-K)*Rnew-sum_p K_p*(Pold_p-Pnew_p).
+It was also reconstructed separately by differentiating the full extended
+current and contracting all native matrix columns: all sixteen rational
+functions agree exactly. A second pure Python audit verifies the cubic
+patch identities, every saved denominator factorization and deck parity
+(70 checks).
+
+For the generic support proof set C_p=(1-K)*(Pnew_p-Pold_p).
+Every C_p and every sum_p (vp_p/vp)*C_p has denominator supported on i,L;
+these are exact reduced-fraction checks. Derivatives preserve that support.
+Homogenizing a native numerator of v-degree d gives denominator dividing
+Dh*BV^max(0,d-4), hence only i,L,Delta. Applying the connection to C and
+subtracting its divergence from Rold proves the stated generic bound.
+This proof does not expand the full three-variable residual and is not a
+claim that all those possible poles have nonzero order.
+
+The original-coordinate audit uses the irreducible field
+Q[beta]/(6beta^6+beta^2+3beta+12) at (X,U,Y,Z,P)=(1,1,beta,1,beta),
+corresponding to (i,j,w)=(8/3,+/-1,1). All sixteen literal fiber words are
+used. On both deck branches it checks f=0, df(V)=Y^3, and equality of the
+actual five-component original divergence with the compact residual divided
+by density. The divergence is nonzero. These are exact specialization checks,
+not a substitute for a global original-coordinate certificate.
+
+Critical-normal algebra and geometry
+------------------------------------
+The critical quartic and critical-value relation are
+ Q=8(i x^2+2x+3)^2-j^2*x^2*(2i x^2+5x+8),
+ H=v*(2i x^2+5x+8)*(x+2)-4x^6,
+ Res_x(Q,H)=2187*d.
+A rational critical parametrization is
+ i=(2a^2-5x-8)/(2x^2), j=(x+2-2a^2)/(ax),
+ v=2x^6/(a^2(x+2)), y=x^3/a.
+On this cover the 192 native connection numerator entries factor as
+ Gi_num=U*ell, Gj_num=(a/x)*U*ell,
+ GV_num=-3(x+2)/x^2*U*ell,
+where ell evaluates the compact basis at the critical point. The normalized
+column U/d_i has common denominator
+ 24*a^3*x^4*C, C=5x^2+6xa^2+26x+16a^2+32.
+The normalized residue has square zero. A pure Python independent parser
+and rational polynomial engine verifies 214 identities. The differential
+of the critical parametrization loses rank exactly at C=0 on
+x*a*(x+2)!=0; no cusp normal form at exceptional intersections is claimed.
+
+Twelve explicit native logarithmic vector fields E satisfy E(d)=h_E*d.
+Every connection contraction Gamma(E) cancels d (768 entries), leaving
+only the displayed 6j scalar denominator. An independent audit checks
+those identities, the critical resultant/discriminant and the small source
+identity (790 checks in total). The source identity is compatible with
+fqlx's already known polynomial-potential framework; it is not a new solve.
+
+COUPLED-NORMAL-IDEAL.txt proves over characteristic zero that the scalar
+critical-normal ideal (Q,Hphysical,mi,mj,mw) is the unit ideal after
+inverting i*j^2*w*T*N*L. The proof maps a supposed common zero to a singular
+point of the original smooth sextic; its explicit inverse chart, nonzero
+Jacobian and strict gradient bounds are recorded and checked. This proves
+existence of some scalar Bezout identity on that chart. It does not supply
+global rational multipliers or an eight-row current. The separate modular
+membership B in I is not promoted to characteristic zero.
+
+Remaining obligations and unsuccessful work
+------------------------------------------
+The first run's Delta-only Taylor current remains the preferred global
+residual-support reduction. The new current improves a specific double-node
+slice while retaining i,L poles. Neither current is closed. Combining those
+advantages without restoring unwanted residues is open. Other critical-value
+collision components, ramification, exceptional intersections, chart boundary
+and infinity remain unresolved. No F^2 divisibility certificate is exported.
+
+Large rational Groebner and modular transformation-matrix calculations were
+stopped without completion. Bounded coupled Macaulay searches through total
+product degree 40 modulo1009 did not solve their selected multiplier spaces.
+These are only bounded experiment outcomes, not rational nonexistence results.
+A supplementary two-critical-value parametrization was explored but is not
+used as a verified main claim. Completed single-direction exclusions from
+the first run were not repeated or strengthened in this run.
+
+Reproduction, provenance and credit
+----------------------------------
+Python 3.12, python-flint 0.9.0, SymPy 1.14.0. The public bootstrap verifies
+SHA256 for compressed files; code/verify_incremental_release.py replays the
+new exact checks and compares regenerated residual bytes to the saved hashes.
+Run in a writable copy. The tests use no network after obtaining the packet.
+Checks are exact computational evidence, not a formal proof assistant result.
+
+Baseline release: deanodotdotdot/sextics commit
+844dc49f48ecd8109c19bc19503dfcf004c18c88, research/off-paired-2026-10-28.
+Baseline local archive SHA256:
+590d3aa89ad2d08b442998285530a0c62fb92f3a4d77041bba23f08ebbe37bbe.
+Frozen upstream: fqlx/sextics commit
+f7a73cf3346e1da8fded079f16b9e827f218902b, research/off-paired-2026-10-23.
+Credit fqlx for the full compact connection, source/fiber interface and prior
+currents; benediamond for preceding contact obstruction and endpoint
+connection; deanodotdotdot for earlier coordinate/character restrictions and
+authorization. These additional computations and prose were produced by Codex.

@@ -1,0 +1,60 @@
+{
+  "scope": "Native coupled source current near the double critical value at j=+/-1, away from exceptional intersections; no global physical closure",
+  "native_current": {
+    "Pi": "-(1-i)*e7/3",
+    "Pj": "-j*e7/2",
+    "Pv": "0"
+  },
+  "source": "(4I-GammaV+2i Gamma_i+j Gamma_j)e6",
+  "divergence_of_scalar_coefficients": "-e7/6",
+  "h0": "64*i^3*v - 48*i^2*v + 12*i*v - v + 1728",
+  "h1": "32*i^6*v^2 - 16*i^5*v^2 + 1728*i^3*v - 10800*i^2*v + 11250*i*v - 3125*v + 23328",
+  "slices": [
+    {
+      "j": 1,
+      "all_eight_double_factor_cancellations": true,
+      "residual_numerators": [
+        "65536/2187*i^3*v^2 - 650240/6561*i^2*v^2 + 544000/6561*i*v^2 - 400000/19683*v^2 + 16384/81*v",
+        "32768/2187*i^4*v^2 - 57344/6561*i^3*v^2 - 547840/6561*i^2*v^2 + 544000/6561*i*v^2 + 32768/81*i*v - 400000/19683*v^2 - 32768/243*v",
+        "32768/6561*i^5*v^2 - 16384/6561*i^4*v^2 + 32768/243*i^2*v - 40960/81*i*v + 512000/2187*v",
+        "-131072/243*i^2*v + 2252800/2187*i*v - 2560000/6561*v",
+        "-81920/2187*i^3*v^2 + 747520/6561*i^2*v^2 - 832000/6561*i*v^2 + 800000/19683*v^2 + 16384/81*v",
+        "-16384/2187*i^4*v^2 + 1085440/6561*i^3*v^2 - 719360/2187*i^2*v^2 + 3664000/19683*i*v^2 - 16384/81*i*v - 200000/6561*v^2 + 40960/243*v",
+        "-16384/6561*i^5*v^2 + 28672/6561*i^4*v^2 - 10240/6561*i^3*v^2 - 16384/243*i^2*v + 32768/243*i*v - 102400/2187*v",
+        "16384/6561*i^5*v^2 - 8192/6561*i^4*v^2 - 16384/243*i^2*v + 10240/2187*i*v + 128000/6561*v"
+      ],
+      "residual_denominator": "16384/2187*i^6*v^2 - 8192/2187*i^5*v^2 + 32768/81*i^3*v - 204800/81*i^2*v + 640000/243*i*v - 1600000/2187*v + 16384/3"
+    },
+    {
+      "j": -1,
+      "all_eight_double_factor_cancellations": true,
+      "residual_numerators": [
+        "-65536/2187*i^3*v^2 + 650240/6561*i^2*v^2 - 544000/6561*i*v^2 + 400000/19683*v^2 - 16384/81*v",
+        "-32768/2187*i^4*v^2 + 57344/6561*i^3*v^2 + 547840/6561*i^2*v^2 - 544000/6561*i*v^2 - 32768/81*i*v + 400000/19683*v^2 + 32768/243*v",
+        "-32768/6561*i^5*v^2 + 16384/6561*i^4*v^2 - 32768/243*i^2*v + 40960/81*i*v - 512000/2187*v",
+        "131072/243*i^2*v - 2252800/2187*i*v + 2560000/6561*v",
+        "-81920/2187*i^3*v^2 + 747520/6561*i^2*v^2 - 832000/6561*i*v^2 + 800000/19683*v^2 + 16384/81*v",
+        "-16384/2187*i^4*v^2 + 1085440/6561*i^3*v^2 - 719360/2187*i^2*v^2 + 3664000/19683*i*v^2 - 16384/81*i*v - 200000/6561*v^2 + 40960/243*v",
+        "-16384/6561*i^5*v^2 + 28672/6561*i^4*v^2 - 10240/6561*i^3*v^2 - 16384/243*i^2*v + 32768/243*i*v - 102400/2187*v",
+        "16384/6561*i^5*v^2 - 8192/6561*i^4*v^2 - 16384/243*i^2*v + 10240/2187*i*v + 128000/6561*v"
+      ],
+      "residual_denominator": "16384/2187*i^6*v^2 - 8192/2187*i^5*v^2 + 32768/81*i^3*v - 204800/81*i^2*v + 640000/243*i*v - 1600000/2187*v + 16384/3"
+    }
+  ],
+  "critical_explanation": {
+    "Bnode": "(4i-1)x^2+6x+12",
+    "a": "-(x+2)/(2j), j^2=1",
+    "v": "-1728/(4i-1)^3",
+    "discriminant_Bnode": "12*(7-16i)",
+    "coupled_normal_identity": "((1-i)/3)*x^2+(j/2)*a*x = 1 modulo Bnode",
+    "source_residue_identity": "2i*x^2+j*a*x+3*(x+2)=-x; multiply by y",
+    "exceptional_factors": [
+      "i-1/4",
+      "i-7/16",
+      "remaining h1 at v=-1728/(4i-1)^3"
+    ],
+    "physical_Piola": "Pi=-AP*(1-i)*e7/3, Pj=-AP*j*e7/2, Pw=AP*((1-i)*v_i/3+j*v_j/2)*e7/v_w. Density derivative terms remain and introduce the v_w critical divisor; all sixteen fiber terms are required."
+  },
+  "status": "PASS exact native coupled cancellation of both colliding branches",
+  "seconds": 0.0010170936584472656
+}
