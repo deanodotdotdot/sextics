@@ -1,0 +1,370 @@
+{
+  "compressed_inputs": {
+    "L-current-reduction.json": {
+      "gzip": "data/L-current-reduction.json.gz",
+      "sha256": "75975ff74fbc6c8c26666b862fab253cd72a09c10b0ad926f31060217d8921da"
+    },
+    "L-gauge-audit.json": {
+      "gzip": "data/L-gauge-audit.json.gz",
+      "sha256": "efa7e12c3d0fffd3c1df596d964d12c20cf503bce5dbde7c54aa56b5472c9031"
+    },
+    "NATIVE-INPUT-PROVENANCE.json": {
+      "gzip": "data/NATIVE-INPUT-PROVENANCE.json.gz",
+      "sha256": "c6a78dfb9c8b8396f9eddb9679334f38da20e5636a141e89647206367bf1bd62"
+    },
+    "actual-delta-lowering-current.json": {
+      "gzip": "data/actual-delta-lowering-current.json.gz",
+      "sha256": "b48c60aac09435437fb96963adafdfd4cfa73c18b313e1551e1564e0e97525e7"
+    },
+    "actual-discriminant-current-pole-inventory.json": {
+      "gzip": "data/actual-discriminant-current-pole-inventory.json.gz",
+      "sha256": "32cb17a4fa5f269ba00bce4317f13bb0957061c6a0e36fa4c8396240e0506423"
+    },
+    "actual-source-discriminant-current.json": {
+      "gzip": "data/actual-source-discriminant-current.json.gz",
+      "sha256": "d91ecd80a0a946d3f08d4ae4ff3d015f144c55aebb167ccc3fc8f93c4caca860"
+    },
+    "actual-source-independent-audit.json": {
+      "gzip": "data/actual-source-independent-audit.json.gz",
+      "sha256": "ea1fe32a0807d75fefa854b4b01ead3d38183311d7151743f270d6157bd1829d"
+    },
+    "actual-source-polynomial.json": {
+      "gzip": "data/actual-source-polynomial.json.gz",
+      "sha256": "3545fef233e004b71dc6f0442d902379ba3443ace1cea749539708e93f964f0c"
+    },
+    "after-w-physical.json": {
+      "gzip": "data/after-w-physical.json.gz",
+      "sha256": "393ecfc92c5b3749732970386c7c824f6b443c41b2e6b24b4188c44c2369e702"
+    },
+    "algebraic-original-field-audit.json": {
+      "gzip": "data/algebraic-original-field-audit.json.gz",
+      "sha256": "7a3131a8ad2ba3743c5fc24a50eedda2878c158cbe7b93987a88a33ddda2603b"
+    },
+    "bare-source-i-independent-operator.json": {
+      "gzip": "data/bare-source-i-independent-operator.json.gz",
+      "sha256": "d62dd848ed3372c3f688073ad38aeb8bea3d3e6d60a043ff7bf417bd1cace007"
+    },
+    "bare-source-i-witness-independent-audit.json": {
+      "gzip": "data/bare-source-i-witness-independent-audit.json.gz",
+      "sha256": "86723b59b33709bee266a0cef0e2061c26d346b8ccd1ef36d6db764d000af4f5"
+    },
+    "bare-source-j-independent-operator.json": {
+      "gzip": "data/bare-source-j-independent-operator.json.gz",
+      "sha256": "69ca92adfe056704310933adf3e0dabd4ed3915a37455e827599cbe4fd3c26dc"
+    },
+    "bare-source-j-witness-independent-audit.json": {
+      "gzip": "data/bare-source-j-witness-independent-audit.json.gz",
+      "sha256": "2ebb43579450adfdfc1d992a8e737bdfa8cc30056a840ab8391749bb4af7578c"
+    },
+    "bare-source-relative-completeness-audit.json": {
+      "gzip": "data/bare-source-relative-completeness-audit.json.gz",
+      "sha256": "b8bcb3d400ea31f3f8b11964a993afa0bfbee5f084d48107608155125c130054"
+    },
+    "bare-source-relative-i-rank-witness.json": {
+      "gzip": "data/bare-source-relative-i-rank-witness.json.gz",
+      "sha256": "3d8a29f44fde5370bd9ab5af1594415e7b562ca841a23fefe4c2d89831f4b24f"
+    },
+    "bare-source-relative-i-screen-1-1-12.json": {
+      "gzip": "data/bare-source-relative-i-screen-1-1-12.json.gz",
+      "sha256": "55007a1b9b63c8f3cc76ab89b862d3f2ec1176527d6ed81cc1250d8717da4e54"
+    },
+    "bare-source-relative-j-rank-witness.json": {
+      "gzip": "data/bare-source-relative-j-rank-witness.json.gz",
+      "sha256": "8a28d2b8de4a753bd20b8d3b90034c43006d2413a9fbd05c397693a88a10a464"
+    },
+    "bare-source-relative-j-screen-1-1-20.json": {
+      "gzip": "data/bare-source-relative-j-screen-1-1-20.json.gz",
+      "sha256": "6085cf4f8fbcb02707003ec8a2cfdd4d04bb8f1b694105d6b9661401df88a96d"
+    },
+    "bare-source-relative-j-screen-1-1-8.json": {
+      "gzip": "data/bare-source-relative-j-screen-1-1-8.json.gz",
+      "sha256": "cebedce86d4d571d2f6e1f97a9ee678306157830e5a5749f3242ee40793a6ea3"
+    },
+    "bare-source-relative-w-rank-witness.json": {
+      "gzip": "data/bare-source-relative-w-rank-witness.json.gz",
+      "sha256": "172b65cb6a2b5b0c39d688165a5f10b196914f70fa3d533453e96c84e2e9c2bf"
+    },
+    "bare-source-relative-w-screen-1-1-20.json": {
+      "gzip": "data/bare-source-relative-w-screen-1-1-20.json.gz",
+      "sha256": "90cd4271e7513e43f7e485c235189dc0c1b5b898d095c59cf75f78432a9ee920"
+    },
+    "bare-source-w-independent-operator.json": {
+      "gzip": "data/bare-source-w-independent-operator.json.gz",
+      "sha256": "91c03d7cce056f7bc955798cda77c137b3dfd0d030d062009d5f999e05825bfa"
+    },
+    "bare-source-w-witness-independent-audit.json": {
+      "gzip": "data/bare-source-w-witness-independent-audit.json.gz",
+      "sha256": "0b824856e0f7aa28d11d8ca2ebb1fb281bcb2d093d99bd4b136b6ee58318db2b"
+    },
+    "boundary-current.json": {
+      "gzip": "data/boundary-current.json.gz",
+      "sha256": "6c78cf7f22ad899c149b07eb6505617cfe22f4d5edb312a8dc7fafae2f55b343"
+    },
+    "boundary-module.json": {
+      "gzip": "data/boundary-module.json.gz",
+      "sha256": "75e25b855785df8fa242fe55d4d3467bd930f5237976cde7587453e4d8b2a480"
+    },
+    "corrected-independent-relative-operator.json": {
+      "gzip": "data/corrected-independent-relative-operator.json.gz",
+      "sha256": "6768349c9beb49abc731d083b41d8570328d4827889fd02baa2be2fcc96f12b1"
+    },
+    "corrected-rank-witness-independent-audit.json": {
+      "gzip": "data/corrected-rank-witness-independent-audit.json.gz",
+      "sha256": "e2f338f96b7dfcd1d3fba7c14da2256ccea9339896c66dff437c88abb79bab46"
+    },
+    "corrected-relative-i-rank-witness.json": {
+      "gzip": "data/corrected-relative-i-rank-witness.json.gz",
+      "sha256": "192388e60159aa90b7d7f90c83eaad4cafca273d72366814de9bc36b271ff196"
+    },
+    "corrected-relative-i-screen-1-1-90.json": {
+      "gzip": "data/corrected-relative-i-screen-1-1-90.json.gz",
+      "sha256": "a96abd727008e9b94856cb8516e396d7e3b8ff974e777e7f484a14870b475dd0"
+    },
+    "discriminant-only-audit.json": {
+      "gzip": "data/discriminant-only-audit.json.gz",
+      "sha256": "df63c4bffac91d01417aec0cd14b7cb635638be9617d5f9251e7c3957a7c75a6"
+    },
+    "discriminant-only-current.json": {
+      "gzip": "data/discriminant-only-current.json.gz",
+      "sha256": "42903e7ae33ac80a113d945d4754efa54a97c265f0aea7b7506414eb5b423d43"
+    },
+    "euler-scalar-probe.json": {
+      "gzip": "data/euler-scalar-probe.json.gz",
+      "sha256": "33efd8f8e54c849b0392eaa5c79d290bf30ba6af09019c94551221d851061095"
+    },
+    "i-corrected-independent-audit.json": {
+      "gzip": "data/i-corrected-independent-audit.json.gz",
+      "sha256": "c0f396f118c914c47cebc690a1c270fd0466b03c09a2bd95b08dba4f3911d573"
+    },
+    "i-corrected-support-and-fiber-audit.json": {
+      "gzip": "data/i-corrected-support-and-fiber-audit.json.gz",
+      "sha256": "a24cee5139d4bc10d2fcfd451ad3feda43c5324634d54aa15a70d43dd190f284"
+    },
+    "i-global-correction-corrected.json": {
+      "gzip": "data/i-global-correction-corrected.json.gz",
+      "sha256": "8e55ac114030423bfa12f7e3ad69db3e4385e03ddf3e134f66ad9cb0358f8167"
+    },
+    "i-global-correction.json": {
+      "gzip": "data/i-global-correction.json.gz",
+      "sha256": "72c7a3e962f2ff4a1c67d472f2c122faa38817d193269a5b7d09ab5eadbf7644"
+    },
+    "i-original-lift-defect.json": {
+      "gzip": "data/i-original-lift-defect.json.gz",
+      "sha256": "98f4c0ef08a79838d8702dd0d611870f341396c1b5822daef84de54df48c4ea2"
+    },
+    "i-original-principal-part-audit.json": {
+      "gzip": "data/i-original-principal-part-audit.json.gz",
+      "sha256": "edd7e99944e12e4f3300b8b1d49e5591076052cbca44647b3c972bb23cfad056"
+    },
+    "independent-relative-operator.json": {
+      "gzip": "data/independent-relative-operator.json.gz",
+      "sha256": "b1d1782ef079d99984ce3a53f80d38945fe86d092a70e66ed7468b9758a37dfc"
+    },
+    "j-infinity-shear.json": {
+      "gzip": "data/j-infinity-shear.json.gz",
+      "sha256": "5e9c258fc090df678f7f07dff91ca154cd2d827d950c7f20e532b9e71fdb3685"
+    },
+    "j-relative-completeness-audit.json": {
+      "gzip": "data/j-relative-completeness-audit.json.gz",
+      "sha256": "2bd83641ed1ddcf637af94638f8e8fea263b8ec3c342716715ec06cd52bd7bad"
+    },
+    "literal-current-expression.json": {
+      "gzip": "data/literal-current-expression.json.gz",
+      "sha256": "de6f55f21d60f6a1d0ef23709c016d2c91c54091cc1392893ba09daf277f7ba2"
+    },
+    "original-chart-audit.json": {
+      "gzip": "data/original-chart-audit.json.gz",
+      "sha256": "5e89f7e4610ec6ceace54bfa8c8fdfc03bbbf0c56f8988962ba25610728a1f42"
+    },
+    "original-density-binding.json": {
+      "gzip": "data/original-density-binding.json.gz",
+      "sha256": "2bbe30b747d352b314d34583671e9be50d40c7633ee2b2144c933947031d9cbb"
+    },
+    "original-partial-field-expression.json": {
+      "gzip": "data/original-partial-field-expression.json.gz",
+      "sha256": "a094b296a2bcbde7b65743579214e57e539d0a58a882dc96de0b10c5bb73e0c2"
+    },
+    "original-taylor-partial-field-expression.json": {
+      "gzip": "data/original-taylor-partial-field-expression.json.gz",
+      "sha256": "bcc3d89208a79e1298f03437275b2262caf992fc6d95749b04a2829aefb150db"
+    },
+    "original-transport-audit.json": {
+      "gzip": "data/original-transport-audit.json.gz",
+      "sha256": "b587f62c0a1ba6b2e068ad968e5e0a8fdd2621cd14b2fa47908986d8a1b6cbb2"
+    },
+    "other-direction-infinity.json": {
+      "gzip": "data/other-direction-infinity.json.gz",
+      "sha256": "b662e001e3e783c934937f54f8f4b9e9b5b32489313b7e700b93112d04321b89"
+    },
+    "partial-field-admissibility-audit.json": {
+      "gzip": "data/partial-field-admissibility-audit.json.gz",
+      "sha256": "dfee5d0e4785d300e8f5782498387daf3474b36e8eac42331e96dd8894a7d657"
+    },
+    "physical-discriminant-inverse-reduced.json": {
+      "gzip": "data/physical-discriminant-inverse-reduced.json.gz",
+      "sha256": "72a7fca8d478d8cb389b6f6bd669839fc03e0a756297d61a48cb0a3abe85962c"
+    },
+    "physical-discriminant-inverse.json": {
+      "gzip": "data/physical-discriminant-inverse.json.gz",
+      "sha256": "eb7b6070ff1e61817558fc166336ebddb897652c238a5d07497c6251ec8dad63"
+    },
+    "pole-inventory.json": {
+      "gzip": "data/pole-inventory.json.gz",
+      "sha256": "1e3738afbeb607fa134927f0b75497d0525f51f25a9989ec3d6854b2e66b453c"
+    },
+    "rank-witness-independent-audit.json": {
+      "gzip": "data/rank-witness-independent-audit.json.gz",
+      "sha256": "5f6841c5221b451be25deba78e0b4ef09ef1c8519950156d233b0b438849ce46"
+    },
+    "reduced-actual-normal-current.json": {
+      "gzip": "data/reduced-actual-normal-current.json.gz",
+      "sha256": "c53148933c94f70ae488a07b06012a8fae214275886774a317f53015b219c4c6"
+    },
+    "reduced-inverse-physical-inventory.json": {
+      "gzip": "data/reduced-inverse-physical-inventory.json.gz",
+      "sha256": "1a1034090d021163a89e4b19f249a2fd8eb386d1a2feb466b73e3fc0d90a5d7e"
+    },
+    "reduced-v-normal-scalar.json": {
+      "gzip": "data/reduced-v-normal-scalar.json.gz",
+      "sha256": "a90f307e29ee8b9e0bcfc8366ce670745f9f21a59ac67f3ef5101f15e9a9d43b"
+    },
+    "relative-i-bounds.json": {
+      "gzip": "data/relative-i-bounds.json.gz",
+      "sha256": "4481199575eb11f08e03b1a769918aff1a78bf3105ff0e9a3f071d2d600abc6e"
+    },
+    "relative-i-completeness-independent-audit.json": {
+      "gzip": "data/relative-i-completeness-independent-audit.json.gz",
+      "sha256": "4fa421c54364ead55cc37ad1e8c6e145141ed2b8f5ddc96e44bc37091e509122"
+    },
+    "relative-i-rank-witness.json": {
+      "gzip": "data/relative-i-rank-witness.json.gz",
+      "sha256": "f1c1aa9cd7e1008a712ccff4054b5472f4ebefeba42ab69b1f36ef01baa88a84"
+    },
+    "relative-i-screen-1-1-60.json": {
+      "gzip": "data/relative-i-screen-1-1-60.json.gz",
+      "sha256": "08195ff944917903fdcb3bd10a689c708a9f62c44891113f506f7b50ee8083a9"
+    },
+    "scalar-cutoff-minimum-audit.json": {
+      "gzip": "data/scalar-cutoff-minimum-audit.json.gz",
+      "sha256": "8e2f2d8bdaa885a32d9c4c43ec94b1d212efa05a8419950f274b5d9cf50248d2"
+    },
+    "simple-discriminant-audit.json": {
+      "gzip": "data/simple-discriminant-audit.json.gz",
+      "sha256": "e2a360b9c3c3ea208d22f5480f3e3fbb01ead22edd6c18bde571708afdcb892f"
+    },
+    "simple-discriminant-current.json": {
+      "gzip": "data/simple-discriminant-current.json.gz",
+      "sha256": "19ea4d408012f105ae96f9b64c365311436e0d1915bc80fa86fef1f83b45bc54"
+    },
+    "simple-discriminant-independent-audit.json": {
+      "gzip": "data/simple-discriminant-independent-audit.json.gz",
+      "sha256": "483d7552ed917755bfb6c9fb9da596b62eba05d0af5e6758508c13e3a1bcb375"
+    },
+    "single-delta-current-probe.json": {
+      "gzip": "data/single-delta-current-probe.json.gz",
+      "sha256": "77b8a904904a7360cbe10197cdabb90887cfdb84179c0e78f76bfa8b6a026d35"
+    },
+    "source-fiber-normalization-audit.json": {
+      "gzip": "data/source-fiber-normalization-audit.json.gz",
+      "sha256": "90cbd4b4ec34b1a0f83a129a1b4549979e391c3827866570b17481652421cd21"
+    },
+    "tangent-boundary.json": {
+      "gzip": "data/tangent-boundary.json.gz",
+      "sha256": "a601de7b67264ed22d3794305a03e5eca0e7352ad6e2a71662ee69032789dfc4"
+    },
+    "taylor-algebraic-original-field-audit.json": {
+      "gzip": "data/taylor-algebraic-original-field-audit.json.gz",
+      "sha256": "7c3f66716f8f96e1dd220f4269495774b1a5db1c6d14cba0f0b30fac03f51989"
+    },
+    "taylor-discriminant-audit.json": {
+      "gzip": "data/taylor-discriminant-audit.json.gz",
+      "sha256": "b7d3b7026c655cc3a4bea9133b311ed7b1159e1b4cafae2e7a5fc2f9cbb8676e"
+    },
+    "taylor-discriminant-current.json": {
+      "gzip": "data/taylor-discriminant-current.json.gz",
+      "sha256": "626da09b5b1d93a13f1989cf6f507dd025fccd8998b9d8b202c99e29963b328e"
+    },
+    "taylor-discriminant-independent-audit.json": {
+      "gzip": "data/taylor-discriminant-independent-audit.json.gz",
+      "sha256": "420db462c4ecf784df65e452486767fb5f8bce55116cb3c08ccbb24415c0c6a0"
+    },
+    "taylor-full-residual-independent-audit.json": {
+      "gzip": "data/taylor-full-residual-independent-audit.json.gz",
+      "sha256": "4797cca4ba95dc1628001f0abfe2994da602d82f2513f90089efc24e5342d4d3"
+    },
+    "taylor-full-residual.json": {
+      "gzip": "data/taylor-full-residual.json.gz",
+      "sha256": "4f763720f8f332c0623c01b22d3ce97ba6711f271a773ac8a99135b92323bfb2"
+    },
+    "taylor-independent-relative-operator.json": {
+      "gzip": "data/taylor-independent-relative-operator.json.gz",
+      "sha256": "71743464f35bdbf2c362e27e58bfb1a53755600fffd56cdca7bd2961684732a8"
+    },
+    "taylor-j-independent-relative-operator.json": {
+      "gzip": "data/taylor-j-independent-relative-operator.json.gz",
+      "sha256": "cf800dddbe0f718ee05ae4c7a080f8c1206d224c9fede6a25c69ad9d37ea6719"
+    },
+    "taylor-j-rank-witness-independent-audit.json": {
+      "gzip": "data/taylor-j-rank-witness-independent-audit.json.gz",
+      "sha256": "b1e8ae9ec5ea6b90ebdeca51b14a1371e91bea493fae7508035731f709c8699a"
+    },
+    "taylor-negative-deck-field-audit.json": {
+      "gzip": "data/taylor-negative-deck-field-audit.json.gz",
+      "sha256": "821c52f39980e686e0ce15e104bcb868abc0afd2de82b1bc5232a452e88f30f6"
+    },
+    "taylor-rank-witness-independent-audit.json": {
+      "gzip": "data/taylor-rank-witness-independent-audit.json.gz",
+      "sha256": "1f3b148fa45c8889d55821ae3616afb375f2ad3fdc43ca6458e820daca96cfdc"
+    },
+    "taylor-relative-completeness-audit.json": {
+      "gzip": "data/taylor-relative-completeness-audit.json.gz",
+      "sha256": "23519adbc59c6aafba52ed348264a7d44811a2b5d35b982f053eb5f6ec7e1274"
+    },
+    "taylor-relative-i-rank-witness.json": {
+      "gzip": "data/taylor-relative-i-rank-witness.json.gz",
+      "sha256": "0b3177e681365978ba36bda8d17f407b3bd2d144132a02d178c226983375944d"
+    },
+    "taylor-relative-i-screen-1-1-72.json": {
+      "gzip": "data/taylor-relative-i-screen-1-1-72.json.gz",
+      "sha256": "ee5daafb52c3947c0b8b7032405d1d0b4b32e64a29a9dc5dca0cee1827a5b1dc"
+    },
+    "taylor-relative-j-rank-witness.json": {
+      "gzip": "data/taylor-relative-j-rank-witness.json.gz",
+      "sha256": "af31a8e6987db517a9844fb6cb0778dc32f5ea9786a10c05c80e9af972556be3"
+    },
+    "taylor-relative-j-screen-1-1-61.json": {
+      "gzip": "data/taylor-relative-j-screen-1-1-61.json.gz",
+      "sha256": "e32dfee9bb189aa087cd1398a985d982309fdf468b574f6c1b6128b4353698e5"
+    },
+    "taylor-relative-w-rank-witness.json": {
+      "gzip": "data/taylor-relative-w-rank-witness.json.gz",
+      "sha256": "ca068f0958e1a1689195d40e5a0be2bde2a1df0d8262bb89f58d60daf662b0d9"
+    },
+    "taylor-relative-w-screen-1-1-166.json": {
+      "gzip": "data/taylor-relative-w-screen-1-1-166.json.gz",
+      "sha256": "e700ca76e4dbcc9f9ef87472887b884fa75c4f6098f7c041cd03b88731e13192"
+    },
+    "taylor-residual-denominator-audit.json": {
+      "gzip": "data/taylor-residual-denominator-audit.json.gz",
+      "sha256": "355af722988d8bf082226d3e904c4083a465c43fdd93693938d35c8acbcb3cca"
+    },
+    "taylor-w-independent-relative-operator.json": {
+      "gzip": "data/taylor-w-independent-relative-operator.json.gz",
+      "sha256": "84fca14b761fc676d611827037dce59189d84e1c9f78cb23201528bfc9072d47"
+    },
+    "taylor-w-rank-witness-independent-audit.json": {
+      "gzip": "data/taylor-w-rank-witness-independent-audit.json.gz",
+      "sha256": "d58d78dd979c94b48510e85fc91ebafae8a21b9da346bb37f9fd2ff5cf36734f"
+    },
+    "w-correction-L-removed.json": {
+      "gzip": "data/w-correction-L-removed.json.gz",
+      "sha256": "22df9b1b28ded9205c563813a0ab2d6cd2f058cee87e8a2f51a8dd436b788ff0"
+    },
+    "w-correction.json": {
+      "gzip": "data/w-correction.json.gz",
+      "sha256": "313bd0b2097bd479fb9028027737d08960799a1543918c8f269eec460193660e"
+    }
+  },
+  "generated_large_outputs": "The eight taylor-residual/*.json files are omitted to keep this public packet compact. expand_taylor_residual.py regenerates them exactly; their verified hashes are in taylor-full-residual.json and VERIFICATION.json.",
+  "frozen_source": "fqlx/sextics@f7a73cf3346e1da8fded079f16b9e827f218902b/research/off-paired-2026-10-23"
+}

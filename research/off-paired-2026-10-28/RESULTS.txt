@@ -1,0 +1,291 @@
+OFF-PAIRED RESEARCH HANDOFF — 28 OCTOBER 2026
+
+Status: substantial verified partial progress. No certificate, unrestricted
+nonexistence proof, Lean proof, solve PR, or acceptance. This is a public reproducibility packet; publication details are in the discussion.
+The explicit original-coordinate partial field has NONZERO divergence.
+Prepared with OpenAI Codex assistance for deanodotdotdot. The account owner
+has not personally reviewed or verified the mathematics.
+
+EXACT TARGET AND SCOPE
+Variable order: X0,X1,X2,Y0,Y1,Y2. q=1.
+F = X0^6+X1^6+X2^6+Y0^6+Y1^6+Y2^6
+    +X0^3 X1 Y0 Y1/2 +X1^3 X2 Y1 Y2/2
+    +X0^2 X1 X2 Y0 Y2/3.
+A = X0^3 Y0^3.
+Required: A Dcert^2-Dcert sum(Ncert_l F_l)
+          +F(Dcert div Ncert-Ncert(Dcert)) = F^2 Q,
+with Dcert nonzero homogeneous, complex-coprime to F, and
+deg Ncert_l=deg Dcert+1. Nonzero Q, complex coefficients, arbitrary legal
+denominators and degrees remain allowed. No restriction introduced in a
+computational subproblem is being imposed on this original problem.
+
+MAIN RESULT: AN ACTUAL RESIDUAL WITH ONLY Delta^3 DENOMINATOR
+Use the frozen rank-eight compact basis and its sixteen literal fiber words.
+All indices below are zero-based. Define
+  T=1+w^3,
+  N=9i^2 w^2-16j^2 T,
+  L=256 T^5 N+729 i^6 j^2 w^6,
+  AV=64j^2 w T^2 N, BV=9i^2 L, vp=AV/BV,
+  Aphysical=9i^3 w T/(j^2 N).
+Here N is a base polynomial, unrelated to Ncert. Let d(i,j,v) denote the
+native common connection denominator (v-degree4, 98 terms). Its normalized
+physical pullback is
+  hom_v,4(d;AV,BV)=KD*i^2*Delta,
+  KD=30218041401827740857925632.
+Delta has 5,912 terms and degrees (i,j,w)=(30,24,72).
+
+The actual source, including the physical chain rule, is
+  S=Aphysical*(4I-GammaV+2i Gamma_i+j Gamma_j)e6,
+  Gamma_p,physical=Gamma_p,native+(vp_p/(6vp))*GammaV.
+Gamma_w,native=0. The native source numerator has v-degree at most4 in
+every row. Consequently S has common physical denominator j^2*N*Delta,
+with NO i or L denominator. See actual-source-polynomial.json.
+
+Start with the previously verified joint+w current Pold:
+  Pi=0, Pj=c e7+Vj Z, Pw=d_joint e7+Vw Z,
+  c=-iT/(4wj)+28T^2 j/(45iw^3)-224j(2-w^3)/(405iw^3),
+  d_joint=-448T/(405iw^2),
+  Vj=j(2-w^3)/(2iw^3), Vw=T/(iw^2).
+The complete eight-vector Z is serialized in w-correction.json.
+Its old residual Rold is after-w-physical.json. This run independently
+reconstructed all eight rows directly from the native source and connection
+by exact common-denominator polynomial equalities; see
+actual-source-independent-audit.json.
+
+Write dk=[v^k]d. The new scalar cutoff is
+  K=(d0^2+2d0*d1*v+(d1^2+2d0*d2)*v^2)/d(v)^2, evaluated at v=vp.
+Equivalently K=i^8*L^6*W/Delta^2, where W has 749 terms.
+Take Pi=0, Pj=K*Pold_j, Pw=K*Pold_w.
+The complete current is taylor-discriminant-current.json.
+
+The key exact preservation identity is
+  Delta^2-i^8 L^6 W is divisible by j^6*w^3*T^6*N^3.
+The i^8 and L^6 factors remove the remaining i and L residual poles.
+The Taylor remainder preserves the already served j,w,T,N boundaries.
+An independent pure-Python rational-polynomial audit checks the cutoff,
+homogenization and pole margins; see taylor-discriminant-independent-audit.json.
+
+More strongly, all eight actual residuals were expanded directly from the
+native source, the physical matrices and every derivative of this current.
+Exact polynomial division removes every denominator except Delta^3:
+  R_r=Rnum_r/Delta^3.
+Files: taylor-full-residual.json and taylor-residual/row-0.json ... row-7.json.
+The numerators have 238,586–259,441 terms; maximal coordinate degrees are
+(91,80,219). A second full generic calculation verifies the product identity
+  R=K Rold+(1-K)S-K_j Pold_j-K_w Pold_w
+against every expanded numerator; see taylor-full-residual-independent-audit.json.
+No numerator is divisible by the entire Delta polynomial, as certified by
+eight nonzero exact Q[i] remainders after j=w=1. Thus cancellation of a
+global Delta factor does not reduce this displayed residual to Delta^2.
+This does not assert order3 at every irreducible factor of Delta.
+
+The residual is not zero. A different current might improve its pole order.
+A limited optimality fact explains this cutoff: if K=P/Delta^m with P a
+polynomial, ord_i K>=7 and K(i,j,0)=1, then m>=2. Indeed
+  Delta(i,j,0)=(281474976710656/282429536481)*i^6*j^8.
+Since i does not divide Delta, i^7 divides P; specializing w=0 requires
+6m>=7. The saved cutoff attains m=2. This is only a restriction on the
+vanishing-based scalar-cutoff strategy; see scalar-cutoff-minimum-audit.json.
+
+CORRECTION TO THE OCTOBER 27 i-CURRENT CLAIM
+The earlier i-global-correction.json does cancel its generic negative i jets.
+However, its j tangent lift reintroduces a nonzero j=0 pole. The earlier
+claim that it introduced no j divisor was false. An exact nonzero row0
+residue is recorded in i-original-lift-defect.json; this is a mathematical
+defect, not a timeout or inconclusive computation.
+
+Repair: multiply only its added Pj tangent lift by
+  Delta(0,j,w)/Delta(i,j,w).
+Pi and Pw are unchanged. This preserves the required i-boundary value and
+adds enough j vanishing. The corrected current is
+i-global-correction-corrected.json. An independent native-matrix audit
+checks all eight cleared congruences modulo i^7, without saved producer
+jets or Laurent division. A separate support/fiber audit checks the affine
+L,Delta support and all sixteen literal primitive words.
+Files: i-corrected-independent-audit.json and
+i-corrected-support-and-fiber-audit.json.
+
+The Taylor current is the preferred continuation frontier: it is simpler
+and leaves only Delta in the affine residual. The repaired i-current remains
+useful as an independently verified alternative. The earlier local current is retained as a reproducible input; its no-new-j
+assertion is superseded here.
+
+COMPLETE RATIONAL SINGLE-DIRECTION EXCLUSIONS
+These results concern the fixed compact connection over rational function
+fields. They are not nonexistence results for the original certificate.
+Finite-pole and infinity arguments give complete rational degree bounds,
+followed by nonzero augmented minors modulo 1009. All named rational
+operators were independently reconstructed from native inputs, and the
+minors were independently checked using Python standard-library arithmetic.
+
+For the actual source S itself, with the other two current components zero:
+  direction  complete denominator  degree bound  unknowns  minor  det mod 1009
+  i          i*L                   12            104       105    658
+  j          j*L                    8             72        73    432
+  w          L                     20            168       169    200
+No arbitrary rational current in just one of these directions serves S.
+See bare-source-relative-completeness-audit.json, bare-source-relative-*-screen-*,
+bare-source-relative-*-rank-witness.json, bare-source-*-independent-operator.json,
+and bare-source-*-witness-independent-audit.json.
+The older j degree 20 screen is retained as a superseded experiment; the
+final j witness is bound 8.
+
+For additions to the preferred Taylor current, fixing its other two components:
+  direction  complete denominator  degree bound  unknowns  minor  det mod 1009
+  i          i*L*Delta^2            72            584       585    118
+  j          L*Delta^2              61            496       497    619
+  w          L*Delta^2             166           1336      1337    153
+Thus this current cannot be completed by changing just one base component.
+At least two components must change within this compact formulation.
+See taylor-relative-completeness-audit.json and the corresponding taylor
+screen, rank-witness, independent-operator and independent-audit files.
+
+Why specialization proves a generic exclusion: an augmented minor of size
+unknowns+1 is nonzero after a well-defined rational specialization and
+reduction modulo 1009. Therefore that generic characteristic-zero minor is
+not identically zero. The generic augmented rank exceeds the number of
+unknowns, even if a hypothetical solution's own coefficients had a pole at
+the chosen specialization. The argument does not assume that a solution
+can be specialized there.
+
+The completeness bounds use regular-singular frames, not a guessed degree:
+- i=0: gauge diag(i^h), h=(0,0,2,2,0,0,1,2), residue polynomial
+  x^4(5x-2)(5x+1)(5x+2)(5x+4)/625.
+- N=0 is NOT an ordinary point. Its residue eigenvalues are
+  1/6,1/3,2/3,5/6, each twice; j=0 and T=0 double them. None is an integer.
+- Delta: native normal identities and nilpotence of the residue are checked
+  by exact divisibility, together with squarefreeness in the chosen variable.
+- L: frame diag(L^-s), s=(1,1,0,0,1,1,0,0), residue polynomial
+  (x+1)^6(2x+1)(2x+3)/4.
+- i infinity: h=(0,0,1,2,0,0,1,2), residue polynomial
+  (x-1)^2(x-2)^2(x-3)^4, giving raw primitive growth at most5.
+- w infinity: no shear; eigenvalues4/3,8/3,16/3,20/3, each twice.
+- j infinity: first Tj=I+g E_(5,3),
+  g=vp*(i-j^2/4)*(i-5j^2/4)/(4j), then diag(j^h),
+  h=(4,4,0,0,3,3,1,1). The residue at t=1/j has polynomial
+  (x+2)^4(x+4)^4. See j-infinity-shear.json.
+The pole/infinity proofs allow arbitrary rational coefficients in the
+other two base variables and work over C as well as Q.
+
+The October 27 rational i-only completeness gap is also closed. Its old
+fixed tangent family has complete bound 53, covered by the old bound 60
+witness. For the repaired fixed tangent family the complete bound is83,
+covered by a separate bound 90 witness (729-minor, determinant395 mod 1009).
+These are different families and their witnesses must not be interchanged.
+
+CONCRETE ORIGINAL-COORDINATE PARTIAL FIELD
+The rational expression graph is original-taylor-partial-field-expression.json.
+It retains the full fiber current, source vertical term and physical chain
+rule, rather than only the eight compact coefficients.
+On X0=1 write (X,U,Y,Z,P)=(X1,X2,Y0,Y1,Y2), f=F|X0=1, b=Y^3, and
+  J=2(X^6+U^6-Y^6-P^6)+X^3 U Z P/2,
+  n=(X,U,-Y,0,-P)/(3J), so n(f)=1.
+The chart is
+  q=XY, R=(U/X)^6, k=UP/(XY), w=Z^2, T=1+w^3,
+  i=4kT/(3w), j^2=k^2 T/(1+R),
+  x=Zq/(2T), a=kX^3/j, y=Z^3Y^3j/(8kT^3).
+The native curve satisfies ay=x^3 and
+  [y^2+v(a^2+i x^2+j a x+x+1)]/v=f/T.
+The density is rho=3i^2 w^2 x/(2N Z j).
+
+The expression graph constructs W from the compact coefficients and all
+sixteen literal fiber words. Its chain identities give W(f)=sigma*f,
+where sigma=3w^2*uw/T. Then
+  V=(b+f*sigma)*n-W
+satisfies df(V)=b EXACTLY, and
+  div(V)|f=0=(sum_r basis_r*R_r)/rho.
+All original field components descend under j -> -j and are rational in
+X,U,Y,Z,P. The generic transport audit checks 18 groups and 384 native
+primitive parity entries. Both branches are also checked directly at
+  X=U=Y=Z=1, P=alpha, 6alpha^6+5alpha+33=0.
+Exact arithmetic in this irreducible degree-six number field, with five
+forward derivatives, independently evaluates the actual original field
+and its divergence. The divergence equals the compact residual density
+and is NONZERO; all 238 inverse inputs on each branch are nonzero.
+Files: original-transport-audit.json, taylor-algebraic-original-field-audit.json,
+and taylor-negative-deck-field-audit.json.
+The source primitive denominator is (67108864/2187) times the native
+connection denominator. source-fiber-normalization-audit.json checks all
+sixteen words with these distinct normalizations. The expression graph was
+corrected to state this explicitly; the executable point audit already
+used the correct source denominator.
+
+Denominator admissibility is proved for this partial field. The perturbation
+gradient coefficient sums are (13/6,7/3,5/6,5/6,1,5/6), all less than6.
+At a nonzero complex vector choose a coordinate of maximal modulus M.
+Its Fermat derivative has modulus6M^5 and cannot be canceled by the
+perturbation derivative. Hence the projective sextic is smooth over C.
+A homogeneous factorization would give intersecting projective factors
+and therefore a singular point; F is absolutely irreducible.
+The rational field is defined at the displayed f=0 point on both deck
+branches. A rational common denominator can be chosen nonzero there.
+Homogenizing V0=0 and Vl=X0*Vaff,l(X1/X0,...,Y2/X0) gives a degree-one
+field and a homogeneous denominator Dcert complex-coprime to F, with
+homogeneous numerators of degree deg(Dcert)+1. No expanded common Dcert
+and six polynomial numerators are exported. See partial-field-admissibility-audit.json.
+Admissibility does not turn the nonzero-divergence partial field into a certificate.
+For a clearing chosen nonzero at the checked point, the original certificate
+error is F*Dcert^2*div(V), whose quotient by F is nonzero there. More generally,
+no denominator coprime to F can remove a nonzero rational divergence on F.
+
+ALTERNATIVE DISCRIMINANT CURRENTS AND UNFINISHED DIVISORS
+The physical normal inverse was reduced by removing a common leading-v
+factor. A source-directed scalar current and a reduced v-normal scalar
+were constructed with exact identities modulo the native d. Their generic
+Delta residues are served, but they introduce other divisors.
+Files: physical-discriminant-inverse-reduced.json,
+reduced-actual-normal-current.json, reduced-v-normal-scalar.json, and
+reduced-inverse-physical-inventory.json.
+
+An explicit operator applied to the ACTUAL eight expanded Rnum rows lowers
+their generic Delta^3 pole to Delta^2. Let
+  rho_i=vp_i/vp, H=6 Gi_num+rho_i GV_num,
+  a*(d_i+rho_i*v*d_v)+bezout*d=b,
+  Jfac=BV^4/(KD*i^2), so d(vp)=Delta/Jfac.
+With all expressions pulled back physically, add
+  Pi=U/Delta^2,
+  U=-[a/(2b Jfac) I+a^2/(24b^2 Jfac) H]*Rnum.
+The exact inverse identity and 64 H^2-divisible-by-d identities prove the
+leading cancellation in all eight rows; the derivative of U is retained.
+See actual-delta-lowering-current.json, which hashes the actual source rows.
+This introduces i,j,N,L,j-1,j+1 and the listed 13-,49-, and physical 4,344-term
+critical factors. They remain untreated. Thus it is not a global improvement
+over the Delta-only frontier and not a certificate.
+
+An Euler-current probe reduces the source to one nonzero compact row but
+introduces the critical divisor of vp_w. A proposed single-Delta current
+based on boundary polar parts fails N preservation in all eight rows.
+These are recorded negative experiments, not full-problem obstructions.
+Stopped expensive simplifications were replaced by successful exact routes;
+no timeout is used as mathematical evidence.
+
+RECOMMENDED CONTINUATION
+Start from taylor-discriminant-current.json and the actual expanded residual.
+The next mathematical task is a coupled discriminant reduction that serves
+every introduced divisor, including base infinity and intersections, or a
+different coupled rational construction. A single-direction completion is
+now ruled out with complete rational bounds. The existing normal lowering
+operator is a concrete starting point, but its new divisors are obligations.
+Keep the original-coordinate expression and literal source/fiber terms bound
+to any new compact current. A full solve still requires the exact original
+cleared F^2 identity, an admissible homogeneous denominator and degree check,
+and appropriate independent verification. No solve claim is justified here.
+
+PROVENANCE, CREDIT AND PUBLIC STATUS
+Frozen input: fqlx/sextics commit
+f7a73cf3346e1da8fded079f16b9e827f218902b, research/off-paired-2026-10-23.
+The live discussion was checked once during this run: the six existing
+comments/replies were unchanged, no answer was accepted, and no matching
+open solve PR appeared. discussion-delta.json does not represent new math;
+its root-body difference reflects a field omitted from the older snapshot.
+
+fqlx: frozen full compact connection, original source interface, earlier
+pole currents and source-geometric work. benediamond: contact obstruction
+and endpoint connection in the preceding research program. deanodotdotdot:
+earlier coordinate/character restrictions and authorization of this work.
+New computations and prose were produced with OpenAI Codex; the user has
+not personally verified them.
+
+References:
+https://github.com/hodge-computer/sextics/discussions/57
+https://github.com/fqlx/sextics/tree/f7a73cf3346e1da8fded079f16b9e827f218902b/research/off-paired-2026-10-23

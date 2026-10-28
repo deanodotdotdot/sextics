@@ -1,0 +1,257 @@
+{
+  "status": "PASS",
+  "steps": [
+    {
+      "name": "native-full-connection",
+      "script": "packet/audit/theta/verify_full_base_connection.py",
+      "returncode": 0,
+      "seconds": 0.6244759559631348
+    },
+    {
+      "name": "actual-source",
+      "script": "code/audit_actual_source.py",
+      "returncode": 0,
+      "seconds": 2.19270396232605
+    },
+    {
+      "name": "corrected-i-congruence",
+      "script": "code/audit_i_congruence.py",
+      "returncode": 0,
+      "seconds": 171.21435689926147
+    },
+    {
+      "name": "corrected-support-fiber",
+      "script": "code/audit_support_and_fiber.py",
+      "returncode": 0,
+      "seconds": 0.15971112251281738
+    },
+    {
+      "name": "independent-cutoff",
+      "script": "code/independent_taylor_cutoff.py",
+      "returncode": 0,
+      "seconds": 0.4431612491607666
+    },
+    {
+      "name": "source-fiber-normalization",
+      "script": "code/audit_source_fiber_normalization.py",
+      "returncode": 0,
+      "seconds": 0.07779502868652344
+    },
+    {
+      "name": "original-chart",
+      "script": "code/verify_original_chart.py",
+      "returncode": 0,
+      "seconds": 0.25996899604797363
+    },
+    {
+      "name": "original-density",
+      "script": "code/original_density_binding.py",
+      "returncode": 0,
+      "seconds": 0.09962272644042969
+    },
+    {
+      "name": "generic-original-transport",
+      "script": "code/audit_original_transport.py",
+      "returncode": 0,
+      "seconds": 0.4497201442718506
+    },
+    {
+      "name": "preferred-original-expression",
+      "script": "code/build_taylor_original_expression.py",
+      "returncode": 0,
+      "seconds": 0.08650088310241699
+    },
+    {
+      "name": "original-field-positive",
+      "script": "code/algebraic_taylor_original_field_check.py",
+      "returncode": 0,
+      "seconds": 1.9426090717315674
+    },
+    {
+      "name": "original-field-negative",
+      "script": "code/algebraic_taylor_original_field_check.py",
+      "returncode": 0,
+      "seconds": 1.940148115158081
+    },
+    {
+      "name": "partial-field-admissibility",
+      "script": "code/audit_partial_admissibility.py",
+      "returncode": 0,
+      "seconds": 0.0903778076171875
+    },
+    {
+      "name": "restricted-cutoff-minimum",
+      "script": "code/audit_scalar_cutoff_minimum.py",
+      "returncode": 0,
+      "seconds": 0.16734910011291504
+    },
+    {
+      "name": "direct-full-residual",
+      "script": "code/expand_taylor_residual.py",
+      "returncode": 0,
+      "seconds": 388.5111439228058
+    },
+    {
+      "name": "independent-full-residual",
+      "script": "code/verify_taylor_full_residual.py",
+      "returncode": 0,
+      "seconds": 10.197211980819702
+    },
+    {
+      "name": "residual-denominator",
+      "script": "code/audit_residual_exact_poles.py",
+      "returncode": 0,
+      "seconds": 16.629604816436768
+    },
+    {
+      "name": "native-relative-bounds",
+      "script": "code/audit_relative_i_completeness.py",
+      "returncode": 0,
+      "seconds": 5.954292058944702
+    },
+    {
+      "name": "w-infinity",
+      "script": "code/other_direction_infinity.py",
+      "returncode": 0,
+      "seconds": 2.2263050079345703
+    },
+    {
+      "name": "j-infinity",
+      "script": "code/j_infinity_shear_polynomial.py",
+      "returncode": 0,
+      "seconds": 49.310234785079956
+    },
+    {
+      "name": "taylor-i-w-bounds",
+      "script": "code/audit_taylor_relative_completeness.py",
+      "returncode": 0,
+      "seconds": 3.9411580562591553
+    },
+    {
+      "name": "taylor-j-bounds",
+      "script": "code/audit_j_relative_completeness.py",
+      "returncode": 0,
+      "seconds": 0.08061099052429199
+    },
+    {
+      "name": "bare-source-bounds",
+      "script": "code/audit_bare_source_relative_bounds.py",
+      "returncode": 0,
+      "seconds": 0.11712288856506348
+    },
+    {
+      "name": "bare-i-operator",
+      "script": "code/independent_bare_source_i_operator.py",
+      "returncode": 0,
+      "seconds": 1.2911291122436523
+    },
+    {
+      "name": "bare-i-minor",
+      "script": "code/verify_bare_source_i_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 0.12188601493835449
+    },
+    {
+      "name": "bare-j-operator",
+      "script": "code/independent_bare_source_j_operator.py",
+      "returncode": 0,
+      "seconds": 0.7365050315856934
+    },
+    {
+      "name": "bare-j-minor",
+      "script": "code/verify_bare_source_j_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 0.06070303916931152
+    },
+    {
+      "name": "bare-w-operator",
+      "script": "code/independent_bare_source_w_operator.py",
+      "returncode": 0,
+      "seconds": 7.3018479347229
+    },
+    {
+      "name": "bare-w-minor",
+      "script": "code/verify_bare_source_w_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 0.5177319049835205
+    },
+    {
+      "name": "taylor-i-operator",
+      "script": "code/independent_taylor_relative_operator.py",
+      "returncode": 0,
+      "seconds": 18.97696828842163
+    },
+    {
+      "name": "taylor-i-minor",
+      "script": "code/verify_taylor_rank_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 3.5777170658111572
+    },
+    {
+      "name": "taylor-j-operator",
+      "script": "code/independent_taylor_j_relative_operator.py",
+      "returncode": 0,
+      "seconds": 6.886459827423096
+    },
+    {
+      "name": "taylor-j-minor",
+      "script": "code/verify_taylor_j_rank_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 0.84676194190979
+    },
+    {
+      "name": "taylor-w-operator",
+      "script": "code/independent_taylor_w_relative_operator.py",
+      "returncode": 0,
+      "seconds": 158.99747896194458
+    },
+    {
+      "name": "taylor-w-minor",
+      "script": "code/verify_taylor_w_rank_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 36.79249405860901
+    },
+    {
+      "name": "corrected-i-operator",
+      "script": "code/independent_corrected_relative_operator.py",
+      "returncode": 0,
+      "seconds": 5.275790214538574
+    },
+    {
+      "name": "corrected-i-minor",
+      "script": "code/verify_corrected_rank_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 6.043756008148193
+    },
+    {
+      "name": "prior-i-operator",
+      "script": "code/independent_relative_operator.py",
+      "returncode": 0,
+      "seconds": 3.0372328758239746
+    },
+    {
+      "name": "prior-i-minor",
+      "script": "code/verify_rank_witness_stdlib.py",
+      "returncode": 0,
+      "seconds": 2.0089762210845947
+    },
+    {
+      "name": "actual-delta-lowering",
+      "script": "code/build_actual_delta_lowering.py",
+      "returncode": 0,
+      "seconds": 0.33103108406066895
+    }
+  ],
+  "residual_numerators_reproduced_byte_for_byte": true,
+  "residual_numerator_hashes_verified": {
+    "taylor-residual/row-0.json": "cf99969f37cea3d5a0247a57e459374968c526ecc461ff4c6994cfd22614f7d1",
+    "taylor-residual/row-1.json": "4cd93ddcb806e890bcb08fac521c716bffabdace4ef4650dc0a6d570ad854c6e",
+    "taylor-residual/row-2.json": "91281b48085f6459bf3055efe280f9a4f7149a5bd564fd78ddc7cb49a278ffc2",
+    "taylor-residual/row-3.json": "7d5cbfc9fef66696d864e25bf90d92875ce5a2ec2ef8b68af18412eb88332d84",
+    "taylor-residual/row-4.json": "420ef1290bbfcc5886a8746afbc1d8b86f48e1b08e444e42dc9da28b404b2c7d",
+    "taylor-residual/row-5.json": "85b7bfd9e77227dc02dabe6d2ffde98858a6ed08c4cb92234ae21f73d36c91ae",
+    "taylor-residual/row-6.json": "ccd7cb2ef5c8fa7c52f832ab5925b3bb0c31e9bd91ef1f7f7a934536c05ccb96",
+    "taylor-residual/row-7.json": "ecd8609a2bd6e64732eb21bfa1938763e384431c0e9af6a7a99b7471cfbabeb9"
+  },
+  "scope": "Material checks replayed from the self-contained release copy. This confirms partial research; it is not a certificate or unrestricted nonexistence proof."
+}
